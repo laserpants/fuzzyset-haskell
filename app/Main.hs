@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import Data.FuzzySet
 
 main :: IO ()
-main = someFunc
+main = return ()

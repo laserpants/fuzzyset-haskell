@@ -1,5 +1,5 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Data.FuzzySet.Utils
+module Data.FuzzySet.Util
   ( normalized
   , substr
   , enclosedIn
