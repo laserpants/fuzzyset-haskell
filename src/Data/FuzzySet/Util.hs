@@ -11,6 +11,7 @@ import Prelude.Unicode
 import qualified Data.Text             as Text
 
 -- | Normalize the input by
+--
 --     * removing non-word characters, except for spaces and commas; and
 --     * converting alphabetic characters to lowercase.
 normalized ∷ Text → Text
@@ -24,7 +25,7 @@ normalized = Text.filter word ∘ Text.toLower
 
 -- | Return /n/ characters starting from offset /m/ in the input string.
 substr ∷ Int  -- ^ Length of the substring
-       → Int  -- ^ Character offset
+       → Int  -- ^ A character offset /m/
        → Text -- ^ The input string
        → Text -- ^ A substring of length /n/
 {-# INLINE substr #-}
@@ -34,4 +35,3 @@ substr n m = Text.take n ∘ Text.drop m
 enclosedIn ∷ Text → Char → Text
 {-# INLINE enclosedIn #-}
 enclosedIn str ch = ch `cons` str `snoc` ch
-

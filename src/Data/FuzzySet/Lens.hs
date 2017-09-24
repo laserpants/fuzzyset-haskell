@@ -2,7 +2,7 @@
 module Data.FuzzySet.Lens where
 
 import Control.Lens
-import Lib
+import Data.FuzzySet
 
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Vector         as Vector
