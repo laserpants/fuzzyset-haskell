@@ -36,7 +36,7 @@ gramsCount input n = it message $ do
             ⊕ show expectedLen
             ⊕ ", given the input \""
             ⊕ unpack input ⊕ "\" and n = " ⊕ show n
-    expectedLen = s − n + 3
+    expectedLen = s - n + 3
     s = Text.length input
 
 checkMapKey ∷ HashMap Text Int → Text → Int → SpecWith ()
