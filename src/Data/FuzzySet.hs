@@ -18,7 +18,10 @@ module Data.FuzzySet
   , grams
   ) where
 
+import Control.Lens
 import Data.Foldable.Unicode
+import Data.FuzzySet.Lens
+import Data.FuzzySet.Types
 import Data.FuzzySet.Util
 import Data.HashMap.Strict             ( HashMap, alter, empty, insert, member, unionWith )
 import Data.Maybe                      ( fromMaybe )
@@ -29,30 +32,6 @@ import Prelude.Unicode                 hiding ( (∈) )
 import qualified Data.Text             as Text
 import qualified Data.HashMap.Strict   as HashMap
 import qualified Data.Vector           as Vector
-
-data FuzzySetItem = FuzzySetItem
-  { vectorMagnitude ∷ !Double
-  , normalizedEntry ∷ !Text
-  } deriving (Eq, Show)
-
-data GramInfo = GramInfo
-  { gramIndex ∷ !Int
-  , gramCount ∷ !Int
-  } deriving (Eq, Show)
-
-type Size      = Int
-type ExactSet  = HashMap Text Text
-type MatchDict = HashMap Text [GramInfo]
-type ItemMap   = HashMap Size (Vector FuzzySetItem)
-
-data FuzzySet = FuzzySet
-  { gramSizeLower  ∷ !Size
-  , gramSizeUpper  ∷ !Size
-  , useLevenshtein ∷ !Bool
-  , exactSet       ∷ !ExactSet
-  , matchDict      ∷ !MatchDict
-  , items          ∷ !ItemMap
-  } deriving (Eq, Show)
 
 -- | A 'FuzzySet' with the following contents
 --
@@ -97,6 +76,7 @@ grams val size
   where
     str = normalized val `enclosedIn` '-'
 
+-- | @TODO
 gramMap ∷ Text
         -- ^ An input string
         → Size
@@ -118,8 +98,10 @@ add set = fst ∘ addToSet set
 addToSet ∷ FuzzySet → Text → (FuzzySet, Bool)
 addToSet FuzzySet{..} val
     | key ∈ exactSet = (FuzzySet{..}, False)
-    | otherwise      = (set' { exactSet = insert key val exactSet }, True)
+    -- | otherwise      = (set' { exactSet = insert key val exactSet }, True)
+    | otherwise      = undefined -- (over _exactSet set' undefined, True)
   where
+    key = Text.toLower val
 
     set' ∷ FuzzySet
     set' = foldr addSize FuzzySet{..} [gramSizeLower .. gramSizeUpper]
@@ -146,7 +128,6 @@ addToSet FuzzySet{..} val
         grams = gramMap key size
         item  = FuzzySetItem (sqrtOfSquares (HashMap.elems grams)) key
 
-    key = Text.toLower val
 
 -- | Return the number of entries in the set.
 size ∷ FuzzySet → Int
