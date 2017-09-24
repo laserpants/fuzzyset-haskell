@@ -111,7 +111,7 @@ addToSet FuzzySet{..} val
        in (foldr ξ FuzzySet{..} sizes &_exactSet %~ insert key val, True)
   where
     ξ size fs =
-      let dict' = flip (:) [] . GramInfo index <$> gramMap (normalized val) size
+      let dict' = flip (:) [] ∘ GramInfo index <$> gramMap (normalized val) size
           item  = FuzzySetItem (gramMap key size & elems & sqrtOfSquares) key
           index = fs ^._items ^? ix size ^._Just & Vector.length
        in over _matchDict (\dict → unionWith (⧺) dict dict')
