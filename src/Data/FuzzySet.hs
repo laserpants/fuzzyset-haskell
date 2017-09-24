@@ -118,7 +118,7 @@ add set = fst ∘ addToSet set
 addToSet ∷ FuzzySet → Text → (FuzzySet, Bool)
 addToSet FuzzySet{..} val
     | key ∈ exactSet = (FuzzySet{..}, False)
-    | otherwise = (set' { exactSet = insert key val exactSet }, True)
+    | otherwise      = (set' { exactSet = insert key val exactSet }, True)
   where
 
     set' ∷ FuzzySet
@@ -144,9 +144,7 @@ addToSet FuzzySet{..} val
         f (Just items) = Just (Vector.snoc items item)
 
         grams = gramMap key size
-        --a = HashMap.foldrWithKey xxx set grams
         item  = FuzzySetItem (sqrtOfSquares (HashMap.elems grams)) key
-        info  = GramInfo 0 0 -- index and count
 
     key = Text.toLower val
 
