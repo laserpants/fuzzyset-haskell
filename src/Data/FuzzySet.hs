@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
 module Data.FuzzySet
   ( FuzzySetItem(..)
   , FuzzySet(..)
@@ -21,7 +19,6 @@ module Data.FuzzySet
   ) where
 
 import Control.Lens
-import Control.Lens.Cons
 import Data.Foldable.Unicode
 import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
