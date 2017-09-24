@@ -183,8 +183,8 @@ main = hspec $ do
       let grams = gramMap "buffalo buffalo buffalo buffalo buffalo buffalo" 7
        in checkMapKey grams "buffalo" 6
 
-    describe "add defaultSet \"aFl1pP!.,nG FL0^ppy+\"" $
-      let (set, changed) = add defaultSet "aFl1pP!.,nG FL0^ppy+"
+    describe "addToSet defaultSet \"aFl1pP!.,nG FL0^ppy+\"" $
+      let (set, changed) = addToSet defaultSet "aFl1pP!.,nG FL0^ppy+"
        in do
         it "should return changed status True" $ shouldBeTrue changed
         checkExactSet set [("afl1pp!.,ng fl0^ppy+", "aFl1pP!.,nG FL0^ppy+")]
@@ -197,8 +197,8 @@ main = hspec $ do
         checkMatchDictEntry set "g " [GramInfo 0 1]
         checkMatchDictEntry set "xx" []
 
-    describe "add defaultSet \"Trent\"" $
-      let (set, changed) = add defaultSet "Trent"
+    describe "addToSet defaultSet \"Trent\"" $
+      let (set, changed) = addToSet defaultSet "Trent"
        in do
         it "should return changed status True" $ shouldBeTrue changed
         checkExactSet set [("trent", "Trent")]
@@ -206,8 +206,8 @@ main = hspec $ do
         checkMagnitude set 3 0 2.23606797749979
         checkMatchDictEntry set "en" [GramInfo 0 1]
 
-    describe "defaultSet `add_` \"Trent\" `add_` \"tent\"" $
-      let set = defaultSet `add_` "Trent" `add_` "tent"
+    describe "defaultSet `add` \"Trent\" `add` \"tent\"" $
+      let set = defaultSet `add` "Trent" `add` "tent"
        in do
         checkExactSet set [("trent", "Trent"), ("tent", "tent")]
         checkMagnitude set 2 0 2.449489742783178
@@ -219,8 +219,8 @@ main = hspec $ do
         checkMatchDictEntry set "ten" [GramInfo 1 1]
         checkMatchDictEntry set "-t"  [GramInfo 0 1, GramInfo 1 1]
 
-    describe "defaultSet `add_` \"Trent\" `add_` \"tent\" `add_` \"restaurant\"" $
-      let set = defaultSet `add_` "Trent" `add_` "tent" `add_` "restaurant"
+    describe "defaultSet `add` \"Trent\" `add` \"tent\" `add` \"restaurant\"" $
+      let set = defaultSet `add` "Trent" `add` "tent" `add` "restaurant"
        in do
         checkExactSet set
           [ ("trent"      , "Trent")
@@ -255,8 +255,8 @@ main = hspec $ do
         checkMatchDictEntry set "te"  [GramInfo 1 1]
         checkMatchDictEntry set "nt"  [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1]
 
-    describe "defaultSet `add_` \"Trent\" `add_` \"tent\" `add_` \"restaurant\" `add_` \"xRftAntnt,!tnRant\"" $
-      let set = defaultSet `add_` "Trent" `add_` "tent" `add_` "restaurant" `add_` "xRftAntnt,!tnRant"
+    describe "defaultSet `add` \"Trent\" `add` \"tent\" `add` \"restaurant\" `add` \"xRftAntnt,!tnRant\"" $
+      let set = defaultSet `add` "Trent" `add` "tent" `add` "restaurant" `add` "xRftAntnt,!tnRant"
        in do
         checkExactSet set
           [ ("trent"             , "Trent")
@@ -324,12 +324,12 @@ main = hspec $ do
         checkMatchDictEntry set "au"  [GramInfo 2 1]
         checkMatchDictEntry set "-te" [GramInfo 1 1]
 
-    describe "FuzzySet 3 4 True mempty mempty mempty `add_` ..." $
+    describe "FuzzySet 3 4 True mempty mempty mempty `add` ..." $
       let set = FuzzySet 3 4 True mempty mempty mempty
-                            `add_` "Trent"
-                            `add_` "pants"
-                            `add_` "restaurant"
-                            `add_` "XrF,!TNrATaNTNTNT"
+                            `add` "Trent"
+                            `add` "pants"
+                            `add` "restaurant"
+                            `add` "XrF,!TNrATaNTNTNT"
        in do
         checkExactSet set
           [ ("trent"             , "Trent")
@@ -367,13 +367,13 @@ main = hspec $ do
         checkMatchDictEntry set "est"  [GramInfo 2 1]
         checkMatchDictEntry set "-tr"  [GramInfo 0 1]
 
-    describe "FuzzySet 2 5 True mempty mempty mempty `add_` ..." $
+    describe "FuzzySet 2 5 True mempty mempty mempty `add` ..." $
       let set = FuzzySet 2 5 True mempty mempty mempty
-                            `add_` "Trent"
-                            `add_` "restaurant"
-                            `add_` "aunt"
-                            `add_` "Smarty Pants"
-                            `add_` "XrF,!TNrATaNTNTNT"
+                            `add` "Trent"
+                            `add` "restaurant"
+                            `add` "aunt"
+                            `add` "Smarty Pants"
+                            `add` "XrF,!TNrATaNTNTNT"
        in do
         checkExactSet set
           [ ("trent"             , "Trent")

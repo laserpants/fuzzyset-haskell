@@ -1,7 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
-module Data.FuzzySet where
+module Data.FuzzySet
+  ( FuzzySetItem
+  , FuzzySet
+  , defaultSet
+  , ε
+  , get
+  , add
+  , addToSet
+  , len
+  , isEmpty
+  , values
+  , grams
+  ) where
 
 import Data.Foldable.Unicode
 import Data.FuzzySet.Util
@@ -61,12 +72,13 @@ defaultSet = FuzzySet 2 3 True ε ε ε
 --   > "-de", "des", "est", "str", "tro", "roi", "oid", "ido", "do ", "o c", " co", "cor", "orp", "rp-"
 --
 --   Given a normalized string of length /s/, we take all substrings of length
---   /n/, letting the offset range from @0@ to @s + 2 − n@. The number of
---   /n/-grams for a normalized string of length /s/ is therefore
---   @s + 2 − n + 1 = s − n + 3@, where @0 < n < s − 2@.
+--   /n/, letting the offset range from \(0 \text{ to } s + 2 − n\). The number
+--   of /n/-grams for a normalized string of length /s/ is therefore
+--   \(s + 2 − n + 1 = s − n + 3\), where \(0 < n < s − 2\).
 grams ∷ Text   -- ^ An input string
       → Size   -- ^ The variable /n/, which must be /> 1/
-      → [Text] -- ^ A /k/-length list of grams of size /n/, with @k = s − n + 3@
+      → [Text] -- ^ A /k/-length list of grams of size /n/,
+               --   with \(k = s − n + 3\)
 grams val size
     | size < 2  = error "gram size must be >= 2"
     | otherwise = ($ str) ∘ substr size <$> [0 .. Text.length str − size]
@@ -88,18 +100,18 @@ gramMap val size = foldr (alter ζ) ε (grams val size)
 get ∷ FuzzySet → Text → Int
 get = undefined
 
-add ∷ FuzzySet → Text → (FuzzySet, Bool)
-add set val
-    | Text.toLower val ∈ exactSet set = (set, False)
-    | otherwise = (add_ set val, True)
+add ∷ FuzzySet → Text → FuzzySet
+add set = fst ∘ addToSet set
 
-add_ ∷ FuzzySet → Text → FuzzySet
-add_ FuzzySet{..} val = undefined
+addToSet ∷ FuzzySet → Text → (FuzzySet, Bool)
+addToSet set val
+    | key ∈ exactSet set = (set, False)
+    | otherwise = undefined
   where
     key = Text.toLower val
 
 len ∷ FuzzySet → Int
-len = size . exactSet
+len = size ∘ exactSet
 
 isEmpty ∷ FuzzySet → Bool
 isEmpty = undefined
