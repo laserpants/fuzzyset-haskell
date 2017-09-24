@@ -98,8 +98,8 @@ add set = fst ∘ addToSet set
 addToSet ∷ FuzzySet → Text → (FuzzySet, Bool)
 addToSet FuzzySet{..} val
     | key ∈ exactSet = (FuzzySet{..}, False)
-    -- | otherwise      = (set' { exactSet = insert key val exactSet }, True)
-    | otherwise      = undefined -- (over _exactSet set' undefined, True)
+    | otherwise      = (over _exactSet (insert key val) set', True)
+    -- | otherwise      = (over _exactSet (insert key val) set', True)
   where
     key = Text.toLower val
 
