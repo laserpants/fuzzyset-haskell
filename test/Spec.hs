@@ -423,3 +423,14 @@ main = hspec $ do
         checkMatchDictEntry set "rty"   [GramInfo 3 1]
         checkMatchDictEntry set "tnra"  [GramInfo 4 1]
         checkMatchDictEntry set "nt"    [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 1, GramInfo 4 3]
+
+    describe "values (defaultSet `add` ...)" $ do
+      let set = defaultSet `add` "Trent" `add` "restaurant"
+                           `add` "aunt"  `add` "Smarty Pants"
+                           `add` "XrF,!TNrATaNTNTNT"
+      it "should contain the added elements" $ do
+        values set `shouldContain` ["Trent"]
+        values set `shouldContain` ["restaurant"]
+        values set `shouldContain` ["aunt"]
+        values set `shouldContain` ["Smarty Pants"] 
+        values set `shouldContain` ["XrF,!TNrATaNTNTNT"]
