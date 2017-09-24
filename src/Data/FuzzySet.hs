@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Data.FuzzySet
   ( FuzzySetItem(..)
   , FuzzySet(..)
@@ -19,14 +21,15 @@ module Data.FuzzySet
   ) where
 
 import Control.Lens
+import Control.Lens.Cons
 import Data.Foldable.Unicode
 import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
 import Data.FuzzySet.Util
-import Data.HashMap.Strict             ( HashMap, alter, empty, insert, member, unionWith )
+import Data.HashMap.Strict             ( HashMap, alter, empty, insert, member, elems, unionWith )
 import Data.Maybe                      ( fromMaybe )
-import Data.Text                       ( Text, cons, snoc )
-import Data.Vector                     ( Vector )
+import Data.Text                       ( Text )
+import Data.Vector                     ( Vector, singleton )
 import Prelude.Unicode                 hiding ( (∈) )
 
 import qualified Data.Text             as Text
@@ -64,7 +67,7 @@ defaultSet = FuzzySet 2 3 True ε ε ε
 --
 --   Given a normalized string of length /s/, we take all substrings of length
 --   /n/, letting the offset range from \(0 \text{ to } s + 2 − n\). The number
---   of /n/-grams for a normalized string of length /s/ is therefore
+--   of /n/-grams for a normalized string of length /s/ is thus
 --   \(s + 2 − n + 1 = s − n + 3\), where \(0 < n < s − 2\).
 grams ∷ Text   -- ^ An input string
       → Size   -- ^ The variable /n/, which must be at least /2/
@@ -85,49 +88,36 @@ gramMap ∷ Text
         -- ^ A mapping from /n/-gram keys to the number of occurrences of the
         --   key in the list returned by grams (i.e., the list of all /n/-length
         --   substrings of the input enclosed in hyphens).
-gramMap val size = foldr (alter ζ) ε (grams val size)
+gramMap val size = foldr ζ ε (grams val size)
   where
-    ζ = pure ∘ succ ∘ fromMaybe 0
+    ζ = alter (pure ∘ succ ∘ fromMaybe 0)
 
+-- | @TODO
 get ∷ FuzzySet → Text → Int
 get = undefined
 
+-- | Add an entry to the set. If a key identical to the provided key already
+--   exists in the set; do nothing.
 add ∷ FuzzySet → Text → FuzzySet
 add set = fst ∘ addToSet set
 
+-- | Add an entry to the set and return a pair with the new set, and a boolean
+--   value to indicate whether a value was inserted.
 addToSet ∷ FuzzySet → Text → (FuzzySet, Bool)
 addToSet FuzzySet{..} val
     | key ∈ exactSet = (FuzzySet{..}, False)
-    | otherwise      = (over _exactSet (insert key val) set', True)
-    -- | otherwise      = (over _exactSet (insert key val) set', True)
+    | otherwise =
+      let sizes = [gramSizeLower .. gramSizeUpper]
+       in (foldr ξ FuzzySet{..} sizes &_exactSet %~ insert key val, True)
   where
+    ξ size fs =
+      let dict' = flip (:) [] . GramInfo index <$> gramMap (normalized val) size
+          item  = FuzzySetItem (gramMap key size & elems & sqrtOfSquares) key
+          index = fs ^._items ^? ix size ^._Just & Vector.length
+       in over _matchDict (\dict → unionWith (⧺) dict dict')
+        $ over (_items.at size) (Just ∘ (`Vector.snoc` item)
+                                      ∘ fromMaybe Vector.empty) fs
     key = Text.toLower val
-
-    set' ∷ FuzzySet
-    set' = foldr addSize FuzzySet{..} [gramSizeLower .. gramSizeUpper]
-
-    -- run once for each gram size in the list (e.g. 2..3)
-    addSize ∷ Size → FuzzySet → FuzzySet
-    addSize size set@FuzzySet{..} =
-      set{ items     = alter f size items
-         , matchDict = unionWith xxx matchDict (HashMap.map xx $ gramMap (normalized val) size) }
-      where
-
-        xxx ∷ [GramInfo] → [GramInfo] → [GramInfo]
-        xxx = (⧺)
-
-        xx ∷ Int → [GramInfo]
-        xx count = [GramInfo ix count]
-          where
-            ix = Vector.length $ HashMap.lookupDefault Vector.empty size items
-
-        f ∷ Maybe (Vector FuzzySetItem) → Maybe (Vector FuzzySetItem)
-        f Nothing      = Just (Vector.singleton item)
-        f (Just items) = Just (Vector.snoc items item)
-
-        grams = gramMap key size
-        item  = FuzzySetItem (sqrtOfSquares (HashMap.elems grams)) key
-
 
 -- | Return the number of entries in the set.
 size ∷ FuzzySet → Int
