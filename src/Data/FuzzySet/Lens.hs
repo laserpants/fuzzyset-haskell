@@ -20,4 +20,3 @@ makeLensesFor
   [ ("vectorMagnitude" , "_vectorMagnitude")
   , ("normalizedEntry" , "_normalizedEntry")
   ] ''FuzzySetItem
-

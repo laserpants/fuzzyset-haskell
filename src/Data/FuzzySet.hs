@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
 module Data.FuzzySet where
 
+import Data.Foldable.Unicode
 import Data.FuzzySet.Util
 import Data.HashMap.Strict             ( HashMap, alter, empty, insert, member, unionWith )
 import Data.Maybe                      ( fromMaybe )
@@ -82,3 +84,25 @@ gramMap ∷ Text
 gramMap val size = foldr (alter ζ) ε (grams val size)
   where
     ζ = pure ∘ succ ∘ fromMaybe 0
+
+get ∷ FuzzySet → Text → Int
+get = undefined
+
+add ∷ FuzzySet → Text → (FuzzySet, Bool)
+add set val
+    | Text.toLower val ∈ exactSet set = (set, False)
+    | otherwise = (add_ set val, True)
+
+add_ ∷ FuzzySet → Text → FuzzySet
+add_ FuzzySet{..} val = undefined
+  where
+    key = Text.toLower val
+
+length ∷ FuzzySet → Int
+length = undefined
+
+isEmpty ∷ FuzzySet → Bool
+isEmpty = undefined
+
+values ∷ FuzzySet → [Text]
+values = undefined

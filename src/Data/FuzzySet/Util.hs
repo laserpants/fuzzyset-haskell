@@ -3,6 +3,7 @@ module Data.FuzzySet.Util
   ( normalized
   , substr
   , enclosedIn
+  , sqrtOfSquares
   ) where
 
 import Data.Char                       ( isAlphaNum, isSpace )
@@ -35,3 +36,6 @@ substr n m = Text.take n ∘ Text.drop m
 enclosedIn ∷ Text → Char → Text
 {-# INLINE enclosedIn #-}
 enclosedIn str ch = ch `cons` str `snoc` ch
+
+sqrtOfSquares ∷ (Integral a, Floating b) ⇒ [a] → b
+sqrtOfSquares = sqrt ∘ fromIntegral ∘ sum ∘ fmap (^2)
