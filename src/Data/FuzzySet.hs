@@ -5,7 +5,7 @@ module Data.FuzzySet where
 
 import Data.Foldable.Unicode
 import Data.FuzzySet.Util
-import Data.HashMap.Strict             ( HashMap, alter, empty, insert, member, unionWith )
+import Data.HashMap.Strict             ( HashMap, alter, empty, insert, member, size, unionWith )
 import Data.Maybe                      ( fromMaybe )
 import Data.Text                       ( Text, cons, snoc )
 import Data.Vector                     ( Vector )
@@ -98,8 +98,8 @@ add_ FuzzySet{..} val = undefined
   where
     key = Text.toLower val
 
-length ∷ FuzzySet → Int
-length = undefined
+len ∷ FuzzySet → Int
+len = size . exactSet
 
 isEmpty ∷ FuzzySet → Bool
 isEmpty = undefined
