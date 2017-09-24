@@ -37,5 +37,9 @@ enclosedIn ∷ Text → Char → Text
 {-# INLINE enclosedIn #-}
 enclosedIn str ch = ch `cons` str `snoc` ch
 
+-- | Returns \( \sqrt{ \sum_{i=0}^n a_i^2 } \) for the input
+--   \( \langle a_0, a_1, \dots, a_n \rangle \) where \( a_i \) is the element
+--   at position /i/ in the input list.
+--
 sqrtOfSquares ∷ (Integral a, Floating b) ⇒ [a] → b
 sqrtOfSquares = sqrt ∘ fromIntegral ∘ sum ∘ fmap (^2)
