@@ -84,7 +84,7 @@ grams val size
 -- fromList [("-x",1),("xx",3),("x-",1)]
 --
 -- >>> Data.HashMap.Strict.lookup "nts" (gramMap "intrent'srestaurantsomeoftrent'saunt'santswantsamtorentsomepants" 3)
--- >>> Just 8
+-- Just 8
 gramMap ∷ Text
         -- ^ An input string
         → Size
