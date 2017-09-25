@@ -96,10 +96,16 @@ gramMap val size = foldr ζ ε (grams val size)
     ζ = alter (pure ∘ succ ∘ fromMaybe 0)
 
 -- | @TODO
-get ∷ FuzzySet → Text → Int
+get ∷ FuzzySet → Text → [(Double, Text)]
 get = undefined
 
-_get = undefined
+_get ∷ FuzzySet → Text → [(Double, Text)]
+_get FuzzySet{..} val =
+    case HashMap.lookup key exactSet of
+      Just v  → undefined -- v
+      Nothing → undefined
+  where
+    key = Text.toLower val
 
 -- | Add an entry to the set. If a key identical to the provided key already
 --   exists in the set; do nothing.
