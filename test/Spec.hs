@@ -432,5 +432,11 @@ main = hspec $ do
         values set `shouldContain` ["Trent"]
         values set `shouldContain` ["restaurant"]
         values set `shouldContain` ["aunt"]
-        values set `shouldContain` ["Smarty Pants"] 
+        values set `shouldContain` ["Smarty Pants"]
         values set `shouldContain` ["XrF,!TNrATaNTNTNT"]
+
+    describe "size (defaultSet `add` ...)" $ do
+      let set = defaultSet `add` "Trent" `add` "restaurant"
+                           `add` "aunt"  `add` "Smarty Pants"
+                           `add` "XrF,!TNrATaNTNTNT"
+      it "should be 5" $ size set `shouldBe` 5
