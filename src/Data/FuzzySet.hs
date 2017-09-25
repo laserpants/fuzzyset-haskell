@@ -76,15 +76,23 @@ grams val size
   where
     str = normalized val `enclosedIn` '-'
 
--- | @TODO
+-- | Normalize the input string and translate the result to a 'HashMap' with
+--   the /n/-grams as keys and 'Int' values corresponding to the number of
+--   occurences of the key in the generated gram list.
+--
+-- >>> gramMap "xxxx" 2
+-- fromList [("-x",1),("xx",3),("x-",1)]
+--
+-- >>> Data.HashMap.Strict.lookup "nts" (gramMap "intrent'srestaurantsomeoftrent'saunt'santswantsamtorentsomepants" 3)
+-- >>> Just 8
 gramMap ∷ Text
         -- ^ An input string
         → Size
         -- ^ The gram size /n/, which must be at least /2/
         → HashMap Text Int
         -- ^ A mapping from /n/-gram keys to the number of occurrences of the
-        --   key in the list returned by grams (i.e., the list of all /n/-length
-        --   substrings of the input enclosed in hyphens).
+        --   key in the list returned by 'grams' (i.e., the list of all
+        --   /n/-length substrings of the input enclosed in hyphens).
 gramMap val size = foldr ζ ε (grams val size)
   where
     ζ = alter (pure ∘ succ ∘ fromMaybe 0)
