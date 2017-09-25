@@ -440,3 +440,13 @@ main = hspec $ do
                            `add` "aunt"  `add` "Smarty Pants"
                            `add` "XrF,!TNrATaNTNTNT"
       it "should be 5" $ size set `shouldBe` 5
+
+    describe "isEmpty (defaultSet `add` ...)" $ do
+      let set = defaultSet `add` "Trent" `add` "restaurant"
+                           `add` "aunt"  `add` "Smarty Pants"
+                           `add` "XrF,!TNrATaNTNTNT"
+      it "should be False" $ isEmpty set `shouldBe` False
+
+    describe "isEmpty defaultSet" $ do
+      let set = defaultSet
+      it "should be True" $ isEmpty set `shouldBe` True
