@@ -81,7 +81,7 @@ grams val size
 --   occurences of the key in the generated gram list.
 --
 -- >>> gramMap "xxxx" 2
--- fromList [("-x",1),("xx",3),("x-",1)]
+-- fromList [("-x",1), ("xx",3), ("x-",1)]
 --
 -- >>> Data.HashMap.Strict.lookup "nts" (gramMap "intrent'srestaurantsomeoftrent'saunt'santswantsamtorentsomepants" 3)
 -- Just 8
