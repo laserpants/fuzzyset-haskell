@@ -2,9 +2,7 @@
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
 module Data.FuzzySet
-  ( FuzzySetItem(..)
-  , FuzzySet(..)
-  , GramInfo(..)
+  ( FuzzySet
   , Size
   , defaultSet
   , ε
@@ -100,6 +98,8 @@ gramMap val size = foldr ζ ε (grams val size)
 -- | @TODO
 get ∷ FuzzySet → Text → Int
 get = undefined
+
+_get = undefined
 
 -- | Add an entry to the set. If a key identical to the provided key already
 --   exists in the set; do nothing.

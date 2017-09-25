@@ -6,6 +6,7 @@ import Control.Lens
 import Data.AEq
 import Data.FuzzySet
 import Data.FuzzySet.Lens
+import Data.FuzzySet.Types
 import Data.HashMap.Strict           ( HashMap, fromList )
 import Data.Maybe
 import Data.Monoid
