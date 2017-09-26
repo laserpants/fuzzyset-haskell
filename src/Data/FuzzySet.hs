@@ -74,9 +74,10 @@ grams val size
   where
     str = normalized val `enclosedIn` '-'
 
--- | Normalize the input string and translate the result to a 'HashMap' with
---   the /n/-grams as keys and 'Int' values corresponding to the number of
---   occurences of the key in the generated gram list.
+-- | Normalize the input string, call 'grams' on the normalized input, and then 
+--   translate the result to a 'HashMap' with the /n/-grams as keys and 'Int' 
+--   values corresponding to the number of occurences of the key in the 
+--   generated gram list.
 --
 -- >>> gramMap "xxxx" 2
 -- fromList [("-x",1), ("xx",3), ("x-",1)]
