@@ -97,12 +97,12 @@ gramMap val size = foldr ζ ε (grams val size)
 
 -- | @TODO
 get ∷ FuzzySet → Text → [(Double, Text)]
-get = undefined
+get = _get
 
 _get ∷ FuzzySet → Text → [(Double, Text)]
 _get FuzzySet{..} val =
     case HashMap.lookup key exactSet of
-      Just v  → undefined -- v
+      Just v  → [(1, v)]
       Nothing → undefined
   where
     key = Text.toLower val
