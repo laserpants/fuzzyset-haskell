@@ -451,3 +451,9 @@ main = hspec $ do
     describe "isEmpty defaultSet" $ do
       let set = defaultSet
       it "should be True" $ isEmpty set `shouldBe` True
+
+    describe "get" $ do
+      let set = defaultSet `add` "xxx"
+      it "should return [(1, \"xxx\")]" $
+        get set "xxx" `shouldBe` [(1, "xxx")]
+
