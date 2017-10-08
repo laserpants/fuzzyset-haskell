@@ -17,6 +17,7 @@ module Data.FuzzySet
   ) where
 
 import Control.Lens
+import Control.Monad
 import Data.Foldable.Unicode
 import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
@@ -74,9 +75,9 @@ grams val size
   where
     str = normalized val `enclosedIn` '-'
 
--- | Normalize the input string, call 'grams' on the normalized input, and then 
---   translate the result to a 'HashMap' with the /n/-grams as keys and 'Int' 
---   values corresponding to the number of occurences of the key in the 
+-- | Normalize the input string, call 'grams' on the normalized input, and then
+--   translate the result to a 'HashMap' with the /n/-grams as keys and 'Int'
+--   values corresponding to the number of occurences of the key in the
 --   generated gram list.
 --
 -- >>> gramMap "xxxx" 2
@@ -98,18 +99,26 @@ gramMap val size = foldr ζ ε (grams val size)
 
 -- | @TODO
 get ∷ FuzzySet → Text → [(Double, Text)]
-get = _get
-
-_get ∷ FuzzySet → Text → [(Double, Text)]
-_get FuzzySet{..} val =
-    case HashMap.lookup key exactSet of
-      Just v  → [(1, v)]
-      Nothing → undefined
+get set val = _get set val
   where
     key = Text.toLower val
 
--- | Add an entry to the set. If a key identical to the provided key already
---   exists in the set; do nothing.
+    _get ∷ FuzzySet → Text → [(Double, Text)]
+    _get FuzzySet{..} val =
+        case HashMap.lookup key exactSet of
+          Just v  → [(1, v)]
+          Nothing →
+            let sizes = msum (__get <$> reverse [gramSizeLower .. gramSizeUpper])
+             in undefined
+
+    __get ∷ Size → Maybe [(Double, Text)]
+    __get size =
+      let gs = gramMap key size
+          items = set ^._items.ix size
+        in undefined
+
+-- | Add an entry to the set, or do nothing if a key identical to the provided
+--   key already exists.
 add ∷ FuzzySet → Text → FuzzySet
 add set = fst ∘ addToSet set
 
@@ -124,7 +133,7 @@ addToSet FuzzySet{..} val
   where
     ξ size fs =
       let dict' = flip (:) [] ∘ GramInfo index <$> gramMap (normalized val) size
-          item  = FuzzySetItem (gramMap key size & elems & sqrtOfSquares) key
+          item  = FuzzySetItem (gramMap key size & elems & norm) key
           index = fs ^._items ^? ix size ^._Just & Vector.length
        in over _matchDict (\dict → unionWith (⧺) dict dict')
         $ over (_items.at size) (Just ∘ (`Vector.snoc` item)
