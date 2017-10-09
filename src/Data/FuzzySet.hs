@@ -113,9 +113,21 @@ get set val = _get set val
 
     __get ∷ Size → Maybe [(Double, Text)]
     __get size =
-      let gs = gramMap key size
+      let grams = gramMap key size
           items = set ^._items.ix size
+          norm' = norm (elems grams)
+          xx = HashMap.foldrWithKey ζ ε grams
+
         in undefined
+
+    ζ ∷ Text → Int → Matches → Matches
+    ζ gram occ matches =
+      let f (GramInfo index count) = alter ( pure ∘ (*) occ
+                                                  ∘ (+) count
+                                                  ∘ fromMaybe 0 ) index
+       in foldr f matches (set ^._matchDict.ix gram)
+
+type Matches = HashMap Int Int
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
 --   key already exists.
