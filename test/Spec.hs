@@ -7,6 +7,7 @@ import Data.AEq
 import Data.FuzzySet
 import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
+import Data.FuzzySet.Util
 import Data.HashMap.Strict           ( HashMap, fromList )
 import Data.Maybe
 import Data.Monoid
@@ -457,3 +458,11 @@ main = hspec $ do
       it "should return [(1, \"xxx\")]" $
         get set "xxx" `shouldBe` [(1, "xxx")]
 
+    --
+
+    describe "xyz" $ do
+      let set = defaultSet `add` "Trent" `add` "restaurant" `add` "aunt"
+                           `add` "Smarty Pants"
+      it "should return [(1, \"xxx\")]" $
+        matches (set ^._matchDict) (gramMap "ant" 3)
+          `shouldBe` fromList [(0, 1), (1, 2), (2, 1), (3, 1)]
