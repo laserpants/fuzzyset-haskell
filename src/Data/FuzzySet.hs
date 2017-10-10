@@ -99,35 +99,22 @@ gramMap val size = foldr ζ ε (grams val size)
 
 -- | @TODO
 get ∷ FuzzySet → Text → [(Double, Text)]
-get set val = _get set val
+get set@FuzzySet{..} val =
+    case HashMap.lookup key exactSet of
+      Just v  → [(1, v)]
+      Nothing → msum (__get <$> reverse [gramSizeLower .. gramSizeUpper])
   where
     key = Text.toLower val
 
-    _get ∷ FuzzySet → Text → [(Double, Text)]
-    _get FuzzySet{..} val =
-        case HashMap.lookup key exactSet of
-          Just v  → [(1, v)]
-          Nothing →
-            let sizes = msum (__get <$> reverse [gramSizeLower .. gramSizeUpper])
-             in undefined
-
-    __get ∷ Size → Maybe [(Double, Text)]
+    --__get ∷ Size → Maybe [(Double, Text)]
+    __get ∷ Size → [(Double, Text)]
     __get size =
       let grams = gramMap key size
           items = set ^._items.ix size
           norm' = norm (elems grams)
-          xx = HashMap.foldrWithKey ζ ε grams
+          mtchs = matches (set ^._matchDict) grams
 
-        in undefined
-
-    ζ ∷ Text → Int → Matches → Matches
-    ζ gram occ matches =
-      let f (GramInfo index count) = alter ( pure ∘ (*) occ
-                                                  ∘ (+) count
-                                                  ∘ fromMaybe 0 ) index
-       in foldr f matches (set ^._matchDict.ix gram)
-
-type Matches = HashMap Int Int
+        in (error $ show mtchs)
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
 --   key already exists.
@@ -162,4 +149,4 @@ isEmpty = HashMap.null ∘ exactSet
 
 -- | Return the elements of a set.
 values ∷ FuzzySet → [Text]
-values = HashMap.elems ∘ exactSet
+values = elems ∘ exactSet

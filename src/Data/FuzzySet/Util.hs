@@ -1,12 +1,18 @@
-{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE UnicodeSyntax   #-}
 module Data.FuzzySet.Util
   ( normalized
   , substr
   , enclosedIn
   , norm
+  , matches
   ) where
 
+import Control.Lens                    ( (^.), ix )
 import Data.Char                       ( isAlphaNum, isSpace )
+import Data.FuzzySet.Types
+import Data.HashMap.Strict             ( HashMap, alter, empty, foldrWithKey )
+import Data.Maybe                      ( fromMaybe )
 import Data.Text                       ( Text, cons, snoc )
 import Prelude.Unicode
 import qualified Data.Text             as Text
@@ -43,3 +49,11 @@ enclosedIn str ch = ch `cons` str `snoc` ch
 --   at position /i/ in the input list.
 norm ∷ (Integral a, Floating b) ⇒ [a] → b
 norm = sqrt ∘ fromIntegral ∘ sum ∘ fmap (^2)
+
+matches ∷ MatchDict → HashMap Text Int → Matches
+matches dict = foldrWithKey ζ empty
+  where
+    ζ gram occ matches =
+      let ω GramInfo{..} = alter (pure ∘ (*) occ ∘ (+) gramCount
+                                       ∘ fromMaybe 0) gramIndex
+       in foldr ω matches (dict ^.ix gram)

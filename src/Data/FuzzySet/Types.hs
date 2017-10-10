@@ -28,3 +28,5 @@ data FuzzySet = FuzzySet
   , matchDict      ∷ !MatchDict
   , items          ∷ !ItemMap
   } deriving (Eq, Show)
+
+type Matches = HashMap Int Int
