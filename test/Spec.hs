@@ -443,13 +443,28 @@ main = hspec $ do
       it "should return [(1, \"xxx\")]" $
         get set "xxx" `shouldBe` [(1, "xxx")]
 
-    checkMatches testset_1 "ant" 3 [(0, 1), (1, 2), (2, 1), (3, 1)]
-    checkMatches testset_1 "pant" 3 [(0, 1), (1, 2), (2, 1), (3, 2)]
+    checkMatches testset_1 "ant"   3 [(0, 1), (1, 2), (2, 1), (3, 1)]
+    checkMatches testset_1 "pant"  3 [(0, 1), (1, 2), (2, 1), (3, 2)]
     checkMatches testset_1 "pants" 3 [(1, 1), (3, 4)]
-    checkMatches testset_1 "tre" 3 [(0, 2)]
-    checkMatches testset_1 "xxx" 3 []
-    checkMatches testset_1 "xxx" 2 []
+    checkMatches testset_1 "tre"   3 [(0, 2)]
+    checkMatches testset_1 "xxx"   3 []
+    checkMatches testset_1 "xxx"   2 []
+    checkMatches testset_1 "tsap"  3 []
+    checkMatches testset_1 "tsap"  2 [(0, 1), (3, 1)]
+    checkMatches testset_2 "hat"   3 [(4, 1)]
+    checkMatches testset_2 "anthropology" 3 [(1, 1), (3, 1)]
+    checkMatches testset_2 "spot"  3 []
+    checkMatches testset_2 "spot"  2 [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1)]
+    checkMatches testset_2 "axiom" 3 []
+    checkMatches testset_2 "axiom" 2 [(2, 1)]
+    checkMatches testset_3 "moped" 2 [(5, 1)]
 
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"
                        `add` "aunt"  `add` "Smarty Pants"
+
+testset_2 ∷ FuzzySet
+testset_2 = testset_1 `add` "cat"
+
+testset_3 ∷ FuzzySet
+testset_3 = testset_2 `add` "polymorphic"
