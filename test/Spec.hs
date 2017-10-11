@@ -10,6 +10,7 @@ import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
 import Data.FuzzySet.Util
 import Data.HashMap.Strict           ( HashMap, fromList, empty )
+import Data.List                     ( sortOn )
 import Data.Maybe
 import Data.Monoid
 import Data.Monoid.Unicode
@@ -103,9 +104,10 @@ checkMatches set txt size r =
 checkGet ∷ FuzzySet → Text → [(Double, Text)] → SpecWith ()
 checkGet set val rs =
     describe msg $ do
+      it "should return a sorted list" (sorted $ fst <$> xs)
       it ("should return " ⊕ show (length rs) ⊕ " match(es)")
          (length rs `shouldBe` length xs)
-      zipWithM_ ξ rs xs
+      zipWithM_ ξ (sortOn snd rs) (sortOn snd xs)
   where
     xs = get set val
     ξ (a, b) (a', b') = do
@@ -113,382 +115,394 @@ checkGet set val rs =
       it ("having a score close to " ⊕ show a) (a `shouldBeCloseTo` a')
     msg = "get (" ⊕ show (set^._exactSet) ⊕ ") " ⊕ show val
 
+sorted ∷ Ord a ⇒ [a] → Bool
+sorted [ ] = True
+sorted [_] = True
+sorted (x:xs) = x ≥ head xs ∧ sorted xs
+
 main ∷ IO ()
 main = hspec $ do
 
-    describe "grams" $ do
-      mapM_ (checkGramsCount "charade") [2..6]
-      it "should throw an error if n < 2" $
-        evaluate (grams "anything" 1) `shouldThrow` anyException
-
-    checkGrams "charade" 2 ["-c", "ch", "ha", "ar", "ra", "ad", "de", "e-"]
-    checkGrams "charade" 2 ["-c", "ch", "ha", "ar", "ra", "ad", "de", "e-"]
-    checkGrams "charade" 3 ["-ch", "cha", "har", "ara", "rad", "ade", "de-"]
-    checkGrams "aFl1pP!.,nG FL0^ppy+" 2
-        [ "-a", "af", "fl", "l1", "1p", "pp", "p,", ",n", "ng", "g ", " f"
-        , "fl", "l0", "0p", "pp", "py", "y-" ]
-
-    checkGramMap "xxx" 2 [("-x", 1),("xx", 2),("x-", 1)]
-    checkGramMap "xxx" 3 [("-xx", 1), ("xx-", 1), ("xxx", 1)]
-    checkGramMap "xxxxxxx" 4 [("-xxx", 1), ("xxxx", 4), ("xxx-", 1)]
-    checkGramMap "bananasananas" 2
-        [ ("-b", 1), ("ba", 1), ("an", 4), ("na", 4), ("as", 2)
-        , ("sa", 1), ("s-", 1) ]
-    checkGramMap "bananasananas" 3
-        [ ("-ba", 1), ("ban", 1), ("ana", 4), ("nan", 2), ("nas", 2)
-        , ("asa", 1), ("san", 1), ("as-", 1) ]
-
-    checkGramMapKeys "trentsauntsrestaurant" 2
-      [ ("nt", 3)
-      , ("au", 2)
-      , ("ts", 2)
-      , ("re", 2)
-      , ("st", 1)
-      , ("en", 1) ]
-    checkGramMapKeys "trentsauntsrestaurant" 3
-      [ ("res", 1)
-      , ("nts", 2) ]
-    checkGramMapKeys "trentsantwantstorentpants" 3
-      [ ("pan", 1)
-      , ("twa", 1)
-      , ("ant", 3)
-      , ("ren", 2)
-      , ("ent", 2)
-      , ("nts", 3) ]
-    checkGramMapKeys "trentsantwantstorentpantstostartrestaurant" 3
-      [ ("ant", 4)
-      , ("nts", 3)
-      , ("sto", 2)
-      , ("sta", 2)
-      , ("ren", 2)
-      , ("tre", 2) ]
-    checkGramMapKeys "trentsantwantstorentpantstostartrestaurant" 2
-      [ ("an", 4)
-      , ("st", 4)
-      , ("re", 3)
-      , ("ts", 3)
-      , ("en", 2)
-      , ("to", 2)
-      , ("tr", 2)
-      , ("or", 1)
-      , ("au", 1)
-      , ("ur", 1) ]
-    checkGramMapKeys "antsintrentspantswanttrentsauntsrestaurant" 3
-      [ ("nts", 5)
-      , ("ant", 4)
-      , ("ent", 2) ]
-    checkGramMapKeys "asmartantintrentspantswantstorenttrentsauntsrestaurant" 3
-      [ ("nts", 5)
-      , ("ant", 4)
-      , ("ent", 3) ]
-    checkGramMapKeys "buffalo buffalo buffalo buffalo buffalo buffalo" 7
-      [ ("buffalo", 6) ]
-
-    describe "addToSet defaultSet \"aFl1pP!.,nG FL0^ppy+\"" $
-      let (set, changed) = addToSet defaultSet "aFl1pP!.,nG FL0^ppy+"
-       in do
-        it "should return changed status True" $ shouldBeTrue changed
-        checkExactSet set [("afl1pp!.,ng fl0^ppy+", "aFl1pP!.,nG FL0^ppy+")]
-        checkMagnitude set 2 0 4.58257569495584
-        checkMagnitude set 3 0 4.0
-        checkMatchDictEntry set "-a" [GramInfo 0 1]
-        checkMatchDictEntry set "ng" [GramInfo 0 1]
-        checkMatchDictEntry set "fl" [GramInfo 0 2]
-        checkMatchDictEntry set "pp" [GramInfo 0 2]
-        checkMatchDictEntry set "g " [GramInfo 0 1]
-        checkMatchDictEntry set "xx" []
-
-    describe "addToSet defaultSet \"Trent\"" $
-      let (set, changed) = addToSet defaultSet "Trent"
-       in do
-        it "should return changed status True" $ shouldBeTrue changed
-        checkExactSet set [("trent", "Trent")]
-        checkMagnitude set 2 0 2.449489742783178
-        checkMagnitude set 3 0 2.23606797749979
-        checkMatchDictEntry set "en" [GramInfo 0 1]
-
-    describe "defaultSet `add` \"Trent\" `add` \"tent\"" $
-      let set = defaultSet `add` "Trent" `add` "tent"
-       in do
-        checkExactSet set [("trent", "Trent"), ("tent", "tent")]
-        checkMagnitude set 2 0 2.449489742783178
-        checkMagnitude set 2 1 2.23606797749979
-        checkMagnitude set 3 0 2.23606797749979
-        checkMagnitude set 3 1 2.0
-        checkMatchDictEntry set "en"  [GramInfo 0 1, GramInfo 1 1]
-        checkMatchDictEntry set "ent" [GramInfo 0 1, GramInfo 1 1]
-        checkMatchDictEntry set "ten" [GramInfo 1 1]
-        checkMatchDictEntry set "-t"  [GramInfo 0 1, GramInfo 1 1]
-
-    describe "defaultSet `add` \"Trent\" `add` \"tent\" `add` \"restaurant\"" $
-      let set = defaultSet `add` "Trent" `add` "tent" `add` "restaurant"
-       in do
-        checkExactSet set
-          [ ("trent"      , "Trent")
-          , ("tent"       , "tent")
-          , ("restaurant" , "restaurant") ]
-        checkMagnitude set 2 0 2.449489742783178
-        checkMagnitude set 2 1 2.23606797749979
-        checkMagnitude set 2 2 3.3166247903554
-        checkMagnitude set 3 0 2.23606797749979
-        checkMagnitude set 3 1 2.0
-        checkMagnitude set 3 2 3.1622776601683795
-        checkMatchDictEntry set "tau" [GramInfo 2 1]
-        checkMatchDictEntry set "en"  [GramInfo 0 1, GramInfo 1 1]
-        checkMatchDictEntry set "ten" [GramInfo 1 1]
-        checkMatchDictEntry set "ran" [GramInfo 2 1]
-        checkMatchDictEntry set "an"  [GramInfo 2 1]
-        checkMatchDictEntry set "ant" [GramInfo 2 1]
-        checkMatchDictEntry set "nt-" [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1]
-        checkMatchDictEntry set "st"  [GramInfo 2 1]
-        checkMatchDictEntry set "es"  [GramInfo 2 1]
-        checkMatchDictEntry set "est" [GramInfo 2 1]
-        checkMatchDictEntry set "re"  [GramInfo 0 1, GramInfo 2 1]
-        checkMatchDictEntry set "-tr" [GramInfo 0 1]
-        checkMatchDictEntry set "res" [GramInfo 2 1]
-        checkMatchDictEntry set "tr"  [GramInfo 0 1]
-        checkMatchDictEntry set "-t"  [GramInfo 0 1, GramInfo 1 1]
-        checkMatchDictEntry set "aur" [GramInfo 2 1]
-        checkMatchDictEntry set "ent" [GramInfo 0 1, GramInfo 1 1]
-        checkMatchDictEntry set "ra"  [GramInfo 2 1]
-        checkMatchDictEntry set "-r"  [GramInfo 2 1]
-        checkMatchDictEntry set "ren" [GramInfo 0 1]
-        checkMatchDictEntry set "te"  [GramInfo 1 1]
-        checkMatchDictEntry set "nt"  [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1]
-
-    describe "defaultSet `add` \"Trent\" `add` \"tent\" `add` \"restaurant\" `add` \"xRftAntnt,!tnRant\"" $
-      let set = defaultSet `add` "Trent" `add` "tent" `add` "restaurant" `add` "xRftAntnt,!tnRant"
-       in do
-        checkExactSet set
-          [ ("trent"             , "Trent")
-          , ("tent"              , "tent")
-          , ("restaurant"        , "restaurant")
-          , ("xrftantnt,!tnrant" , "xRftAntnt,!tnRant") ]
-        checkMagnitude set 2 0 2.449489742783178
-        checkMagnitude set 2 1 2.23606797749979
-        checkMagnitude set 2 2 3.3166247903554
-        checkMagnitude set 2 3 5.196152422706632
-        checkMagnitude set 3 0 2.23606797749979
-        checkMagnitude set 3 1 2.0
-        checkMagnitude set 3 2 3.1622776601683795
-        checkMagnitude set 3 3 4.242640687119285
-        checkMatchDictEntry set "tau" [GramInfo 2 1]
-        checkMatchDictEntry set "en"  [GramInfo 0 1, GramInfo 1 1]
-        checkMatchDictEntry set "ten" [GramInfo 1 1]
-        checkMatchDictEntry set "ran" [GramInfo 2 1, GramInfo 3 1]
-        checkMatchDictEntry set "ntn" [GramInfo 3 1]
-        checkMatchDictEntry set "-xr" [GramInfo 3 1]
-        checkMatchDictEntry set "an"  [GramInfo 2 1, GramInfo 3 2]
-        checkMatchDictEntry set "ant" [GramInfo 2 1, GramInfo 3 2]
-        checkMatchDictEntry set "t,t" [GramInfo 3 1]
-        checkMatchDictEntry set "nt-" [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 1]
-        checkMatchDictEntry set "nt," [GramInfo 3 1]
-        checkMatchDictEntry set "xr"  [GramInfo 3 1]
-        checkMatchDictEntry set "tan" [GramInfo 3 1]
-        checkMatchDictEntry set "st"  [GramInfo 2 1]
-        checkMatchDictEntry set "es"  [GramInfo 2 1]
-        checkMatchDictEntry set "fta" [GramInfo 3 1]
-        checkMatchDictEntry set "est" [GramInfo 2 1]
-        checkMatchDictEntry set "re"  [GramInfo 0 1, GramInfo 2 1]
-        checkMatchDictEntry set "-tr" [GramInfo 0 1]
-        checkMatchDictEntry set "res" [GramInfo 2 1]
-        checkMatchDictEntry set "xrf" [GramInfo 3 1]
-        checkMatchDictEntry set "tr"  [GramInfo 0 1]
-        checkMatchDictEntry set ",t"  [GramInfo 3 1]
-        checkMatchDictEntry set "tn"  [GramInfo 3 2]
-        checkMatchDictEntry set "-t"  [GramInfo 0 1, GramInfo 1 1]
-        checkMatchDictEntry set "rf"  [GramInfo 3 1]
-        checkMatchDictEntry set "aur" [GramInfo 2 1]
-        checkMatchDictEntry set "ent" [GramInfo 0 1, GramInfo 1 1]
-        checkMatchDictEntry set "ra"  [GramInfo 2 1, GramInfo 3 1]
-        checkMatchDictEntry set "-r"  [GramInfo 2 1]
-        checkMatchDictEntry set "-r"  [GramInfo 2 1]
-        checkMatchDictEntry set "ren" [GramInfo 0 1]
-        checkMatchDictEntry set "nr"  [GramInfo 3 1]
-        checkMatchDictEntry set "te"  [GramInfo 1 1]
-        checkMatchDictEntry set "nt"  [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 3]
-        checkMatchDictEntry set "-x"  [GramInfo 3 1]
-        checkMatchDictEntry set "ta"  [GramInfo 2 1, GramInfo 3 1]
-        checkMatchDictEntry set "ft"  [GramInfo 3 1]
-        checkMatchDictEntry set "nra" [GramInfo 3 1]
-        checkMatchDictEntry set ",tn" [GramInfo 3 1]
-        checkMatchDictEntry set "-re" [GramInfo 2 1]
-        checkMatchDictEntry set "ura" [GramInfo 2 1]
-        checkMatchDictEntry set "tnt" [GramInfo 3 1]
-        checkMatchDictEntry set "sta" [GramInfo 2 1]
-        checkMatchDictEntry set "tnr" [GramInfo 3 1]
-        checkMatchDictEntry set "rft" [GramInfo 3 1]
-        checkMatchDictEntry set "tre" [GramInfo 0 1]
-        checkMatchDictEntry set "ur"  [GramInfo 2 1]
-        checkMatchDictEntry set "t,"  [GramInfo 3 1]
-        checkMatchDictEntry set "t-"  [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 1]
-        checkMatchDictEntry set "au"  [GramInfo 2 1]
-        checkMatchDictEntry set "-te" [GramInfo 1 1]
-
-    describe "FuzzySet 3 4 True mempty mempty mempty `add` ..." $
-      let set = FuzzySet 3 4 True mempty mempty mempty
-                            `add` "Trent"
-                            `add` "pants"
-                            `add` "restaurant"
-                            `add` "XrF,!TNrATaNTNTNT"
-       in do
-        checkExactSet set
-          [ ("trent"             , "Trent")
-          , ("pants"             , "pants")
-          , ("restaurant"        , "restaurant")
-          , ("xrf,!tnratantntnt" , "XrF,!TNrATaNTNTNT") ]
-        checkMagnitude set 3 0 2.23606797749979
-        checkMagnitude set 3 1 2.23606797749979
-        checkMagnitude set 3 2 3.1622776601683795
-        checkMagnitude set 3 3 4.47213595499958
-        checkMagnitude set 4 0 2.0
-        checkMagnitude set 4 1 2.0
-        checkMagnitude set 4 2 3.0
-        checkMagnitude set 4 3 4.123105625617661
-        checkMatchDictEntry set "ntnt" [GramInfo 3 2]
-        checkMatchDictEntry set "tau"  [GramInfo 2 1]
-        checkMatchDictEntry set "xrf"  [GramInfo 3 1]
-        checkMatchDictEntry set "esta" [GramInfo 2 1]
-        checkMatchDictEntry set "-pa"  [GramInfo 1 1]
-        checkMatchDictEntry set "ran"  [GramInfo 2 1]
-        checkMatchDictEntry set "ntn"  [GramInfo 3 2]
-        checkMatchDictEntry set "-xr"  [GramInfo 3 1]
-        checkMatchDictEntry set "ants" [GramInfo 1 1]
-        checkMatchDictEntry set "-xrf" [GramInfo 3 1]
-        checkMatchDictEntry set "ant"  [GramInfo 1 1, GramInfo 2 1, GramInfo 3 1]
-        checkMatchDictEntry set "rant" [GramInfo 2 1]
-        checkMatchDictEntry set "rat"  [GramInfo 3 1]
-        checkMatchDictEntry set "antn" [GramInfo 3 1]
-        checkMatchDictEntry set "nt-"  [GramInfo 0 1, GramInfo 2 1, GramInfo 3 1]
-        checkMatchDictEntry set "rent" [GramInfo 0 1]
-        checkMatchDictEntry set "rata" [GramInfo 3 1]
-        checkMatchDictEntry set "tan"  [GramInfo 3 1]
-        checkMatchDictEntry set "tant" [GramInfo 3 1]
-        checkMatchDictEntry set "-tre" [GramInfo 0 1]
-        checkMatchDictEntry set "est"  [GramInfo 2 1]
-        checkMatchDictEntry set "-tr"  [GramInfo 0 1]
-
-    describe "FuzzySet 2 5 True mempty mempty mempty `add` ..." $
-      let set = FuzzySet 2 5 True mempty mempty mempty
-                            `add` "Trent"
-                            `add` "restaurant"
-                            `add` "aunt"
-                            `add` "Smarty Pants"
-                            `add` "XrF,!TNrATaNTNTNT"
-       in do
-        checkExactSet set
-          [ ("trent"             , "Trent")
-          , ("restaurant"        , "restaurant")
-          , ("aunt"              , "aunt")
-          , ("smarty pants"      , "Smarty Pants")
-          , ("xrf,!tnratantntnt" , "XrF,!TNrATaNTNTNT") ]
-        checkMagnitude set 2 0 2.449489742783178
-        checkMagnitude set 2 1 3.3166247903554
-        checkMagnitude set 2 2 2.23606797749979
-        checkMagnitude set 2 3 3.605551275463989
-        checkMagnitude set 2 4 5.385164807134504
-        checkMagnitude set 3 0 2.23606797749979
-        checkMagnitude set 3 1 3.1622776601683795
-        checkMagnitude set 3 2 2.0
-        checkMagnitude set 3 3 3.4641016151377544
-        checkMagnitude set 3 4 4.47213595499958
-        checkMagnitude set 4 0 2.0
-        checkMagnitude set 4 1 3.0
-        checkMagnitude set 4 2 1.7320508075688772
-        checkMagnitude set 4 3 3.3166247903554
-        checkMagnitude set 4 4 4.123105625617661
-        checkMagnitude set 5 0 1.7320508075688772
-        checkMagnitude set 5 1 2.8284271247461903
-        checkMagnitude set 5 2 1.4142135623730951
-        checkMagnitude set 5 3 3.1622776601683795
-        checkMagnitude set 5 4 3.7416573867739413
-        checkMatchDictEntry set "pant"  [GramInfo 3 1]
-        checkMatchDictEntry set "y "    [GramInfo 3 1]
-        checkMatchDictEntry set "-xr"   [GramInfo 4 1]
-        checkMatchDictEntry set "rest"  [GramInfo 1 1]
-        checkMatchDictEntry set " p"    [GramInfo 3 1]
-        checkMatchDictEntry set "ty p"  [GramInfo 3 1]
-        checkMatchDictEntry set "rty"   [GramInfo 3 1]
-        checkMatchDictEntry set "-tre"  [GramInfo 0 1]
-        checkMatchDictEntry set "-a"    [GramInfo 2 1]
-        checkMatchDictEntry set "ty"    [GramInfo 3 1]
-        checkMatchDictEntry set "tntnt" [GramInfo 4 1]
-        checkMatchDictEntry set "tr"    [GramInfo 0 1]
-        checkMatchDictEntry set "ts"    [GramInfo 3 1]
-        checkMatchDictEntry set "aun"   [GramInfo 2 1]
-        checkMatchDictEntry set "tn"    [GramInfo 4 3]
-        checkMatchDictEntry set "-t"    [GramInfo 0 1]
-        checkMatchDictEntry set "aur"   [GramInfo 1 1]
-        checkMatchDictEntry set "-s"    [GramInfo 3 1]
-        checkMatchDictEntry set "-r"    [GramInfo 1 1]
-        checkMatchDictEntry set "rty"   [GramInfo 3 1]
-        checkMatchDictEntry set "tnra"  [GramInfo 4 1]
-        checkMatchDictEntry set "nt"    [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 1, GramInfo 4 3]
-
-    describe "values (defaultSet `add` ...)" $ do
-      let set = defaultSet `add` "Trent" `add` "restaurant"
-                           `add` "aunt"  `add` "Smarty Pants"
-                           `add` "XrF,!TNrATaNTNTNT"
-      it "should contain the added elements" $ do
-        values set `shouldContain` ["Trent"]
-        values set `shouldContain` ["restaurant"]
-        values set `shouldContain` ["aunt"]
-        values set `shouldContain` ["Smarty Pants"]
-        values set `shouldContain` ["XrF,!TNrATaNTNTNT"]
-
-    describe "size (defaultSet `add` ...)" $ do
-      let set = defaultSet `add` "Trent" `add` "restaurant"
-                           `add` "aunt"  `add` "Smarty Pants"
-                           `add` "XrF,!TNrATaNTNTNT"
-      it "should be 5" $ size set `shouldBe` 5
-
-    describe "isEmpty (defaultSet `add` ...)" $ do
-      let set = defaultSet `add` "Trent" `add` "restaurant"
-                           `add` "aunt"  `add` "Smarty Pants"
-                           `add` "XrF,!TNrATaNTNTNT"
-      it "should be False" $ isEmpty set `shouldBe` False
-
-    describe "isEmpty defaultSet" $ do
-      let set = defaultSet
-      it "should be True" $ isEmpty set `shouldBe` True
-
-    describe "snd $ (defaultSet `add` \"again\") `addToSet` \"again\"" $ do
-      let set = (defaultSet `add` "again") `add` "again"
-      it "should return False" $
-        snd ((defaultSet `add` "again") `addToSet` "again") `shouldBe` False
-
-    describe "get (defaultSet `add` \"xxx\")" $ do
-      let set = defaultSet `add` "xxx"
-      it "should return [(1, \"xxx\")]" $
-        get set "xxx" `shouldBe` [(1, "xxx")]
-
-    checkMatches testset_1 "ant"   3 [(0, 1), (1, 2), (2, 1), (3, 1)]
-    checkMatches testset_1 "pant"  3 [(0, 1), (1, 2), (2, 1), (3, 2)]
-    checkMatches testset_1 "pants" 3 [(1, 1), (3, 4)]
-    checkMatches testset_1 "tre"   3 [(0, 2)]
-    checkMatches testset_1 "xxx"   3 []
-    checkMatches testset_1 "xxx"   2 []
-    checkMatches testset_1 "tsap"  3 []
-    checkMatches testset_1 "tsap"  2 [(0, 1), (3, 1)]
-    checkMatches testset_2 "hat"   3 [(4, 1)]
-    checkMatches testset_2 "anthropology" 3 [(1, 1), (3, 1)]
-    checkMatches testset_2 "spot"  3 []
-    checkMatches testset_2 "spot"  2 [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1)]
-    checkMatches testset_2 "axiom" 3 []
-    checkMatches testset_2 "axiom" 2 [(2, 1)]
-    checkMatches testset_3 "moped" 2 [(5, 1)]
-    checkMatches (defaultSet `add` "bananas") "ananas" 3 [(0, 7)]
-    checkMatches (defaultSet `add` "banana")  "ananas" 3 [(0, 5)]
-
-    -- Tests where useLevenshtein == False
-    checkGet testset_4 "flask"    [(0.3651483716701107, "Alaska")]
-    checkGet testset_4 "lambda"   [(0.40089186286863654, "Alabama")]
-    checkGet testset_4 "lambada"  [(0.49999999999999999, "Alabama")]
-    checkGet testset_4 "alabama"  [(1, "Alabama")]
-    checkGet testset_4 "al"       []
-    checkGet testset_4 "albama"   [(0.6172133998483676, "Alabama")]
-    checkGet testset_4 "Alabaska" [ (0.7216878364870323, "Alaska")
-                                  , (0.5345224838248487, "Alabama") ]
+--    describe "grams" $ do
+--      mapM_ (checkGramsCount "charade") [2..6]
+--      it "should throw an error if n < 2" $
+--        evaluate (grams "anything" 1) `shouldThrow` anyException
+--
+--    checkGrams "charade" 2 ["-c", "ch", "ha", "ar", "ra", "ad", "de", "e-"]
+--    checkGrams "charade" 2 ["-c", "ch", "ha", "ar", "ra", "ad", "de", "e-"]
+--    checkGrams "charade" 3 ["-ch", "cha", "har", "ara", "rad", "ade", "de-"]
+--    checkGrams "aFl1pP!.,nG FL0^ppy+" 2
+--        [ "-a", "af", "fl", "l1", "1p", "pp", "p,", ",n", "ng", "g ", " f"
+--        , "fl", "l0", "0p", "pp", "py", "y-" ]
+--
+--    checkGramMap "xxx" 2 [("-x", 1),("xx", 2),("x-", 1)]
+--    checkGramMap "xxx" 3 [("-xx", 1), ("xx-", 1), ("xxx", 1)]
+--    checkGramMap "xxxxxxx" 4 [("-xxx", 1), ("xxxx", 4), ("xxx-", 1)]
+--    checkGramMap "bananasananas" 2
+--        [ ("-b", 1), ("ba", 1), ("an", 4), ("na", 4), ("as", 2)
+--        , ("sa", 1), ("s-", 1) ]
+--    checkGramMap "bananasananas" 3
+--        [ ("-ba", 1), ("ban", 1), ("ana", 4), ("nan", 2), ("nas", 2)
+--        , ("asa", 1), ("san", 1), ("as-", 1) ]
+--
+--    checkGramMapKeys "trentsauntsrestaurant" 2
+--      [ ("nt", 3)
+--      , ("au", 2)
+--      , ("ts", 2)
+--      , ("re", 2)
+--      , ("st", 1)
+--      , ("en", 1) ]
+--    checkGramMapKeys "trentsauntsrestaurant" 3
+--      [ ("res", 1)
+--      , ("nts", 2) ]
+--    checkGramMapKeys "trentsantwantstorentpants" 3
+--      [ ("pan", 1)
+--      , ("twa", 1)
+--      , ("ant", 3)
+--      , ("ren", 2)
+--      , ("ent", 2)
+--      , ("nts", 3) ]
+--    checkGramMapKeys "trentsantwantstorentpantstostartrestaurant" 3
+--      [ ("ant", 4)
+--      , ("nts", 3)
+--      , ("sto", 2)
+--      , ("sta", 2)
+--      , ("ren", 2)
+--      , ("tre", 2) ]
+--    checkGramMapKeys "trentsantwantstorentpantstostartrestaurant" 2
+--      [ ("an", 4)
+--      , ("st", 4)
+--      , ("re", 3)
+--      , ("ts", 3)
+--      , ("en", 2)
+--      , ("to", 2)
+--      , ("tr", 2)
+--      , ("or", 1)
+--      , ("au", 1)
+--      , ("ur", 1) ]
+--    checkGramMapKeys "antsintrentspantswanttrentsauntsrestaurant" 3
+--      [ ("nts", 5)
+--      , ("ant", 4)
+--      , ("ent", 2) ]
+--    checkGramMapKeys "asmartantintrentspantswantstorenttrentsauntsrestaurant" 3
+--      [ ("nts", 5)
+--      , ("ant", 4)
+--      , ("ent", 3) ]
+--    checkGramMapKeys "buffalo buffalo buffalo buffalo buffalo buffalo" 7
+--      [ ("buffalo", 6) ]
+--
+--    describe "addToSet defaultSet \"aFl1pP!.,nG FL0^ppy+\"" $
+--      let (set, changed) = addToSet defaultSet "aFl1pP!.,nG FL0^ppy+"
+--       in do
+--        it "should return changed status True" $ shouldBeTrue changed
+--        checkExactSet set [("afl1pp!.,ng fl0^ppy+", "aFl1pP!.,nG FL0^ppy+")]
+--        checkMagnitude set 2 0 4.58257569495584
+--        checkMagnitude set 3 0 4.0
+--        checkMatchDictEntry set "-a" [GramInfo 0 1]
+--        checkMatchDictEntry set "ng" [GramInfo 0 1]
+--        checkMatchDictEntry set "fl" [GramInfo 0 2]
+--        checkMatchDictEntry set "pp" [GramInfo 0 2]
+--        checkMatchDictEntry set "g " [GramInfo 0 1]
+--        checkMatchDictEntry set "xx" []
+--
+--    describe "addToSet defaultSet \"Trent\"" $
+--      let (set, changed) = addToSet defaultSet "Trent"
+--       in do
+--        it "should return changed status True" $ shouldBeTrue changed
+--        checkExactSet set [("trent", "Trent")]
+--        checkMagnitude set 2 0 2.449489742783178
+--        checkMagnitude set 3 0 2.23606797749979
+--        checkMatchDictEntry set "en" [GramInfo 0 1]
+--
+--    describe "defaultSet `add` \"Trent\" `add` \"tent\"" $
+--      let set = defaultSet `add` "Trent" `add` "tent"
+--       in do
+--        checkExactSet set [("trent", "Trent"), ("tent", "tent")]
+--        checkMagnitude set 2 0 2.449489742783178
+--        checkMagnitude set 2 1 2.23606797749979
+--        checkMagnitude set 3 0 2.23606797749979
+--        checkMagnitude set 3 1 2.0
+--        checkMatchDictEntry set "en"  [GramInfo 0 1, GramInfo 1 1]
+--        checkMatchDictEntry set "ent" [GramInfo 0 1, GramInfo 1 1]
+--        checkMatchDictEntry set "ten" [GramInfo 1 1]
+--        checkMatchDictEntry set "-t"  [GramInfo 0 1, GramInfo 1 1]
+--
+--    describe "defaultSet `add` \"Trent\" `add` \"tent\" `add` \"restaurant\"" $
+--      let set = defaultSet `add` "Trent" `add` "tent" `add` "restaurant"
+--       in do
+--        checkExactSet set
+--          [ ("trent"      , "Trent")
+--          , ("tent"       , "tent")
+--          , ("restaurant" , "restaurant") ]
+--        checkMagnitude set 2 0 2.449489742783178
+--        checkMagnitude set 2 1 2.23606797749979
+--        checkMagnitude set 2 2 3.3166247903554
+--        checkMagnitude set 3 0 2.23606797749979
+--        checkMagnitude set 3 1 2.0
+--        checkMagnitude set 3 2 3.1622776601683795
+--        checkMatchDictEntry set "tau" [GramInfo 2 1]
+--        checkMatchDictEntry set "en"  [GramInfo 0 1, GramInfo 1 1]
+--        checkMatchDictEntry set "ten" [GramInfo 1 1]
+--        checkMatchDictEntry set "ran" [GramInfo 2 1]
+--        checkMatchDictEntry set "an"  [GramInfo 2 1]
+--        checkMatchDictEntry set "ant" [GramInfo 2 1]
+--        checkMatchDictEntry set "nt-" [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1]
+--        checkMatchDictEntry set "st"  [GramInfo 2 1]
+--        checkMatchDictEntry set "es"  [GramInfo 2 1]
+--        checkMatchDictEntry set "est" [GramInfo 2 1]
+--        checkMatchDictEntry set "re"  [GramInfo 0 1, GramInfo 2 1]
+--        checkMatchDictEntry set "-tr" [GramInfo 0 1]
+--        checkMatchDictEntry set "res" [GramInfo 2 1]
+--        checkMatchDictEntry set "tr"  [GramInfo 0 1]
+--        checkMatchDictEntry set "-t"  [GramInfo 0 1, GramInfo 1 1]
+--        checkMatchDictEntry set "aur" [GramInfo 2 1]
+--        checkMatchDictEntry set "ent" [GramInfo 0 1, GramInfo 1 1]
+--        checkMatchDictEntry set "ra"  [GramInfo 2 1]
+--        checkMatchDictEntry set "-r"  [GramInfo 2 1]
+--        checkMatchDictEntry set "ren" [GramInfo 0 1]
+--        checkMatchDictEntry set "te"  [GramInfo 1 1]
+--        checkMatchDictEntry set "nt"  [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1]
+--
+--    describe "defaultSet `add` \"Trent\" `add` \"tent\" `add` \"restaurant\" `add` \"xRftAntnt,!tnRant\"" $
+--      let set = defaultSet `add` "Trent" `add` "tent" `add` "restaurant" `add` "xRftAntnt,!tnRant"
+--       in do
+--        checkExactSet set
+--          [ ("trent"             , "Trent")
+--          , ("tent"              , "tent")
+--          , ("restaurant"        , "restaurant")
+--          , ("xrftantnt,!tnrant" , "xRftAntnt,!tnRant") ]
+--        checkMagnitude set 2 0 2.449489742783178
+--        checkMagnitude set 2 1 2.23606797749979
+--        checkMagnitude set 2 2 3.3166247903554
+--        checkMagnitude set 2 3 5.196152422706632
+--        checkMagnitude set 3 0 2.23606797749979
+--        checkMagnitude set 3 1 2.0
+--        checkMagnitude set 3 2 3.1622776601683795
+--        checkMagnitude set 3 3 4.242640687119285
+--        checkMatchDictEntry set "tau" [GramInfo 2 1]
+--        checkMatchDictEntry set "en"  [GramInfo 0 1, GramInfo 1 1]
+--        checkMatchDictEntry set "ten" [GramInfo 1 1]
+--        checkMatchDictEntry set "ran" [GramInfo 2 1, GramInfo 3 1]
+--        checkMatchDictEntry set "ntn" [GramInfo 3 1]
+--        checkMatchDictEntry set "-xr" [GramInfo 3 1]
+--        checkMatchDictEntry set "an"  [GramInfo 2 1, GramInfo 3 2]
+--        checkMatchDictEntry set "ant" [GramInfo 2 1, GramInfo 3 2]
+--        checkMatchDictEntry set "t,t" [GramInfo 3 1]
+--        checkMatchDictEntry set "nt-" [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 1]
+--        checkMatchDictEntry set "nt," [GramInfo 3 1]
+--        checkMatchDictEntry set "xr"  [GramInfo 3 1]
+--        checkMatchDictEntry set "tan" [GramInfo 3 1]
+--        checkMatchDictEntry set "st"  [GramInfo 2 1]
+--        checkMatchDictEntry set "es"  [GramInfo 2 1]
+--        checkMatchDictEntry set "fta" [GramInfo 3 1]
+--        checkMatchDictEntry set "est" [GramInfo 2 1]
+--        checkMatchDictEntry set "re"  [GramInfo 0 1, GramInfo 2 1]
+--        checkMatchDictEntry set "-tr" [GramInfo 0 1]
+--        checkMatchDictEntry set "res" [GramInfo 2 1]
+--        checkMatchDictEntry set "xrf" [GramInfo 3 1]
+--        checkMatchDictEntry set "tr"  [GramInfo 0 1]
+--        checkMatchDictEntry set ",t"  [GramInfo 3 1]
+--        checkMatchDictEntry set "tn"  [GramInfo 3 2]
+--        checkMatchDictEntry set "-t"  [GramInfo 0 1, GramInfo 1 1]
+--        checkMatchDictEntry set "rf"  [GramInfo 3 1]
+--        checkMatchDictEntry set "aur" [GramInfo 2 1]
+--        checkMatchDictEntry set "ent" [GramInfo 0 1, GramInfo 1 1]
+--        checkMatchDictEntry set "ra"  [GramInfo 2 1, GramInfo 3 1]
+--        checkMatchDictEntry set "-r"  [GramInfo 2 1]
+--        checkMatchDictEntry set "-r"  [GramInfo 2 1]
+--        checkMatchDictEntry set "ren" [GramInfo 0 1]
+--        checkMatchDictEntry set "nr"  [GramInfo 3 1]
+--        checkMatchDictEntry set "te"  [GramInfo 1 1]
+--        checkMatchDictEntry set "nt"  [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 3]
+--        checkMatchDictEntry set "-x"  [GramInfo 3 1]
+--        checkMatchDictEntry set "ta"  [GramInfo 2 1, GramInfo 3 1]
+--        checkMatchDictEntry set "ft"  [GramInfo 3 1]
+--        checkMatchDictEntry set "nra" [GramInfo 3 1]
+--        checkMatchDictEntry set ",tn" [GramInfo 3 1]
+--        checkMatchDictEntry set "-re" [GramInfo 2 1]
+--        checkMatchDictEntry set "ura" [GramInfo 2 1]
+--        checkMatchDictEntry set "tnt" [GramInfo 3 1]
+--        checkMatchDictEntry set "sta" [GramInfo 2 1]
+--        checkMatchDictEntry set "tnr" [GramInfo 3 1]
+--        checkMatchDictEntry set "rft" [GramInfo 3 1]
+--        checkMatchDictEntry set "tre" [GramInfo 0 1]
+--        checkMatchDictEntry set "ur"  [GramInfo 2 1]
+--        checkMatchDictEntry set "t,"  [GramInfo 3 1]
+--        checkMatchDictEntry set "t-"  [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 1]
+--        checkMatchDictEntry set "au"  [GramInfo 2 1]
+--        checkMatchDictEntry set "-te" [GramInfo 1 1]
+--
+--    describe "FuzzySet 3 4 True mempty mempty mempty `add` ..." $
+--      let set = FuzzySet 3 4 True mempty mempty mempty
+--                            `add` "Trent"
+--                            `add` "pants"
+--                            `add` "restaurant"
+--                            `add` "XrF,!TNrATaNTNTNT"
+--       in do
+--        checkExactSet set
+--          [ ("trent"             , "Trent")
+--          , ("pants"             , "pants")
+--          , ("restaurant"        , "restaurant")
+--          , ("xrf,!tnratantntnt" , "XrF,!TNrATaNTNTNT") ]
+--        checkMagnitude set 3 0 2.23606797749979
+--        checkMagnitude set 3 1 2.23606797749979
+--        checkMagnitude set 3 2 3.1622776601683795
+--        checkMagnitude set 3 3 4.47213595499958
+--        checkMagnitude set 4 0 2.0
+--        checkMagnitude set 4 1 2.0
+--        checkMagnitude set 4 2 3.0
+--        checkMagnitude set 4 3 4.123105625617661
+--        checkMatchDictEntry set "ntnt" [GramInfo 3 2]
+--        checkMatchDictEntry set "tau"  [GramInfo 2 1]
+--        checkMatchDictEntry set "xrf"  [GramInfo 3 1]
+--        checkMatchDictEntry set "esta" [GramInfo 2 1]
+--        checkMatchDictEntry set "-pa"  [GramInfo 1 1]
+--        checkMatchDictEntry set "ran"  [GramInfo 2 1]
+--        checkMatchDictEntry set "ntn"  [GramInfo 3 2]
+--        checkMatchDictEntry set "-xr"  [GramInfo 3 1]
+--        checkMatchDictEntry set "ants" [GramInfo 1 1]
+--        checkMatchDictEntry set "-xrf" [GramInfo 3 1]
+--        checkMatchDictEntry set "ant"  [GramInfo 1 1, GramInfo 2 1, GramInfo 3 1]
+--        checkMatchDictEntry set "rant" [GramInfo 2 1]
+--        checkMatchDictEntry set "rat"  [GramInfo 3 1]
+--        checkMatchDictEntry set "antn" [GramInfo 3 1]
+--        checkMatchDictEntry set "nt-"  [GramInfo 0 1, GramInfo 2 1, GramInfo 3 1]
+--        checkMatchDictEntry set "rent" [GramInfo 0 1]
+--        checkMatchDictEntry set "rata" [GramInfo 3 1]
+--        checkMatchDictEntry set "tan"  [GramInfo 3 1]
+--        checkMatchDictEntry set "tant" [GramInfo 3 1]
+--        checkMatchDictEntry set "-tre" [GramInfo 0 1]
+--        checkMatchDictEntry set "est"  [GramInfo 2 1]
+--        checkMatchDictEntry set "-tr"  [GramInfo 0 1]
+--
+--    describe "FuzzySet 2 5 True mempty mempty mempty `add` ..." $
+--      let set = FuzzySet 2 5 True mempty mempty mempty
+--                            `add` "Trent"
+--                            `add` "restaurant"
+--                            `add` "aunt"
+--                            `add` "Smarty Pants"
+--                            `add` "XrF,!TNrATaNTNTNT"
+--       in do
+--        checkExactSet set
+--          [ ("trent"             , "Trent")
+--          , ("restaurant"        , "restaurant")
+--          , ("aunt"              , "aunt")
+--          , ("smarty pants"      , "Smarty Pants")
+--          , ("xrf,!tnratantntnt" , "XrF,!TNrATaNTNTNT") ]
+--        checkMagnitude set 2 0 2.449489742783178
+--        checkMagnitude set 2 1 3.3166247903554
+--        checkMagnitude set 2 2 2.23606797749979
+--        checkMagnitude set 2 3 3.605551275463989
+--        checkMagnitude set 2 4 5.385164807134504
+--        checkMagnitude set 3 0 2.23606797749979
+--        checkMagnitude set 3 1 3.1622776601683795
+--        checkMagnitude set 3 2 2.0
+--        checkMagnitude set 3 3 3.4641016151377544
+--        checkMagnitude set 3 4 4.47213595499958
+--        checkMagnitude set 4 0 2.0
+--        checkMagnitude set 4 1 3.0
+--        checkMagnitude set 4 2 1.7320508075688772
+--        checkMagnitude set 4 3 3.3166247903554
+--        checkMagnitude set 4 4 4.123105625617661
+--        checkMagnitude set 5 0 1.7320508075688772
+--        checkMagnitude set 5 1 2.8284271247461903
+--        checkMagnitude set 5 2 1.4142135623730951
+--        checkMagnitude set 5 3 3.1622776601683795
+--        checkMagnitude set 5 4 3.7416573867739413
+--        checkMatchDictEntry set "pant"  [GramInfo 3 1]
+--        checkMatchDictEntry set "y "    [GramInfo 3 1]
+--        checkMatchDictEntry set "-xr"   [GramInfo 4 1]
+--        checkMatchDictEntry set "rest"  [GramInfo 1 1]
+--        checkMatchDictEntry set " p"    [GramInfo 3 1]
+--        checkMatchDictEntry set "ty p"  [GramInfo 3 1]
+--        checkMatchDictEntry set "rty"   [GramInfo 3 1]
+--        checkMatchDictEntry set "-tre"  [GramInfo 0 1]
+--        checkMatchDictEntry set "-a"    [GramInfo 2 1]
+--        checkMatchDictEntry set "ty"    [GramInfo 3 1]
+--        checkMatchDictEntry set "tntnt" [GramInfo 4 1]
+--        checkMatchDictEntry set "tr"    [GramInfo 0 1]
+--        checkMatchDictEntry set "ts"    [GramInfo 3 1]
+--        checkMatchDictEntry set "aun"   [GramInfo 2 1]
+--        checkMatchDictEntry set "tn"    [GramInfo 4 3]
+--        checkMatchDictEntry set "-t"    [GramInfo 0 1]
+--        checkMatchDictEntry set "aur"   [GramInfo 1 1]
+--        checkMatchDictEntry set "-s"    [GramInfo 3 1]
+--        checkMatchDictEntry set "-r"    [GramInfo 1 1]
+--        checkMatchDictEntry set "rty"   [GramInfo 3 1]
+--        checkMatchDictEntry set "tnra"  [GramInfo 4 1]
+--        checkMatchDictEntry set "nt"    [GramInfo 0 1, GramInfo 1 1, GramInfo 2 1, GramInfo 3 1, GramInfo 4 3]
+--
+--    describe "values (defaultSet `add` ...)" $ do
+--      let set = defaultSet `add` "Trent" `add` "restaurant"
+--                           `add` "aunt"  `add` "Smarty Pants"
+--                           `add` "XrF,!TNrATaNTNTNT"
+--      it "should contain the added elements" $ do
+--        values set `shouldContain` ["Trent"]
+--        values set `shouldContain` ["restaurant"]
+--        values set `shouldContain` ["aunt"]
+--        values set `shouldContain` ["Smarty Pants"]
+--        values set `shouldContain` ["XrF,!TNrATaNTNTNT"]
+--
+--    describe "size (defaultSet `add` ...)" $ do
+--      let set = defaultSet `add` "Trent" `add` "restaurant"
+--                           `add` "aunt"  `add` "Smarty Pants"
+--                           `add` "XrF,!TNrATaNTNTNT"
+--      it "should be 5" $ size set `shouldBe` 5
+--
+--    describe "isEmpty (defaultSet `add` ...)" $ do
+--      let set = defaultSet `add` "Trent" `add` "restaurant"
+--                           `add` "aunt"  `add` "Smarty Pants"
+--                           `add` "XrF,!TNrATaNTNTNT"
+--      it "should be False" $ isEmpty set `shouldBe` False
+--
+--    describe "isEmpty defaultSet" $ do
+--      let set = defaultSet
+--      it "should be True" $ isEmpty set `shouldBe` True
+--
+--    describe "snd $ (defaultSet `add` \"again\") `addToSet` \"again\"" $ do
+--      let set = (defaultSet `add` "again") `add` "again"
+--      it "should return False" $
+--        snd ((defaultSet `add` "again") `addToSet` "again") `shouldBe` False
+--
+--    describe "get (defaultSet `add` \"xxx\")" $ do
+--      let set = defaultSet `add` "xxx"
+--      it "should return [(1, \"xxx\")]" $
+--        get set "xxx" `shouldBe` [(1, "xxx")]
+--
+--    checkMatches testset_1 "ant"   3 [(0, 1), (1, 2), (2, 1), (3, 1)]
+--    checkMatches testset_1 "pant"  3 [(0, 1), (1, 2), (2, 1), (3, 2)]
+--    checkMatches testset_1 "pants" 3 [(1, 1), (3, 4)]
+--    checkMatches testset_1 "tre"   3 [(0, 2)]
+--    checkMatches testset_1 "xxx"   3 []
+--    checkMatches testset_1 "xxx"   2 []
+--    checkMatches testset_1 "tsap"  3 []
+--    checkMatches testset_1 "tsap"  2 [(0, 1), (3, 1)]
+--    checkMatches testset_2 "hat"   3 [(4, 1)]
+--    checkMatches testset_2 "anthropology" 3 [(1, 1), (3, 1)]
+--    checkMatches testset_2 "spot"  3 []
+--    checkMatches testset_2 "spot"  2 [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1)]
+--    checkMatches testset_2 "axiom" 3 []
+--    checkMatches testset_2 "axiom" 2 [(2, 1)]
+--    checkMatches testset_3 "moped" 2 [(5, 1)]
+--    checkMatches (defaultSet `add` "bananas") "ananas" 3 [(0, 7)]
+--    checkMatches (defaultSet `add` "banana")  "ananas" 3 [(0, 5)]
+--
+--    -- Tests where useLevenshtein == False
+--    checkGet testset_4 "flask"    [(0.3651483716701107, "Alaska")]
+--    checkGet testset_4 "lambda"   [(0.40089186286863654, "Alabama")]
+--    checkGet testset_4 "lambada"  [(0.49999999999999999, "Alabama")]
+--    checkGet testset_4 "alabama"  [(1, "Alabama")]
+--    checkGet testset_4 "al"       []
+--    checkGet testset_4 "albama"   [(0.6172133998483676, "Alabama")]
+--    checkGet testset_4 "Alabaska" [ (0.7216878364870323, "Alaska")
+--                                  , (0.5345224838248487, "Alabama") ]
+    checkGet testset_5 "homeland"     [(0.37499999999999994, "Maryland")]
+    checkGet testset_5 "connectedcut" [(0.6963106238227914, "Connecticut")]
+    checkGet testset_5 "oregano"      [(0.4629100498862757, "Oregon")]
+    checkGet testset_5 "akeloxasas"   []
+    checkGet testset_5 "alaskansas"   [ (0.6454972243679029, "Alaska")
+                                      , (0.6454972243679029, "Kansas")
+                                      , (0.5590169943749475, "Arkansas") ]
 
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"
@@ -502,3 +516,65 @@ testset_3 = testset_2 `add` "polymorphic"
 testset_4 ∷ FuzzySet
 testset_4 = FuzzySet 2 3 False empty empty empty
   `add` "Alaska" `add` "Alabama" `add` "Guam"
+
+testset_5 ∷ FuzzySet
+testset_5 = foldr (flip add) (FuzzySet 2 3 False empty empty empty) states
+
+states ∷ [Text]
+states =
+  [ "Alabama"
+  , "Alaska"
+  , "American Samoa"
+  , "Arizona"
+  , "Arkansas"
+  , "California"
+  , "Colorado"
+  , "Connecticut"
+  , "Delaware"
+  , "District of Columbia"
+  , "Florida"
+  , "Georgia"
+  , "Guam"
+  , "Hawaii"
+  , "Idaho"
+  , "Illinois"
+  , "Indiana"
+  , "Iowa"
+  , "Kansas"
+  , "Kentucky"
+  , "Louisiana"
+  , "Maine"
+  , "Maryland"
+  , "Massachusetts"
+  , "Michigan"
+  , "Minnesota"
+  , "Mississippi"
+  , "Missouri"
+  , "Montana"
+  , "Nebraska"
+  , "Nevada"
+  , "New Hampshire"
+  , "New Jersey"
+  , "New Mexico"
+  , "New York"
+  , "North Carolina"
+  , "North Dakota"
+  , "Northern Marianas Islands"
+  , "Ohio"
+  , "Oklahoma"
+  , "Oregon"
+  , "Pennsylvania"
+  , "Puerto Rico"
+  , "Rhode Island"
+  , "South Carolina"
+  , "South Dakota"
+  , "Tennessee"
+  , "Texas"
+  , "Utah"
+  , "Vermont"
+  , "Virginia"
+  , "Virgin Islands"
+  , "Washington"
+  , "West Virginia"
+  , "Wisconsin"
+  , "Wyoming" ]

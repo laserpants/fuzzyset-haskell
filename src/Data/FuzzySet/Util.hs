@@ -4,7 +4,6 @@ module Data.FuzzySet.Util
   , substr
   , enclosedIn
   , norm
-  , monohead
   ) where
 
 import Data.Char                       ( isAlphaNum, isSpace )
@@ -44,8 +43,3 @@ enclosedIn str ch = ch `cons` str `snoc` ch
 --   at position /i/ in the input list.
 norm ∷ (Integral a, Floating b) ⇒ [a] → b
 norm = sqrt ∘ fromIntegral ∘ sum ∘ fmap (^2)
-
-monohead ∷ Monoid t ⇒ [t] → t
-{-# INLINE monohead #-}
-monohead [] = mempty
-monohead xs = head xs
