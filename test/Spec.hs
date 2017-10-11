@@ -503,6 +503,8 @@ main = hspec $ do
     checkGet testset_5 "alaskansas"   [ (0.6454972243679029, "Alaska")
                                       , (0.6454972243679029, "Kansas")
                                       , (0.5590169943749475, "Arkansas") ]
+    checkGet testset_5 "South"        [ (0.5163977794943222, "South Dakota" )
+                                      , (0.47809144373375745, "South Carolina") ]
 
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"
