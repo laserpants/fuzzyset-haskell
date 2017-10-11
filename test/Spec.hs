@@ -3,6 +3,7 @@
 
 import Control.Exception             ( evaluate )
 import Control.Lens
+import Control.Monad                 ( zipWithM_ )
 import Data.AEq
 import Data.FuzzySet
 import Data.FuzzySet.Lens
@@ -94,10 +95,23 @@ checkGramMapKeys txt size keys =
 checkMatches ∷ FuzzySet → Text → Size → [(Int, Int)] → SpecWith ()
 checkMatches set txt size r =
     describe msg $ it ("should return " ⊕ show r) $
-      matches (set^._matchDict) (gramMap txt size) `shouldBe` fromList r
+      matches set (gramMap txt size) `shouldBe` fromList r
   where
     msg = "matches "  ⊕ show (set^._exactSet) ⊕ " "
         ⊕ "(gramMap " ⊕ show txt ⊕ " " ⊕ show size ⊕ ")"
+
+checkGet ∷ FuzzySet → Text → [(Double, Text)] → SpecWith ()
+checkGet set val rs =
+    describe msg $ do
+      it ("should return " ⊕ show (length rs) ⊕ " match(es)")
+         (length rs `shouldBe` length xs)
+      zipWithM_ ξ rs xs
+  where
+    xs = get set val
+    ξ (a, b) (a', b') = do
+      it ("should return a match for the string " ⊕ show b) (b `shouldBe` b')
+      it ("having a score close to " ⊕ show a) (a `shouldBeCloseTo` a')
+    msg = "get (" ⊕ show (set^._exactSet) ⊕ ") " ⊕ show val
 
 main ∷ IO ()
 main = hspec $ do
@@ -438,6 +452,11 @@ main = hspec $ do
       let set = defaultSet
       it "should be True" $ isEmpty set `shouldBe` True
 
+    describe "snd $ (defaultSet `add` \"again\") `addToSet` \"again\"" $ do
+      let set = (defaultSet `add` "again") `add` "again"
+      it "should return False" $
+        snd ((defaultSet `add` "again") `addToSet` "again") `shouldBe` False
+
     describe "get (defaultSet `add` \"xxx\")" $ do
       let set = defaultSet `add` "xxx"
       it "should return [(1, \"xxx\")]" $
@@ -458,13 +477,28 @@ main = hspec $ do
     checkMatches testset_2 "axiom" 3 []
     checkMatches testset_2 "axiom" 2 [(2, 1)]
     checkMatches testset_3 "moped" 2 [(5, 1)]
+    checkMatches (defaultSet `add` "bananas") "ananas" 3 [(0, 7)]
+    checkMatches (defaultSet `add` "banana")  "ananas" 3 [(0, 5)]
+
+    -- Tests where useLevenshtein == False
+    checkGet testset_4 "flask"    [(0.3651483716701107, "Alaska")]
+    checkGet testset_4 "lambda"   [(0.40089186286863654, "Alabama")]
+    checkGet testset_4 "lambada"  [(0.49999999999999999, "Alabama")]
+    checkGet testset_4 "alabama"  [(1, "Alabama")]
+    checkGet testset_4 "al"       []
+    checkGet testset_4 "albama"   [(0.6172133998483676, "Alabama")]
+    checkGet testset_4 "Alabaska" [ (0.7216878364870323, "Alaska")
+                                  , (0.5345224838248487, "Alabama") ]
 
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"
                        `add` "aunt"  `add` "Smarty Pants"
-
 testset_2 ∷ FuzzySet
 testset_2 = testset_1 `add` "cat"
 
 testset_3 ∷ FuzzySet
 testset_3 = testset_2 `add` "polymorphic"
+
+testset_4 ∷ FuzzySet
+testset_4 = FuzzySet 2 3 False empty empty empty
+  `add` "Alaska" `add` "Alabama" `add` "Guam"

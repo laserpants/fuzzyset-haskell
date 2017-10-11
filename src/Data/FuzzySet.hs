@@ -1,28 +1,33 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
-module Data.FuzzySet
-  ( FuzzySet
-  , Size
-  , defaultSet
-  , ε
-  , get
-  , add
-  , addToSet
-  , size
-  , isEmpty
-  , values
-  , gramMap
-  , grams
-  ) where
+module Data.FuzzySet where
+--  ( FuzzySet
+--  , Size
+--  , defaultSet
+--  , ε
+--  , get
+--  , add
+--  , addToSet
+--  , size
+--  , isEmpty
+--  , values
+--  , gramMap
+--  , grams
+--
+--  , matches
+--
+--  ) where
 
 import Control.Lens
 import Control.Monad
 import Data.Foldable.Unicode
+import Data.Function                   ( on )
 import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
 import Data.FuzzySet.Util
-import Data.HashMap.Strict             ( HashMap, alter, empty, insert, member, elems, unionWith )
+import Data.HashMap.Strict             ( HashMap, alter, empty, foldrWithKey, insert, member, elems, unionWith )
+import Data.List                       ( sortBy )
 import Data.Maybe                      ( fromMaybe )
 import Data.Text                       ( Text )
 import Data.Vector                     ( Vector, singleton )
@@ -31,6 +36,8 @@ import Prelude.Unicode                 hiding ( (∈) )
 import qualified Data.Text             as Text
 import qualified Data.HashMap.Strict   as HashMap
 import qualified Data.Vector           as Vector
+
+import Debug.Trace
 
 -- | A 'FuzzySet' with the following contents
 --
@@ -97,24 +104,41 @@ gramMap val size = foldr ζ ε (grams val size)
   where
     ζ = alter (pure ∘ succ ∘ fromMaybe 0)
 
--- | @TODO
 get ∷ FuzzySet → Text → [(Double, Text)]
-get set@FuzzySet{..} val =
-    case HashMap.lookup key exactSet of
+get = getMin 0.33
+
+-- | @TODO
+getMin ∷ Double → FuzzySet → Text → [(Double, Text)]
+getMin mins set@FuzzySet{..} val =
+    let key = Text.toLower val
+     in case HashMap.lookup key exactSet of
       Just v  → [(1, v)]
-      Nothing → msum (__get <$> reverse [gramSizeLower .. gramSizeUpper])
+      Nothing → fromMaybe [] $
+                msum [ get_ mins key set s
+                     | s ← reverse [gramSizeLower .. gramSizeUpper] ]
+
+get_ ∷ Double → Text → FuzzySet → Size → Maybe [(Double, Text)]
+get_ mins key set size
+    | null results = Nothing
+    | otherwise    = Just (filter ((<) mins ∘ fst) sorted)
   where
-    key = Text.toLower val
+    sorted  = sortBy (flip compare `on` fst) results
+    results = ζ <$> HashMap.toList (matches set grams)
+    grams   = gramMap key size
+    items   = set ^._items.ix size
+    norm'   = norm (elems grams)
+    ζ (index, score) =
+      let FuzzySetItem{..} = Vector.unsafeIndex items index
+       in ( fromIntegral score / (norm' * vectorMagnitude)
+          , set ^._exactSet.ix normalizedEntry )
 
-    --__get ∷ Size → Maybe [(Double, Text)]
-    __get ∷ Size → [(Double, Text)]
-    __get size =
-      let grams = gramMap key size
-          items = set ^._items.ix size
-          norm' = norm (elems grams)
-          mtchs = matches (set ^._matchDict) grams
-
-        in (error $ show mtchs)
+matches ∷ FuzzySet → HashMap Text Int → Matches
+matches set = foldrWithKey ζ empty
+  where
+    dict = set ^._matchDict
+    ζ gram occ matches = foldr (\GramInfo{..} →
+        alter (pure ∘ (+) (occ * gramCount) ∘ fromMaybe 0) gramIndex)
+          matches (dict ^.ix gram)
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
 --   key already exists.
