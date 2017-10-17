@@ -109,18 +109,18 @@ get = getMin 0.33
 
 -- | @TODO
 getMin ∷ Double → FuzzySet → Text → [(Double, Text)]
-getMin mins set@FuzzySet{..} val =
+getMin minScore set@FuzzySet{..} val =
     let key = Text.toLower val
      in case HashMap.lookup key exactSet of
       Just v  → [(1, v)]
       Nothing → fromMaybe [] $
-                msum [ get_ mins key set s
+                msum [ get_ minScore key set s
                      | s ← reverse [gramSizeLower .. gramSizeUpper] ]
 
 get_ ∷ Double → Text → FuzzySet → Size → Maybe [(Double, Text)]
-get_ mins key set size
+get_ minScore key set size
     | null results = Nothing
-    | otherwise    = Just (filter ((<) mins ∘ fst) sorted)
+    | otherwise    = Just (filter ((<) minScore ∘ fst) sorted)
   where
     sorted  = sortBy (flip compare `on` fst) results
     results = ζ <$> HashMap.toList (matches set grams)
