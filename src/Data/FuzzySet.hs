@@ -116,8 +116,14 @@ getMin minScore set@FuzzySet{..} val =
       Just v  → [(1, v)]
       Nothing → fromMaybe [] $ msum [ get_ minScore key set s | s ← sizes ]
 
+levenshtein ∷ Text → Text → Double
+levenshtein = undefined
+
 distance_ ∷ Text → Text → Double
-distance_ = undefined
+distance_ s t = 1 - levenshtein s t / fromIntegral (max ls lt)
+  where
+    ls = Text.length s
+    lt = Text.length t
 
 get_ ∷ Double → Text → FuzzySet → Size → Maybe [(Double, Text)]
 get_ minScore key set size
