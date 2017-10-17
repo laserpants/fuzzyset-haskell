@@ -131,9 +131,7 @@ get_ minScore key set size
     | otherwise = Just $
         let xs = filter ((<) minScore ∘ fst) sorted
             f (_, α) = (distance_ α key, α)
-         in if set ^._useLevenshtein
-              then take 50 (map f xs)
-              else xs
+         in if set ^._useLevenshtein then take 50 (map f xs) else xs
   where
     sorted  = sortBy (flip compare `on` fst) results
     results = ζ <$> HashMap.toList (matches set grams)
