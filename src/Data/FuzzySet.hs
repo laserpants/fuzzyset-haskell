@@ -30,6 +30,7 @@ import Data.HashMap.Strict             ( HashMap, alter, empty, foldrWithKey, in
 import Data.List                       ( sortBy )
 import Data.Maybe                      ( fromMaybe )
 import Data.Text                       ( Text )
+import Data.Text.Metrics
 import Data.Vector                     ( Vector, singleton )
 import Prelude.Unicode                 hiding ( (∈) )
 
@@ -116,21 +117,12 @@ getMin minScore set@FuzzySet{..} val =
       Just v  → [(1, v)]
       Nothing → fromMaybe [] $ msum [ get_ minScore key set s | s ← sizes ]
 
-levenshtein ∷ Text → Text → Double
-levenshtein = undefined
-
-distance_ ∷ Text → Text → Double
-distance_ s t = 1 - levenshtein s t / fromIntegral (max ls lt)
-  where
-    ls = Text.length s
-    lt = Text.length t
-
 get_ ∷ Double → Text → FuzzySet → Size → Maybe [(Double, Text)]
 get_ minScore key set size
     | null results = Nothing
     | otherwise = Just $
         let xs = filter ((<) minScore ∘ fst) sorted
-            f (_, α) = (distance_ α key, α)
+            f (_, α) = (distance α key, α)
          in if set ^._useLevenshtein then take 50 (map f xs) else xs
   where
     sorted  = sortBy (flip compare `on` fst) results
@@ -173,6 +165,9 @@ addToSet FuzzySet{..} val
         $ over (_items.at size) (Just ∘ (`Vector.snoc` item)
                                       ∘ fromMaybe Vector.empty) fs
     key = Text.toLower val
+
+addMany ∷ FuzzySet → [Text] → FuzzySet
+addMany = foldr (flip add)
 
 -- | Return the number of entries in the set.
 size ∷ FuzzySet → Int

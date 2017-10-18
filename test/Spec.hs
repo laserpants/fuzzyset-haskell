@@ -115,6 +115,14 @@ checkGet set val rs =
       it ("having a score close to " ⊕ show a) (a `shouldBeCloseTo` a')
     msg = "get (" ⊕ show (set^._exactSet) ⊕ ") " ⊕ show val
 
+checkDistance ∷ Text → Text → Double → SpecWith ()
+checkDistance s t d =
+    describe msg $ do
+      it ("should be approximately " ⊕ show d)
+         (distance s t `shouldBeCloseTo` d)
+  where
+    msg = "edit distance between " ⊕ show s ⊕ " and " ⊕ show t
+
 sorted ∷ Ord a ⇒ [a] → Bool
 sorted [ ] = True
 sorted [_] = True
@@ -515,6 +523,19 @@ main = hspec $ do
     checkGet testset_5 "Landland"     [ (0.5103103630798287, "Maryland")
                                       , (0.41666666666666674, "Rhode Island") ]
 
+    checkDistance "hello" "yello" 0.8
+    checkDistance "fellow" "yello" 0.6666666666666667
+    checkDistance "fellow" "yellow" 0.8333333333333334
+    checkDistance "propeller" "yellow" 0.33333333333333337
+    checkDistance "propeller" "teller" 0.5555555555555556
+    checkDistance "balloon" "spoon" 0.4285714285714286
+    checkDistance "balloon" "electron" 0.25
+    checkDistance "spectrum" "electron" 0.5
+    checkDistance "spectrum" "techno" 0.25
+    checkDistance "technology" "techno" 0.6
+    checkDistance "technology" "logic" 0.19999999999999996
+    checkDistance "toxic" "logic" 0.6
+
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"
                        `add` "aunt"  `add` "Smarty Pants"
@@ -529,7 +550,7 @@ testset_4 = FuzzySet 2 3 False empty empty empty
   `add` "Alaska" `add` "Alabama" `add` "Guam"
 
 testset_5 ∷ FuzzySet
-testset_5 = foldr (flip add) (FuzzySet 2 3 False empty empty empty) states
+testset_5 = addMany (FuzzySet 2 3 False empty empty empty) states
 
 states ∷ [Text]
 states =

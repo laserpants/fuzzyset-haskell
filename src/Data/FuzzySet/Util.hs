@@ -4,10 +4,12 @@ module Data.FuzzySet.Util
   , substr
   , enclosedIn
   , norm
+  , distance
   ) where
 
 import Data.Char                       ( isAlphaNum, isSpace )
 import Data.Text                       ( Text, cons, snoc )
+import Data.Text.Metrics
 import Prelude.Unicode
 import qualified Data.Text             as Text
 
@@ -43,3 +45,9 @@ enclosedIn str ch = ch `cons` str `snoc` ch
 --   at position /i/ in the input list.
 norm ∷ (Integral a, Floating b) ⇒ [a] → b
 norm = sqrt ∘ fromIntegral ∘ sum ∘ fmap (^2)
+
+distance ∷ Text → Text → Double
+distance s t = 1 - fromIntegral (levenshtein s t) / fromIntegral (max ls lt)
+  where
+    ls = Text.length s
+    lt = Text.length t
