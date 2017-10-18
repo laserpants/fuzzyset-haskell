@@ -27,6 +27,9 @@ shouldBeTrue = shouldBe True
 shouldBeCloseTo ∷ Double → Double → Expectation
 shouldBeCloseTo q r = shouldBeTrue (q ~== r)
 
+shouldNotBeCloseTo ∷ Double → Double → Expectation
+shouldNotBeCloseTo q r = shouldBeTrue $ not (q ~== r)
+
 lookup0 ∷ Text → HashMap Text Int → Int
 lookup0 = Map.lookupDefault 0
 
@@ -535,6 +538,12 @@ main = hspec $ do
     checkDistance "technology" "techno" 0.6
     checkDistance "technology" "logic" 0.19999999999999996
     checkDistance "toxic" "logic" 0.6
+    checkDistance "sawa" "sawa" 1
+    checkDistance "fez" "baz" 0.33333333333333337
+    -- Just a sanity check
+    describe "edit distance between \"fez\" and \"baz\"" $ do
+      it ("should not be close to 0.123")
+         (distance "fez" "baz" `shouldNotBeCloseTo` 0.123)
 
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"
