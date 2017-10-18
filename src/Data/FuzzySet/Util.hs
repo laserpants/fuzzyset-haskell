@@ -47,7 +47,6 @@ norm ∷ (Integral a, Floating b) ⇒ [a] → b
 norm = sqrt ∘ fromIntegral ∘ sum ∘ fmap (^2)
 
 distance ∷ Text → Text → Double
-distance s t = 1 - fromIntegral (levenshtein s t) / fromIntegral (max ls lt)
-  where
-    ls = Text.length s
-    lt = Text.length t
+distance s t = fromRational (toRational d)
+  where 
+    d = levenshteinNorm s t
