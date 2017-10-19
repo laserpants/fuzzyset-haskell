@@ -110,7 +110,7 @@ checkGet set val rs =
       it "should return a sorted list" (sorted $ fst <$> xs)
       it ("should return " ⊕ show (length rs) ⊕ " match(es)")
          (length rs `shouldBe` length xs)
-      zipWithM_ ξ (sortOn snd rs) (sortOn snd xs)
+      zipWithM_ ξ rs xs -- (sortOn snd rs) (sortOn snd xs)
   where
     xs = get set val
     ξ (a, b) (a', b') = do
@@ -545,6 +545,14 @@ main = hspec $ do
       it ("should not be close to 0.123")
          (distance "fez" "baz" `shouldNotBeCloseTo` 0.123)
 
+    -- Tests where useLevenshtein == True
+    checkGet testset_6 "wyome" [ (0.5714285714285714, "Wyoming") ]
+    checkGet testset_6 "Louisianaland" [ ( 0.6923076923076923, "Louisiana" )
+                                       , ( 0.3846153846153846, "Maryland" )
+                                       , ( 0.3846153846153846, "Rhode Island" )
+                                       , ( 0.36, "Northern Marianas Islands" ) ]
+    checkGet testset_6 "ia" [ (0.5, "Iowa"), (0.4, "Idaho") ]
+
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"
                        `add` "aunt"  `add` "Smarty Pants"
@@ -560,6 +568,9 @@ testset_4 = FuzzySet 2 3 False empty empty empty
 
 testset_5 ∷ FuzzySet
 testset_5 = addMany (FuzzySet 2 3 False empty empty empty) states
+
+testset_6 ∷ FuzzySet
+testset_6 = addMany defaultSet states
 
 states ∷ [Text]
 states =

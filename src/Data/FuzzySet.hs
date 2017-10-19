@@ -62,6 +62,11 @@ defaultSet = FuzzySet 2 3 True ε ε ε
 (−) = (-)
 {-# INLINE (−) #-}
 
+-- Another unicode operator. This time for multiplication.
+(×) ∷ Num α ⇒ α → α → α
+(×) = (*)
+{-# INLINE (×) #-}
+
 -- | Break apart the normalized input string into a list of /n/-grams. For
 --   instance, the string "Destroido Corp." is first normalized into the
 --   form "destroido corp", and then enclosed in hyphens, so that it becomes
@@ -119,12 +124,13 @@ getMin minScore set@FuzzySet{..} val =
 
 get_ ∷ Double → Text → FuzzySet → Size → Maybe [(Double, Text)]
 get_ minScore key set size
-    | null results = Nothing
-    | otherwise = Just $
-        let xs = filter ((<) minScore ∘ fst) sorted
-            f (_, α) = (distance α key, α)
-         in if set ^._useLevenshtein then take 50 (map f xs) else xs
+    -- | null results = Nothing
+    | null xs = Nothing
+    | otherwise = trace (show $ matches set grams) $ Just $ fmap (fmap ((HashMap.!) (set ^._exactSet))) xs
   where
+    f (_,α) = (distance key α, α)
+    xs      = filter ((<) minScore ∘ fst) ys  -- leeeens !?
+    ys      = if set ^._useLevenshtein then take 50 $ map f sorted else sorted
     sorted  = sortBy (flip compare `on` fst) results
     results = ζ <$> HashMap.toList (matches set grams)
     grams   = gramMap key size
@@ -132,15 +138,14 @@ get_ minScore key set size
     norm'   = norm (elems grams)
     ζ (index, score) =
       let FuzzySetItem{..} = Vector.unsafeIndex items index
-       in ( fromIntegral score / (norm' * vectorMagnitude)
-          , set ^._exactSet.ix normalizedEntry )
+       in (fromIntegral score / (norm' × vectorMagnitude), normalizedEntry)
 
 matches ∷ FuzzySet → HashMap Text Int → Matches
 matches set = foldrWithKey ζ empty
   where
     dict = set ^._matchDict
     ζ gram occ matches = foldr (\GramInfo{..} →
-        alter (pure ∘ (+) (occ * gramCount) ∘ fromMaybe 0) gramIndex)
+        alter (pure ∘ (+) (occ × gramCount) ∘ fromMaybe 0) gramIndex)
           matches (dict ^.ix gram)
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
