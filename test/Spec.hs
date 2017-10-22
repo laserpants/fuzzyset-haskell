@@ -555,12 +555,12 @@ main = hspec $ do
          (distance "fez" "baz" `shouldNotBeCloseTo` 0.123)
 
 --    -- Tests where useLevenshtein == True
---    checkGet testset_6 "wyome" [ (0.5714285714285714, "Wyoming") ]
---    checkGet testset_6 "Louisianaland" [ ( 0.6923076923076923, "Louisiana" )
---                                       , ( 0.3846153846153846, "Maryland" )
---                                       , ( 0.3846153846153846, "Rhode Island" )
---                                       , ( 0.36, "Northern Marianas Islands" ) ]
---    checkGet testset_6 "ia" [ (0.5, "Iowa"), (0.4, "Idaho") ]
+    checkGet testset_6 "wyome" [ (0.5714285714285714, "Wyoming") ]
+    checkGet testset_6 "Louisianaland" [ ( 0.6923076923076923, "Louisiana" )
+                                       , ( 0.3846153846153846, "Maryland" )
+                                       , ( 0.3846153846153846, "Rhode Island" )
+                                       , ( 0.36, "Northern Marianas Islands" ) ]
+    checkGet testset_6 "ia" [ (0.5, "Iowa"), (0.4, "Idaho") ]
 
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"

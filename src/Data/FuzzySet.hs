@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
 module Data.FuzzySet where
@@ -134,9 +135,12 @@ getMin minScore FuzzySet{..} val =
 get_ ∷ Double → Text → FuzzySet → Size → [(Double, Text)]  -- use Reader monad
 get_ minScore key set size = match <$$> filtered
   where
-    match α = view (_exactSet.ix α) set
+    match α = set ^._exactSet.ix α
     filtered = filter ((<) minScore ∘ fst) sorted
-    sorted = sortBy (flip compare `on` fst) (results key set size)
+    f p = p & _1.~ distance (p ^._2) key
+    sorted = sortBy (flip compare `on` fst) $
+        let rs = results key set size
+         in if set ^._useLevenshtein then take 50 (f <$> rs) else rs
 
 results ∷ Text → FuzzySet → Size → [(Double, Text)]
 results key set size = ζ <$> HashMap.toList (matches set grams)
