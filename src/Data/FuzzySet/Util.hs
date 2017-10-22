@@ -46,6 +46,7 @@ enclosedIn str ch = ch `cons` str `snoc` ch
 norm ∷ (Integral a, Floating b) ⇒ [a] → b
 norm = sqrt ∘ fromIntegral ∘ sum ∘ fmap (^2)
 
+--  | Return normalized Levenshtein distance between the two strings. 
 distance ∷ Text → Text → Double
 distance s t = fromRational (toRational d)
   where 

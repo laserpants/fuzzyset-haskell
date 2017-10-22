@@ -27,7 +27,7 @@ import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
 import Data.FuzzySet.Util
 import Data.HashMap.Strict             ( HashMap, alter, empty, foldrWithKey, insert, member, elems, unionWith )
-import Data.List                       ( sortBy )
+import Data.List                       ( sortBy, find )
 import Data.Maybe                      ( fromMaybe )
 import Data.Text                       ( Text )
 import Data.Text.Metrics
@@ -113,40 +113,77 @@ gramMap val size = foldr ζ ε (grams val size)
 get ∷ FuzzySet → Text → [(Double, Text)]
 get = getMin 0.33
 
--- | @TODO
-getMin ∷ Double → FuzzySet → Text → [(Double, Text)]
-getMin minScore set@FuzzySet{..} val =
-    let key   = Text.toLower val
-        sizes = reverse [ gramSizeLower .. gramSizeUpper ]
-     in case HashMap.lookup key exactSet of
-      Just v  → [(1, v)]
-      Nothing → fromMaybe [] $ msum [ get_ minScore key set s | s ← sizes ]
+data LookupCtx = LookupCtx
+  { key      ∷ !Text
+  , minScore ∷ !Double
+  , set      ∷ !FuzzySet
+  } deriving (Show)
 
-get_ ∷ Double → Text → FuzzySet → Size → Maybe [(Double, Text)]
-get_ minScore key set size
-    -- | null results = Nothing
-    | null xs = Nothing
-    | otherwise = trace (show $ matches set grams) $ Just $ fmap (fmap ((HashMap.!) (set ^._exactSet))) xs
+--type LookupR = Reader LookupCtx
+
+(<$$>) = fmap ∘ fmap
+
+getMin ∷ Double → FuzzySet → Text → [(Double, Text)]
+getMin minScore FuzzySet{..} val =
+    case exactMatch of
+      Just v  → [(1, v)]
+      Nothing → fromMaybe [] $ find (not ∘ null) (get_ minScore key FuzzySet{..} <$> sizes)
   where
-    f (_,α) = (distance key α, α)
-    xs      = filter ((<) minScore ∘ fst) ys  -- leeeens !?
-    ys      = if set ^._useLevenshtein then take 50 $ map f sorted else sorted
-    sorted  = sortBy (flip compare `on` fst) results
-    results = ζ <$> HashMap.toList (matches set grams)
-    grams   = gramMap key size
-    items   = set ^._items.ix size
-    norm'   = norm (elems grams)
+    key   = Text.toLower val
+    sizes = reverse [gramSizeLower .. gramSizeUpper]
+    exactMatch = HashMap.lookup key exactSet
+
+get_ ∷ Double → Text → FuzzySet → Size → [(Double, Text)]  -- use Reader monad
+get_ minScore key set size = match <$$> filtered
+  where
+    match α = view (_exactSet.ix α) set
+    filtered = filter ((<) minScore ∘ fst) sorted
+    sorted = sortBy (flip compare `on` fst) (results key set size)
+
+results ∷ Text → FuzzySet → Size → [(Double, Text)]
+results key set size = ζ <$> HashMap.toList (matches set grams)
+  where
+    grams  = gramMap key size
+    normal = norm (elems grams)
     ζ (index, score) =
-      let FuzzySetItem{..} = Vector.unsafeIndex items index
-       in (fromIntegral score / (norm' × vectorMagnitude), normalizedEntry)
+      let FuzzySetItem{..} = Vector.unsafeIndex (set ^._items.ix size) index
+       in (fromIntegral score / (normal × vectorMagnitude), normalizedEntry)
+
+---- | @TODO
+--getMin ∷ Double → FuzzySet → Text → [(Double, Text)]
+----getMin minScore set@FuzzySet{..} val
+--getMin minScore set@FuzzySet{..} val =
+--    let key   = Text.toLower val
+--        sizes = reverse [ gramSizeLower .. gramSizeUpper ]
+--        fff   = get_ minScore key set
+--     in case HashMap.lookup key exactSet of
+--      Just v  → [(1, v)]
+--      Nothing → fromMaybe [] (msum $ fff <$> sizes)
+--
+--get_ ∷ Double → Text → FuzzySet → Size → Maybe [(Double, Text)]
+--get_ minScore key set size
+--    -- | null results = Nothing
+--    | null xs = Nothing
+--    | otherwise = trace (show $ results) $ Just $ fmap (fmap ((HashMap.!) (set ^._exactSet))) xs
+--  where
+--    f (_,α) = (distance key α, α)
+--    xs      = filter ((<) minScore ∘ fst) ys  -- leeeens !?
+--    ys      = if set ^._useLevenshtein then take 50 $ map f sorted else sorted
+--    sorted  = sortBy (flip compare `on` fst) results
+--    results = ζ <$> HashMap.toList (matches set grams)
+--    grams   = gramMap key size
+--    items   = set ^._items.ix size
+--    norm'   = norm (elems grams)
+--    ζ (index, score) =
+--      let FuzzySetItem{..} = Vector.unsafeIndex items index
+--       in (fromIntegral score / (norm' × vectorMagnitude), normalizedEntry)
 
 matches ∷ FuzzySet → HashMap Text Int → Matches
 matches set = foldrWithKey ζ empty
   where
-    dict = set ^._matchDict
-    ζ gram occ matches = foldr (\GramInfo{..} →
-        alter (pure ∘ (+) (occ × gramCount) ∘ fromMaybe 0) gramIndex)
-          matches (dict ^.ix gram)
+    ζ gram occ m = foldr (\GramInfo{..} →
+        alter (pure ∘ (+) (occ × gramCount) ∘ fromMaybe 0) itemIndex)
+          m (set ^._matchDict.ix gram)
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
 --   key already exists.

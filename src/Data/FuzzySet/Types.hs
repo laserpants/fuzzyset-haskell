@@ -11,7 +11,7 @@ data FuzzySetItem = FuzzySetItem
   } deriving (Eq, Show)
 
 data GramInfo = GramInfo
-  { gramIndex ∷ !Int
+  { itemIndex ∷ !Int
   , gramCount ∷ !Int
   } deriving (Eq, Show)
 
