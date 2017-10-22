@@ -121,8 +121,6 @@ data LookupCtx = LookupCtx
 
 --type LookupR = Reader LookupCtx
 
-(<$$>) = fmap ∘ fmap
-
 getMin ∷ Double → FuzzySet → Text → [(Double, Text)]
 getMin minScore FuzzySet{..} val =
     case exactMatch of
