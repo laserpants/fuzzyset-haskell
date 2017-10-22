@@ -510,30 +510,30 @@ main = hspec $ do
     -- Tests where useLevenshtein == False
     checkGet testset_4 "flask"    [(0.3651483716701107, "Alaska")]
     checkGet testset_4 "lambda"   [(0.40089186286863654, "Alabama")]
-    --checkGet testset_4 "lambada"  [(0.49999999999999999, "Alabama")]
-    --checkGet testset_4 "alabama"  [(1, "Alabama")]
---    checkGet testset_4 "al"       []
---    checkGet testset_4 "albama"   [(0.6172133998483676, "Alabama")]
---    checkGet testset_4 "Alabaska" [ (0.7216878364870323, "Alaska")
---                                  , (0.5345224838248487, "Alabama") ]
---    checkGet testset_5 "homeland"     [(0.37499999999999994, "Maryland")]
---    checkGet testset_5 "connectedcut" [(0.6963106238227914, "Connecticut")]
---    checkGet testset_5 "oregano"      [(0.4629100498862757, "Oregon")]
---    checkGet testset_5 "akeloxasas"   []
---    checkGet testset_5 "alaskansas"   [ (0.6454972243679029, "Alaska")
---                                      , (0.6454972243679029, "Kansas")
---                                      , (0.5590169943749475, "Arkansas") ]
---    checkGet testset_5 "South"        [ (0.5163977794943222, "South Dakota" )
---                                      , (0.47809144373375745, "South Carolina") ]
---    checkGet testset_5 "penicillivania" [ (0.46291004988627577, "Pennsylvania") ]
---    checkGet testset_5 "Michisota"    [ (0.4714045207910316, "Michigan")
---                                      , (0.4444444444444444, "Minnesota") ]
---    checkGet testset_5 "New Mix"      [ (0.47809144373375745, "New Mexico")
---                                      , (0.40089186286863654, "New York")
---                                      , (0.35856858280031806, "New Jersey") ]
---    checkGet testset_5 "Waioming"     [ (0.5345224838248487, "Wyoming")]
---    checkGet testset_5 "Landland"     [ (0.5103103630798287, "Maryland")
---                                      , (0.41666666666666674, "Rhode Island") ]
+    checkGet testset_4 "lambada"  [(0.49999999999999999, "Alabama")]
+    checkGet testset_4 "alabama"  [(1, "Alabama")]
+    checkGet testset_4 "al"       [(0.4364357804719848, "Alaska"), (0.40824829046386296, "Alabama")]
+    checkGet testset_4 "albama"   [(0.6172133998483676, "Alabama")]
+    checkGet testset_4 "Alabaska" [ (0.7216878364870323, "Alaska")
+                                  , (0.5345224838248487, "Alabama") ]
+    checkGet testset_5 "homeland"     [(0.37499999999999994, "Maryland")]
+    checkGet testset_5 "connectedcut" [(0.6963106238227914, "Connecticut")]
+    checkGet testset_5 "oregano"      [(0.4629100498862757, "Oregon")]
+    checkGet testset_5 "akeloxasas"   [(0.4622501635210243, "Arkansas"), (0.45291081365783836, "Texas"), (0.4193139346887673, "Kansas")]
+    checkGet testset_5 "alaskansas"   [ (0.6454972243679029, "Kansas")
+                                      , (0.6454972243679029, "Alaska")
+                                      , (0.5590169943749475, "Arkansas") ]
+    checkGet testset_5 "South"        [ (0.5163977794943222, "South Dakota" )
+                                      , (0.47809144373375745, "South Carolina") ]
+    checkGet testset_5 "penicillivania" [ (0.46291004988627577, "Pennsylvania") ]
+    checkGet testset_5 "Michisota"    [ (0.4714045207910316, "Michigan")
+                                      , (0.4444444444444444, "Minnesota") ]
+    checkGet testset_5 "New Mix"      [ (0.47809144373375745, "New Mexico")
+                                      , (0.40089186286863654, "New York")
+                                      , (0.35856858280031806, "New Jersey") ]
+    checkGet testset_5 "Waioming"     [ (0.5345224838248487, "Wyoming")]
+    checkGet testset_5 "Landland"     [ (0.5103103630798287, "Maryland")
+                                      , (0.41666666666666674, "Rhode Island") ]
 
     checkDistance "hello" "yello" 0.8
     checkDistance "fellow" "yello" 0.6666666666666667
