@@ -22,8 +22,11 @@ type ItemMap   = HashMap Size (Vector FuzzySetItem)
 
 data FuzzySet = FuzzySet
   { gramSizeLower  ∷ !Size
+  -- ^ The lower bound of gram sizes to use (inclusive)
   , gramSizeUpper  ∷ !Size
+  -- ^ The upper bound of gram sizes to use (inclusive)
   , useLevenshtein ∷ !Bool
+  -- ^ Whether to use the Levenshtein distance to determine the score. 
   , exactSet       ∷ !ExactSet
   , matchDict      ∷ !MatchDict
   , items          ∷ !ItemMap

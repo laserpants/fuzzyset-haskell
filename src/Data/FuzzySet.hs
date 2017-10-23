@@ -19,6 +19,7 @@ module Data.FuzzySet
   , add
   , addToSet
   , addMany
+  , fromList
 
   -- ** Retrieving
   , get
@@ -47,9 +48,34 @@ import qualified Data.Vector           as Vector
 
 -- $howto
 --
--- TODO
+-- > module Main where
+-- > 
+-- > states = [ "Alabama"        , "Alaska"         , "American Samoa"            , "Arizona"       , "Arkansas"
+-- >          , "California"     , "Colorado"       , "Connecticut"               , "Delaware"      , "District of Columbia"
+-- >          , "Florida"        , "Georgia"        , "Guam"                      , "Hawaii"        , "Idaho"
+-- >          , "Illinois"       , "Indiana"        , "Iowa"                      , "Kansas"        , "Kentucky"
+-- >          , "Louisiana"      , "Maine"          , "Maryland"                  , "Massachusetts" , "Michigan"
+-- >          , "Minnesota"      , "Mississippi"    , "Missouri"                  , "Montana"       , "Nebraska"
+-- >          , "Nevada"         , "New Hampshire"  , "New Jersey"                , "New Mexico"    , "New York"
+-- >          , "North Carolina" , "North Dakota"   , "Northern Marianas Islands" , "Ohio"          , "Oklahoma"
+-- >          , "Oregon"         , "Pennsylvania"   , "Puerto Rico"               , "Rhode Island"  , "South Carolina"
+-- >          , "South Dakota"   , "Tennessee"      , "Texas"                     , "Utah"          , "Vermont"
+-- >          , "Virginia"       , "Virgin Islands" , "Washington"                , "West Virginia" , "Wisconsin"
+-- >          , "Wyoming" ]
+-- >
+-- > set = fromList states
+-- > 
+-- > main = mapM_ print (get set "Burger Islands")
+--
+-- > (0.7142857142857143,"Virgin Islands")
+-- > (0.5714285714285714,"Rhode Island")
+-- > (0.44,"Northern Marianas Islands")
+-- > (0.35714285714285715,"Maryland")
+--
+-- > >>> get set "Why-oh-me-ing"
+-- > (0.5384615384615384,"Wyoming")
 
--- | A default 'FuzzySet' with the following contents:
+-- | A default 'FuzzySet' with the following fields:
 --
 -- > { gramSizeLower  = 2
 -- > , gramSizeUpper  = 3
@@ -61,7 +87,8 @@ defaultSet ∷ FuzzySet
 defaultSet = FuzzySet 2 3 True ε ε ε
 
 -- | Try to match the given string against the entries in the set, and return
---   results with score greater than the provided minimum score (the first argument).
+--   results with score greater than the specified minimum score (first 
+--   argument).
 getWithMinScore ∷ Double
                 -- ^ A minimum score
                 → FuzzySet
@@ -69,7 +96,7 @@ getWithMinScore ∷ Double
                 → Text
                 -- ^ The lookup query
                 → [(Double, Text)]
-                -- ^ A list of results (pairs of score and normalized entry)
+                -- ^ A list of results (pairs of score and matched value)
 getWithMinScore minScore FuzzySet{..} val =
     case HashMap.lookup key exactSet of
       Just v  → [(1, v)]
@@ -86,7 +113,7 @@ get ∷ FuzzySet
     → Text
     -- ^ The lookup query
     → [(Double, Text)]
-    -- ^ A list of results (pairs of score and normalized entry)
+    -- ^ A list of results (pairs of score and matched value)
 get = getWithMinScore 0.33
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
@@ -130,14 +157,29 @@ addMany ∷ FuzzySet
         -- ^ A new fuzzy string set
 addMany = foldr (flip add)
 
+-- | Create a fuzzy string set with entries from the given list.
+--
+-- @fromList = addMany defaultSet@
+fromList ∷ [Text] → FuzzySet
+fromList = addMany defaultSet 
+
 -- | Return the number of entries in the set.
+--
+-- >>> size $ defaultSet `add` "map" `add` "cap"
+-- 2
 size ∷ FuzzySet → Int
 size = HashMap.size ∘ exactSet
 
--- | Return a boolean denoting whether the provided set is empty.
+-- | Return a boolean to denote whether the provided set is empty.
+--
+-- >>> isEmpty (fromList [])
+-- True
 isEmpty ∷ FuzzySet → Bool
 isEmpty = HashMap.null ∘ exactSet
 
 -- | Return the elements of a set.
+--
+-- >>> values $ defaultSet `addMany` ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"] 
+-- ["space","daze","bass","maze","ace","craze","lace","haze"]
 values ∷ FuzzySet → [Text]
 values = elems ∘ exactSet

@@ -5,7 +5,7 @@ import Control.Exception             ( evaluate )
 import Control.Lens
 import Control.Monad                 ( zipWithM_ )
 import Data.AEq
-import Data.FuzzySet
+import Data.FuzzySet                 hiding ( fromList )
 import Data.FuzzySet.Internal
 import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
@@ -555,17 +555,22 @@ main = hspec $ do
       it ("should not be close to 0.123")
          (distance "fez" "baz" `shouldNotBeCloseTo` 0.123)
 
---    -- Tests where useLevenshtein == True
+    -- Tests where useLevenshtein == True
     checkGet testset_6 "wyome" [ (0.5714285714285714, "Wyoming") ]
     checkGet testset_6 "Louisianaland" [ ( 0.6923076923076923, "Louisiana" )
                                        , ( 0.3846153846153846, "Maryland" )
                                        , ( 0.3846153846153846, "Rhode Island" )
                                        , ( 0.36, "Northern Marianas Islands" ) ]
     checkGet testset_6 "ia" [ (0.5, "Iowa"), (0.4, "Idaho") ]
-
     checkGet testset_6 "flaska" [ (0.8333333333333334, "Alaska")
                                 , (0.5, "Nebraska")
                                 , (0.4285714285714286, "Florida") ]
+    checkGet testset_7 "Alaskansas" [ (0.7, "Arkansas")
+                                    , (0.6, "Kansas")
+                                    , (0.6, "Alaska")
+                                    , (0.5, "Alabama") ]
+    checkGet testset_7 "Transylvania" [ (0.75, "Pennsylvania")
+                                      , (0.33333333333333337, "California") ]
 
 testset_1 ∷ FuzzySet
 testset_1 = defaultSet `add` "Trent" `add` "restaurant"
@@ -585,6 +590,9 @@ testset_5 = addMany (FuzzySet 2 3 False empty empty empty) states
 
 testset_6 ∷ FuzzySet
 testset_6 = addMany defaultSet states
+
+testset_7 ∷ FuzzySet
+testset_7 = addMany (FuzzySet 2 4 True empty empty empty) states
 
 states ∷ [Text]
 states =
