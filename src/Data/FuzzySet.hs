@@ -114,13 +114,13 @@ gramMap val size = foldr ζ ε (grams val size)
 get ∷ FuzzySet → Text → [(Double, Text)]
 get = getMin 0.33
 
-data LookupCtx = LookupCtx
+data GetContext = GetContext
   { key      ∷ !Text
   , minScore ∷ !Double
   , set      ∷ !FuzzySet
   } deriving (Show)
 
---type LookupR = Reader LookupCtx
+--type GetR = Reader GetContext
 
 getMin ∷ Double → FuzzySet → Text → [(Double, Text)]
 getMin minScore FuzzySet{..} val =
