@@ -7,8 +7,6 @@ module Data.FuzzySet
   , defaultSet
   , getWithMinScore
   , get
-  , gramMap
-  , grams
   , isEmpty
   , size
   , values
@@ -29,10 +27,10 @@ import qualified Data.Text             as Text
 import qualified Data.HashMap.Strict   as HashMap
 import qualified Data.Vector           as Vector
 
--- | A 'FuzzySet' with the following contents
+-- | A 'FuzzySet' with the following contents:
 --
 -- > { gramSizeLower  = 2
--- > , gramSizeLower  = 3
+-- > , gramSizeUpper  = 3
 -- > , useLevenshtein = True
 -- > , exactSet       = ε
 -- > , matchDict      = ε
@@ -41,7 +39,7 @@ defaultSet ∷ FuzzySet
 defaultSet = FuzzySet 2 3 True ε ε ε
 
 -- | Try to match the given string against the entries in the set, and return
---   results with score greater than the first argument (minimum score).
+--   results with score greater than the first argument (a minimum score).
 getWithMinScore ∷ Double
                 → FuzzySet
                 → Text
@@ -70,7 +68,7 @@ add ∷ FuzzySet
 add set = fst ∘ addToSet set
 
 -- | Add an entry to the set and return a pair with the new set, and a boolean
---   value to indicate whether a value was inserted.
+--   value to indicate whether a new value was added.
 addToSet ∷ FuzzySet
          → Text
          → (FuzzySet, Bool)
@@ -89,7 +87,7 @@ addToSet FuzzySet{..} val
         $ over (_items.at size) (Just ∘ (`Vector.snoc` item)
                                       ∘ fromMaybe Vector.empty) fs
 
--- | Add a list of entries to the set, in one go. (`addMany = foldr (flip add)`)
+-- | Add a list of entries to the set, in one go. (@addMany = foldr (flip add)@)
 addMany ∷ FuzzySet
         → [Text]
         → FuzzySet
