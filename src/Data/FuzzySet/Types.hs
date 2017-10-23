@@ -30,3 +30,9 @@ data FuzzySet = FuzzySet
   } deriving (Eq, Show)
 
 type Matches = HashMap Int Int
+
+data GetContext = GetContext
+  { key      ∷ !Text
+  , minScore ∷ !Double
+  , set      ∷ !FuzzySet
+  } deriving (Show)
