@@ -1,8 +1,8 @@
 name:                fuzzyset
 version:             0.1.0.0
--- synopsis:
--- description:
-homepage:            https://github.com/githubuser/simple#readme
+synopsis:            Fuzzy string set implementation in Haskell
+description:         A data structure for approximate string matching, based on fuzzyset.js.
+homepage:            https://github.com/laserpants/fuzzyset-haskell
 license:             BSD3
 license-file:        LICENSE
 author:              Johannes Hildén
@@ -54,4 +54,4 @@ test-suite fuzzyset-test
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/simple
+  location: https://github.com/laserpants/fuzzyset-haskell
