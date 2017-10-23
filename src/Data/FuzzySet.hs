@@ -116,14 +116,13 @@ get = getWithMinScore 0.33
 
 getWithMinScore ∷ Double → FuzzySet → Text → [(Double, Text)]
 getWithMinScore minScore FuzzySet{..} val =
-    case exactMatch of
+    case HashMap.lookup key exactSet of
       Just v  → [(1, v)]
       Nothing → fromMaybe [] $ find (not ∘ null) (getMatch ctx <$> sizes)
   where
     ctx = GetContext key minScore FuzzySet{..}
     key = Text.toLower val
     sizes = reverse [gramSizeLower .. gramSizeUpper]
-    exactMatch = HashMap.lookup key exactSet
 
 getMatch ∷ GetContext → Size → [(Double, Text)]
 getMatch GetContext{..} size = match <$$> filtered
