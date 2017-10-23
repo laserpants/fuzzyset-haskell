@@ -1,14 +1,32 @@
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
+
+-- | A fuzzy string set data structure for approximate string matching. This 
+--   library is based on [fuzzyset.js](http://glench.github.io/fuzzyset.js/).
+
 module Data.FuzzySet
-  ( addMany
-  , addToSet
-  , add
+  ( 
+  -- * How to use
+  -- $howto
+
+  -- * Types
+    FuzzySet(..)
+
+  -- * Methods
   , defaultSet
-  , getWithMinScore
+
+  -- ** Adding
+  , add
+  , addToSet
+  , addMany
+
+  -- ** Retrieving
   , get
-  , isEmpty
+  , getWithMinScore
+
+  -- ** Inspecting
   , size
+  , isEmpty
   , values
   ) where
 
@@ -27,7 +45,11 @@ import qualified Data.Text             as Text
 import qualified Data.HashMap.Strict   as HashMap
 import qualified Data.Vector           as Vector
 
--- | A 'FuzzySet' with the following contents:
+-- $howto
+--
+-- TODO
+
+-- | A default 'FuzzySet' with the following contents:
 --
 -- > { gramSizeLower  = 2
 -- > , gramSizeUpper  = 3
@@ -39,11 +61,15 @@ defaultSet ∷ FuzzySet
 defaultSet = FuzzySet 2 3 True ε ε ε
 
 -- | Try to match the given string against the entries in the set, and return
---   results with score greater than the first argument (a minimum score).
+--   results with score greater than the provided minimum score (the first argument).
 getWithMinScore ∷ Double
+                -- ^ A minimum score
                 → FuzzySet
+                -- ^ The set to compare the string against
                 → Text
+                -- ^ The lookup query
                 → [(Double, Text)]
+                -- ^ A list of results (pairs of score and normalized entry)
 getWithMinScore minScore FuzzySet{..} val =
     case HashMap.lookup key exactSet of
       Just v  → [(1, v)]
@@ -56,21 +82,29 @@ getWithMinScore minScore FuzzySet{..} val =
 -- | Try to match the given string against the entries in the set, using the
 --   default minimum score of 0.33.
 get ∷ FuzzySet
+    -- ^ The set to compare the string against
     → Text
+    -- ^ The lookup query
     → [(Double, Text)]
+    -- ^ A list of results (pairs of score and normalized entry)
 get = getWithMinScore 0.33
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
 --   key already exists in the set.
 add ∷ FuzzySet
+    -- ^ A set to add the entry to
     → Text
+    -- ^ The new entry
     → FuzzySet
+    -- ^ A new fuzzy string set
 add set = fst ∘ addToSet set
 
 -- | Add an entry to the set and return a pair with the new set, and a boolean
---   value to indicate whether a new value was added.
+--   value to indicate whether a new entry was added to the set.
 addToSet ∷ FuzzySet
+         -- ^ A set to add the entry to
          → Text
+         -- ^ The new entry
          → (FuzzySet, Bool)
 addToSet FuzzySet{..} val
     | key ∈ exactSet = (FuzzySet{..}, False)
@@ -89,15 +123,18 @@ addToSet FuzzySet{..} val
 
 -- | Add a list of entries to the set, in one go. (@addMany = foldr (flip add)@)
 addMany ∷ FuzzySet
+        -- ^ A set to add the entries to
         → [Text]
+        -- ^ A list of new entries
         → FuzzySet
+        -- ^ A new fuzzy string set
 addMany = foldr (flip add)
 
 -- | Return the number of entries in the set.
 size ∷ FuzzySet → Int
 size = HashMap.size ∘ exactSet
 
--- | Return a boolean denoting whether the set is empty.
+-- | Return a boolean denoting whether the provided set is empty.
 isEmpty ∷ FuzzySet → Bool
 isEmpty = HashMap.null ∘ exactSet
 
