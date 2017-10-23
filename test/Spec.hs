@@ -6,6 +6,7 @@ import Control.Lens
 import Control.Monad                 ( zipWithM_ )
 import Data.AEq
 import Data.FuzzySet
+import Data.FuzzySet.Internal
 import Data.FuzzySet.Lens
 import Data.FuzzySet.Types
 import Data.FuzzySet.Util
