@@ -211,7 +211,7 @@ add ∷ FuzzySet
 add set = fst ∘ addToSet set
 
 -- | Add an entry to the set and return a pair with the new set, and a boolean
---   to indicate whether a new entry was inserted.
+--   to indicate if a new entry was inserted, or not.
 addToSet ∷ FuzzySet
          -- ^ Fuzzy string set to add the entry to
          → Text
