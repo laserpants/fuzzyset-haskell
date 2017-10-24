@@ -32,8 +32,23 @@ data FuzzySet = FuzzySet
   , items          ∷ !ItemMap
   } deriving (Eq, Show)
 
+instance Default FuzzySet where
+  def = defaultSet
+
 data GetContext = GetContext
   { key      ∷ !Text
   , minScore ∷ !Double
   , set      ∷ !FuzzySet
   } deriving (Show)
+
+-- | A 'FuzzySet' with the following field values:
+--
+-- > { gramSizeLower  = 2
+-- > , gramSizeUpper  = 3
+-- > , useLevenshtein = True
+-- > , exactSet       = ε
+-- > , matchDict      = ε
+-- > , items          = ε }
+defaultSet ∷ FuzzySet
+defaultSet = FuzzySet 2 3 True ε ε ε
+
