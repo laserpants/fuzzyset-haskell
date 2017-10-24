@@ -5,6 +5,16 @@ A fuzzy string set data structure for approximate string matching. This implemen
 * [JavaScript version](https://github.com/Glench/fuzzyset.js)
 * [Python version](https://github.com/axiak/fuzzyset)
 
+## Install
+
+```
+cabal install fuzzyset
+```
+
+### Hackage
+
+http://hackage.haskell.org/package/fuzzyset
+
 ## How to use
 
 Make sure the `OverloadedStrings` pragma is enabled. Then there are just three steps:
