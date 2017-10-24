@@ -1,7 +1,7 @@
 name:                fuzzyset
 version:             0.1.0.0
 synopsis:            Fuzzy set for approximate string matching
-description:         This library is based on fuzzyset.js.
+description:         This library is based on the Python and JavaScript libraries with the same name.
 homepage:            https://github.com/laserpants/fuzzyset-haskell
 license:             BSD3
 license-file:        LICENSE

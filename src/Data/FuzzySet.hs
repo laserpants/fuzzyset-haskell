@@ -11,7 +11,11 @@
 -- Portability : GHC
 --
 -- A fuzzy string set data structure for approximate string matching. This 
--- library is based on [fuzzyset.js](http://glench.github.io/fuzzyset.js/).
+-- implementation is based on the Python and JavaScript libraries with the same
+-- name: 
+--
+--   * [JavaScript version](http://glench.github.io/fuzzyset.js/)
+--   * [Python version](https://github.com/axiak/fuzzyset)
 
 module Data.FuzzySet
   ( 
@@ -62,20 +66,27 @@ import qualified Data.Vector           as Vector
 
 -- $howto
 --
---   1. Create a set using one of 'defaultSet', 'mkSet', or 'fromList'.
---   2. To add entries, see 'add', 'addToSet', and 'addMany'.
---   3. Query the set using 'get', 'getOne', or 'getWithMinScore'.
+-- Make sure the @OverloadedStrings@ pragma is enabled. Then there are just 
+-- three steps:
 --
--- >>> defaultSet `add` "Jurassic Park" `add` "Terminator" `add` "The Matrix" `getOne` "perculator"
+--   1. Create a set using one of 'defaultSet', 'mkSet', or 'fromList'.
+--   2. To add entries, use 'add', 'addToSet', or 'addMany'.
+--   3. Then query the set with 'get', 'getOne', or 'getWithMinScore'.
+--
+-- >>> defaultSet `add` "Jurassic Park" `add` "Terminator" `add` "The Matrix" `getOne` "percolator"
 -- Just "Terminator"
 --
--- >>> defaultSet `add` "Jurassic Park" `add` "Terminator" `add` "The Matrix" `get` "perculator"
--- [(0.6,"Terminator")]
+-- >>> defaultSet `add` "Shaggy Rogers" `add` "Fred Jones" `add` "Daphne Blake" `add` "Velma Dinkley" `get` "Shaggy Jones"
+-- [(0.7692307692307693,"Shaggy Rogers"),(0.5,"Fred Jones")]
+--
+-- There are also a few functions to [inspect](#g:7) the set.
 --
 -- == More examples
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
+-- > 
+-- > import Data.FuzzySet
 -- > 
 -- > states = [ "Alabama"        , "Alaska"         , "American Samoa"            , "Arizona"       , "Arkansas"
 -- >          , "California"     , "Colorado"       , "Connecticut"               , "Delaware"      , "District of Columbia"
@@ -90,9 +101,9 @@ import qualified Data.Vector           as Vector
 -- >          , "Virginia"       , "Virgin Islands" , "Washington"                , "West Virginia" , "Wisconsin"
 -- >          , "Wyoming" ]
 -- >
--- > set = fromList states
+-- > statesSet = fromList states
 -- > 
--- > main = mapM_ print (get set "Burger Islands")
+-- > main = mapM_ print (get statesSet "Burger Islands")
 --
 -- The output of this program is:
 --
@@ -101,24 +112,24 @@ import qualified Data.Vector           as Vector
 -- > (0.44,"Northern Marianas Islands")
 -- > (0.35714285714285715,"Maryland")
 --
---  Using the definition of @set@ from previous example:
+--  Using the definition of @statesSet@ from previous example:
 --
--- > >>> get set "Why-oh-me-ing"
+-- > >>> get statesSet "Why-oh-me-ing"
 -- > [(0.5384615384615384,"Wyoming")]
 --
--- > >>> get set "Connect a cat"
+-- > >>> get statesSet "Connect a cat"
 -- > [(0.6923076923076923,"Connecticut")]
 -- 
--- > >>> get set "Transylvania"
+-- > >>> get statesSet "Transylvania"
 -- > [(0.75,"Pennsylvania"),(0.3333333333333333,"California"),(0.3333333333333333,"Arkansas"),(0.3333333333333333,"Kansas")]
 --
--- > >>> get set "CanOfSauce"
+-- > >>> get statesSet "CanOfSauce"
 -- > [(0.4,"Kansas")]
 --
--- > >>> get set "Alaska"
+-- > >>> get statesSet "Alaska"
 -- > [(1.0,"Alaska")]
 --
--- > >>> get set "Alaskanbraskansas"
+-- > >>> get statesSet "Alaskanbraskansas"
 -- > [(0.47058823529411764,"Arkansas"),(0.35294117647058826,"Kansas"),(0.35294117647058826,"Alaska"),(0.35294117647058826,"Alabama"),(0.35294117647058826,"Nebraska")]
 
 -- | A 'FuzzySet' having the following values:
@@ -146,7 +157,7 @@ mkSet lower upper levenshtein = FuzzySet lower upper levenshtein ε ε ε
 -- | Try to match the given string against the entries in the set, and return
 --   a list of all results with a score greater than or equal to the specified 
 --   minimum score (i.e., the first argument). The results are ordered by
---   score, with the closest match first.
+--   similarity score, with the closest match first.
 getWithMinScore ∷ Double
                 -- ^ A minimum score
                 → FuzzySet
@@ -165,8 +176,8 @@ getWithMinScore minScore FuzzySet{..} val =
     sizes = reverse [gramSizeLower .. gramSizeUpper]
 
 -- | Try to match the given string against the entries in the set, using a
---   minimum score of 0.33. Return a list of results ordered by score, with the
---   closest match first.
+--   minimum score of 0.33. Return a list of results ordered by similarity 
+--   score, with the closest match first.
 get ∷ FuzzySet
     -- ^ The fuzzy string set to compare the string against
     → Text
@@ -241,7 +252,7 @@ fromList = addMany defaultSet
 
 -- | Return the number of entries in the set.
 --
--- >>> size $ defaultSet `add` "map" `add` "cap"
+-- >>> size (defaultSet `add` "map" `add` "cap")
 -- 2
 size ∷ FuzzySet → Int
 size = HashMap.size ∘ exactSet
@@ -255,7 +266,7 @@ isEmpty = HashMap.null ∘ exactSet
 
 -- | Return the elements of a set.
 --
--- >>> values $ fromList ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"] 
+-- >>> values (fromList ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"])
 -- ["space","daze","bass","maze","ace","craze","lace","haze"]
 values ∷ FuzzySet → [Text]
 values = elems ∘ exactSet
