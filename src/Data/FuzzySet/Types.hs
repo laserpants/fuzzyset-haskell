@@ -22,7 +22,7 @@ type MatchDict = HashMap Text [GramInfo]
 type ItemMap   = HashMap Size (Vector FuzzySetItem)
 
 -- | Opaque fuzzy string set data type. Use 'Data.FuzzySet.defaultSet', 
---   'Data.FuzzySet.mkSet', or 'Data.FuzzySet.fromList' to create a 'FuzzySet'.
+--   'Data.FuzzySet.mkSet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
 data FuzzySet = FuzzySet
   { gramSizeLower  ∷ !Size
   , gramSizeUpper  ∷ !Size

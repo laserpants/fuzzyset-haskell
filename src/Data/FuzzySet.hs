@@ -37,6 +37,7 @@ module Data.FuzzySet
   -- ** Retrieving
   , get
   , getWithMinScore
+  , getOne
 
   -- ** Inspecting
   , size
@@ -61,7 +62,17 @@ import qualified Data.Vector           as Vector
 
 -- $howto
 --
--- == Examples
+--   1. Create a set using one of 'defaultSet', 'mkSet', or 'fromList'.
+--   2. To add entries, see 'add', 'addToSet', and 'addMany'.
+--   3. Query the set using 'get', 'getOne', or 'getWithMinScore'.
+--
+-- >>> defaultSet `add` "Jurassic Park" `add` "Terminator" `add` "The Matrix" `getOne` "perculator"
+-- Just "Terminator"
+--
+-- >>> defaultSet `add` "Jurassic Park" `add` "Terminator" `add` "The Matrix" `get` "perculator"
+-- [(0.6,"Terminator")]
+--
+-- == More examples
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
@@ -90,7 +101,7 @@ import qualified Data.Vector           as Vector
 -- > (0.44,"Northern Marianas Islands")
 -- > (0.35714285714285715,"Maryland")
 --
---  Using the definition of `set` from the previous example:
+--  Using the definition of @set@ from previous example:
 --
 -- > >>> get set "Why-oh-me-ing"
 -- > [(0.5384615384615384,"Wyoming")]
@@ -163,6 +174,19 @@ get ∷ FuzzySet
     → [(Double, Text)]
     -- ^ A list of results (score and matched value pairs)
 get = getWithMinScore 0.33
+
+-- | Try to match the given string against the entries in the set, and return
+--   the closest match, if one is found.
+getOne ∷ FuzzySet
+       -- ^ The fuzzy string set to compare the string against
+       → Text
+       -- ^ The lookup query
+       → Maybe Text
+       -- ^ 'Just' the result, if one was found, otherwise 'Nothing'
+getOne set val = 
+    case get set val of
+      [] → Nothing
+      xs → Just (snd (head xs))
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
 --   value already exists in the set.
