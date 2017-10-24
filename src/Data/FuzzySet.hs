@@ -90,6 +90,8 @@ import qualified Data.Vector           as Vector
 -- > (0.44,"Northern Marianas Islands")
 -- > (0.35714285714285715,"Maryland")
 --
+--  Using the definition of `set` from the previous example:
+--
 -- > >>> get set "Why-oh-me-ing"
 -- > [(0.5384615384615384,"Wyoming")]
 --
@@ -132,7 +134,8 @@ mkSet lower upper levenshtein = FuzzySet lower upper levenshtein ε ε ε
 
 -- | Try to match the given string against the entries in the set, and return
 --   a list of all results with a score greater than or equal to the specified 
---   minimum score (i.e., the first argument).
+--   minimum score (i.e., the first argument). The results are ordered by
+--   score, with the closest match first.
 getWithMinScore ∷ Double
                 -- ^ A minimum score
                 → FuzzySet
@@ -151,7 +154,8 @@ getWithMinScore minScore FuzzySet{..} val =
     sizes = reverse [gramSizeLower .. gramSizeUpper]
 
 -- | Try to match the given string against the entries in the set, using a
---   minimum score of 0.33.
+--   minimum score of 0.33. Return a list of results ordered by score, with the
+--   closest match first.
 get ∷ FuzzySet
     -- ^ The fuzzy string set to compare the string against
     → Text
@@ -161,7 +165,7 @@ get ∷ FuzzySet
 get = getWithMinScore 0.33
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
---   key already exists in the set.
+--   value already exists in the set.
 add ∷ FuzzySet
     -- ^ Fuzzy string set to add the entry to
     → Text
@@ -171,7 +175,7 @@ add ∷ FuzzySet
 add set = fst ∘ addToSet set
 
 -- | Add an entry to the set and return a pair with the new set, and a boolean
---   value to indicate whether a new entry was inserted.
+--   to indicate whether a new entry was inserted.
 addToSet ∷ FuzzySet
          -- ^ Fuzzy string set to add the entry to
          → Text
