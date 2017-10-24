@@ -20,13 +20,12 @@ type ExactSet  = HashMap Text Text
 type MatchDict = HashMap Text [GramInfo]
 type ItemMap   = HashMap Size (Vector FuzzySetItem)
 
+-- | Use 'Data.FuzzySet.defaultSet', 'Data.FuzzySet.mkSet', or 
+--   'Data.FuzzySet.fromList' to create a 'FuzzySet'.
 data FuzzySet = FuzzySet
   { gramSizeLower  ∷ !Size
-  -- ^ The lower bound of gram sizes to use (inclusive)
   , gramSizeUpper  ∷ !Size
-  -- ^ The upper bound of gram sizes to use (inclusive)
   , useLevenshtein ∷ !Bool
-  -- ^ Whether to use the Levenshtein distance to determine the score. 
   , exactSet       ∷ !ExactSet
   , matchDict      ∷ !MatchDict
   , items          ∷ !ItemMap

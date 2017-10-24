@@ -1,8 +1,17 @@
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE UnicodeSyntax     #-}
 
--- | A fuzzy string set data structure for approximate string matching. This 
---   library is based on [fuzzyset.js](http://glench.github.io/fuzzyset.js/).
+-- |
+--
+-- Module      : Data.FuzzySet
+-- Copyright   : (c) 2017 Johannes Hildén
+-- License     : BSD3
+-- Maintainer  : hildenjohannes@gmail.com
+-- Stability   : experimental
+-- Portability : GHC
+--
+-- A fuzzy string set data structure for approximate string matching. This 
+-- library is based on [fuzzyset.js](http://glench.github.io/fuzzyset.js/).
 
 module Data.FuzzySet
   ( 
@@ -10,16 +19,19 @@ module Data.FuzzySet
   -- $howto
 
   -- * Types
-    FuzzySet(..)
+    FuzzySet
 
-  -- * Methods
+  -- * API
+
+  -- ** Initializing
+  , mkSet
   , defaultSet
+  , fromList
 
   -- ** Adding
   , add
   , addToSet
   , addMany
-  , fromList
 
   -- ** Retrieving
   , get
@@ -48,6 +60,9 @@ import qualified Data.Vector           as Vector
 
 -- $howto
 --
+-- == Examples
+--
+-- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
 -- > 
 -- > states = [ "Alabama"        , "Alaska"         , "American Samoa"            , "Arizona"       , "Arkansas"
@@ -73,9 +88,15 @@ import qualified Data.Vector           as Vector
 -- > (0.35714285714285715,"Maryland")
 --
 -- > >>> get set "Why-oh-me-ing"
--- > (0.5384615384615384,"Wyoming")
+-- > [(0.5384615384615384,"Wyoming")]
+--
+-- > >>> get set "Connect a cut"
+-- > [(0.7692307692307693,"Connecticut")]
+-- 
+-- > >>> get set "Transylvania"
+-- > [(0.75,"Pennsylvania"),(0.3333333333333333,"California"),(0.3333333333333333,"Arkansas"),(0.3333333333333333,"Kansas")]
 
--- | A default 'FuzzySet' with the following fields:
+-- | A default 'FuzzySet', having the following values:
 --
 -- > { gramSizeLower  = 2
 -- > , gramSizeUpper  = 3
@@ -86,17 +107,28 @@ import qualified Data.Vector           as Vector
 defaultSet ∷ FuzzySet
 defaultSet = FuzzySet 2 3 True ε ε ε
 
+-- | Initialize a 'FuzzySet'.
+mkSet ∷ Size 
+      -- ^ The lower bound of gram sizes to use (inclusive)
+      → Size 
+      -- ^ The upper bound of gram sizes to use (inclusive)
+      → Bool 
+      -- ^ Whether to use the Levenshtein distance to determine the score
+      → FuzzySet
+      -- ^ An empty fuzzy string set 
+mkSet lower upper levenshtein = FuzzySet lower upper levenshtein ε ε ε
+
 -- | Try to match the given string against the entries in the set, and return
---   results with score greater than the specified minimum score (first 
---   argument).
+--   a list of all results with score greater than or equal to the specified 
+--   minimum score (i.e., the first argument).
 getWithMinScore ∷ Double
                 -- ^ A minimum score
                 → FuzzySet
-                -- ^ The set to compare the string against
+                -- ^ The fuzzy string set to compare the string against
                 → Text
                 -- ^ The lookup query
                 → [(Double, Text)]
-                -- ^ A list of results (pairs of score and matched value)
+                -- ^ A list of results (score and matched value pairs)
 getWithMinScore minScore FuzzySet{..} val =
     case HashMap.lookup key exactSet of
       Just v  → [(1, v)]
@@ -106,33 +138,35 @@ getWithMinScore minScore FuzzySet{..} val =
     key = Text.toLower val
     sizes = reverse [gramSizeLower .. gramSizeUpper]
 
--- | Try to match the given string against the entries in the set, using the
---   default minimum score of 0.33.
+-- | Try to match the given string against the entries in the set, using a
+--   minimum score of 0.33.
 get ∷ FuzzySet
-    -- ^ The set to compare the string against
+    -- ^ The fuzzy string set to compare the string against
     → Text
     -- ^ The lookup query
     → [(Double, Text)]
-    -- ^ A list of results (pairs of score and matched value)
+    -- ^ A list of results (score and matched value pairs)
 get = getWithMinScore 0.33
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
 --   key already exists in the set.
 add ∷ FuzzySet
-    -- ^ A set to add the entry to
+    -- ^ Fuzzy string set to add the entry to
     → Text
     -- ^ The new entry
     → FuzzySet
-    -- ^ A new fuzzy string set
+    -- ^ The updated set
 add set = fst ∘ addToSet set
 
 -- | Add an entry to the set and return a pair with the new set, and a boolean
---   value to indicate whether a new entry was added to the set.
+--   value to indicate whether a new entry was inserted.
 addToSet ∷ FuzzySet
-         -- ^ A set to add the entry to
+         -- ^ Fuzzy string set to add the entry to
          → Text
          -- ^ The new entry
          → (FuzzySet, Bool)
+         -- ^ The updated set and a boolean, which will be 'True' if, and only 
+         --   if, the value was not already in the set 
 addToSet FuzzySet{..} val
     | key ∈ exactSet = (FuzzySet{..}, False)
     | otherwise =
@@ -150,7 +184,7 @@ addToSet FuzzySet{..} val
 
 -- | Add a list of entries to the set, in one go. (@addMany = foldr (flip add)@)
 addMany ∷ FuzzySet
-        -- ^ A set to add the entries to
+        -- ^ Fuzzy string set to add the entries to
         → [Text]
         -- ^ A list of new entries
         → FuzzySet
@@ -170,7 +204,7 @@ fromList = addMany defaultSet
 size ∷ FuzzySet → Int
 size = HashMap.size ∘ exactSet
 
--- | Return a boolean to denote whether the provided set is empty.
+-- | Return a boolean denoting whether the provided set is empty.
 --
 -- >>> isEmpty (fromList [])
 -- True
@@ -179,7 +213,7 @@ isEmpty = HashMap.null ∘ exactSet
 
 -- | Return the elements of a set.
 --
--- >>> values $ defaultSet `addMany` ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"] 
+-- >>> values $ fromList ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"] 
 -- ["space","daze","bass","maze","ace","craze","lace","haze"]
 values ∷ FuzzySet → [Text]
 values = elems ∘ exactSet
