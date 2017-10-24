@@ -49,6 +49,7 @@ module Data.FuzzySet
   , values
   ) where
 
+import Data.Default
 import Data.Foldable.Unicode
 import Data.FuzzySet.Internal
 import Data.FuzzySet.Lens
@@ -142,6 +143,9 @@ import qualified Data.Vector           as Vector
 -- > , items          = ε }
 defaultSet ∷ FuzzySet
 defaultSet = FuzzySet 2 3 True ε ε ε
+
+instance Default FuzzySet where
+  def = defaultSet
 
 -- | Initialize a 'FuzzySet'.
 mkSet ∷ Size 
