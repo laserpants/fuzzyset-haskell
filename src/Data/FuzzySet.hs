@@ -49,7 +49,6 @@ module Data.FuzzySet
   , values
   ) where
 
-import Data.Default
 import Data.Foldable.Unicode
 import Data.FuzzySet.Internal
 import Data.FuzzySet.Lens

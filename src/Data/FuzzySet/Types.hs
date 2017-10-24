@@ -1,6 +1,7 @@
 {-# LANGUAGE UnicodeSyntax #-}
 module Data.FuzzySet.Types where
 
+import Data.Default
 import Data.Text           ( Text )
 import Data.HashMap.Strict ( HashMap )
 import Data.Vector         ( Vector )
