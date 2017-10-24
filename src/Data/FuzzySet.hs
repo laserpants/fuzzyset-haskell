@@ -1,5 +1,5 @@
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE UnicodeSyntax     #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE UnicodeSyntax   #-}
 
 -- |
 --

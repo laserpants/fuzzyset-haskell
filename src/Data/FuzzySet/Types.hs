@@ -33,6 +33,7 @@ data FuzzySet = FuzzySet
   , items          ∷ !ItemMap
   } deriving (Eq, Show)
 
+-- | See 'defaultSet'.
 instance Default FuzzySet where
   def = defaultSet
 
@@ -51,5 +52,5 @@ data GetContext = GetContext
 -- > , matchDict      = ε
 -- > , items          = ε }
 defaultSet ∷ FuzzySet
-defaultSet = FuzzySet 2 3 True ε ε ε
+defaultSet = FuzzySet 2 3 True mempty mempty mempty
 
