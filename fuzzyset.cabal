@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Johannes Hildén
 maintainer:          hildenjohannes@gmail.com
 copyright:           2017 Johannes Hildén
-category:            Web
+category:            Data
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
