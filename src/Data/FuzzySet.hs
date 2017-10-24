@@ -132,7 +132,7 @@ import qualified Data.Vector           as Vector
 -- > >>> get statesSet "Alaskanbraskansas"
 -- > [(0.47058823529411764,"Arkansas"),(0.35294117647058826,"Kansas"),(0.35294117647058826,"Alaska"),(0.35294117647058826,"Alabama"),(0.35294117647058826,"Nebraska")]
 
--- | A 'FuzzySet' having the following values:
+-- | A 'FuzzySet' with the following field values:
 --
 -- > { gramSizeLower  = 2
 -- > , gramSizeUpper  = 3
