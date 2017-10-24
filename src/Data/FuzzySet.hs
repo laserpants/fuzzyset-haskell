@@ -265,7 +265,7 @@ size = HashMap.size ∘ exactSet
 isEmpty ∷ FuzzySet → Bool
 isEmpty = HashMap.null ∘ exactSet
 
--- | Return the elements of a set.
+-- | Return the elements of the set.
 --
 -- >>> values (fromList ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"])
 -- ["space","daze","bass","maze","ace","craze","lace","haze"]
