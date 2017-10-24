@@ -149,7 +149,8 @@ mkSet ∷ Size
       → Size 
       -- ^ The upper bound of gram sizes to use (inclusive)
       → Bool 
-      -- ^ Whether to use the Levenshtein distance to determine the score
+      -- ^ Whether to use [Levenshtein distance](https://people.cs.pitt.edu/~kirk/cs1501/Pruhs/Spring2006/assignments/editdistance/Levenshtein%20Distance.htm) 
+      --   to determine the score
       → FuzzySet
       -- ^ An empty fuzzy string set 
 mkSet lower upper levenshtein = FuzzySet lower upper levenshtein ε ε ε

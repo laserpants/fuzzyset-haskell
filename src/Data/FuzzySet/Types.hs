@@ -15,7 +15,7 @@ data GramInfo = GramInfo
   , gramCount ∷ !Int
   } deriving (Eq, Show)
 
--- | Type alias used for representing gram sizes.
+-- | Type alias for representing gram sizes.
 type Size      = Int
 type ExactSet  = HashMap Text Text
 type MatchDict = HashMap Text [GramInfo]
