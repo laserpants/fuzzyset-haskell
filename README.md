@@ -7,11 +7,11 @@ A fuzzy string set data structure for approximate string matching. This implemen
 
 ## How to use
 
-Make sure the OverloadedStrings pragma is enabled. Then there are just three steps:
+Make sure the `OverloadedStrings` pragma is enabled. Then there are just three steps:
 
-1. Create a set using one of defaultSet, mkSet, or fromList.
-2. To add entries, use add, addToSet, or addMany.
-3. Then query the set with get, getOne, or getWithMinScore.
+1. Create a set using one of `defaultSet`, `mkSet`, or `fromList`.
+2. To add entries, use `add`, `addToSet`, or `addMany`.
+3. Then query the set with `get`, `getOne`, or `getWithMinScore`.
 
 ```
 >>> defaultSet `add` "Jurassic Park" `add` "Terminator" `add` "The Matrix" `getOne` "percolator"
@@ -25,7 +25,7 @@ Just "Terminator"
 
 There are also a few functions to inspect the set.
 
-## More examples
+### More examples
 
 ```
 {-# LANGUAGE OverloadedStrings #-}
@@ -60,7 +60,7 @@ The output of this program is:
 (0.35714285714285715,"Maryland")
 ```
 
-Using the definition of statesSet from previous example:
+Using the definition of `statesSet` from previous example:
 
 ```
 >>> get statesSet "Why-oh-me-ing"
