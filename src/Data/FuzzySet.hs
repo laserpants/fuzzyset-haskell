@@ -20,6 +20,7 @@ module Data.FuzzySet
 
   -- * Types
     FuzzySet
+  , Size
 
   -- * API
 
@@ -82,6 +83,8 @@ import qualified Data.Vector           as Vector
 -- > 
 -- > main = mapM_ print (get set "Burger Islands")
 --
+-- The output of this program is:
+--
 -- > (0.7142857142857143,"Virgin Islands")
 -- > (0.5714285714285714,"Rhode Island")
 -- > (0.44,"Northern Marianas Islands")
@@ -90,13 +93,22 @@ import qualified Data.Vector           as Vector
 -- > >>> get set "Why-oh-me-ing"
 -- > [(0.5384615384615384,"Wyoming")]
 --
--- > >>> get set "Connect a cut"
--- > [(0.7692307692307693,"Connecticut")]
+-- > >>> get set "Connect a cat"
+-- > [(0.6923076923076923,"Connecticut")]
 -- 
 -- > >>> get set "Transylvania"
 -- > [(0.75,"Pennsylvania"),(0.3333333333333333,"California"),(0.3333333333333333,"Arkansas"),(0.3333333333333333,"Kansas")]
+--
+-- > >>> get set "CanOfSauce"
+-- > [(0.4,"Kansas")]
+--
+-- > >>> get set "Alaska"
+-- > [(1.0,"Alaska")]
+--
+-- > >>> get set "Alaskanbraskansas"
+-- > [(0.47058823529411764,"Arkansas"),(0.35294117647058826,"Kansas"),(0.35294117647058826,"Alaska"),(0.35294117647058826,"Alabama"),(0.35294117647058826,"Nebraska")]
 
--- | A default 'FuzzySet', having the following values:
+-- | A 'FuzzySet' having the following values:
 --
 -- > { gramSizeLower  = 2
 -- > , gramSizeUpper  = 3
@@ -119,7 +131,7 @@ mkSet ∷ Size
 mkSet lower upper levenshtein = FuzzySet lower upper levenshtein ε ε ε
 
 -- | Try to match the given string against the entries in the set, and return
---   a list of all results with score greater than or equal to the specified 
+--   a list of all results with a score greater than or equal to the specified 
 --   minimum score (i.e., the first argument).
 getWithMinScore ∷ Double
                 -- ^ A minimum score
@@ -182,7 +194,9 @@ addToSet FuzzySet{..} val
         $ over (_items.at size) (Just ∘ (`Vector.snoc` item)
                                       ∘ fromMaybe Vector.empty) fs
 
--- | Add a list of entries to the set, in one go. (@addMany = foldr (flip add)@)
+-- | Add a list of entries to the set, in one go. 
+--
+-- > addMany = foldr (flip add)
 addMany ∷ FuzzySet
         -- ^ Fuzzy string set to add the entries to
         → [Text]
@@ -204,7 +218,7 @@ fromList = addMany defaultSet
 size ∷ FuzzySet → Int
 size = HashMap.size ∘ exactSet
 
--- | Return a boolean denoting whether the provided set is empty.
+-- | Return a boolean indicating whether the provided set is empty.
 --
 -- >>> isEmpty (fromList [])
 -- True

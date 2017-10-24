@@ -38,7 +38,7 @@ results GetContext{..} size = ζ <$> HashMap.toList (matches set grams)
       let FuzzySetItem{..} = Vector.unsafeIndex (set ^._items.ix size) index
        in (fromIntegral score / (normal × vectorMagnitude), normalizedEntry)
 
-matches ∷ FuzzySet → HashMap Text Int → Matches
+matches ∷ FuzzySet → HashMap Text Int → HashMap Int Int
 matches set = foldrWithKey ζ empty
   where
     ζ gram occ m = foldr (\GramInfo{..} →

@@ -15,13 +15,14 @@ data GramInfo = GramInfo
   , gramCount ∷ !Int
   } deriving (Eq, Show)
 
+-- | Type alias for 'Int'.
 type Size      = Int
 type ExactSet  = HashMap Text Text
 type MatchDict = HashMap Text [GramInfo]
 type ItemMap   = HashMap Size (Vector FuzzySetItem)
 
--- | Use 'Data.FuzzySet.defaultSet', 'Data.FuzzySet.mkSet', or 
---   'Data.FuzzySet.fromList' to create a 'FuzzySet'.
+-- | Opaque fuzzy string set data type. Use 'Data.FuzzySet.defaultSet', 
+--   'Data.FuzzySet.mkSet', or 'Data.FuzzySet.fromList' to create a 'FuzzySet'.
 data FuzzySet = FuzzySet
   { gramSizeLower  ∷ !Size
   , gramSizeUpper  ∷ !Size
@@ -30,8 +31,6 @@ data FuzzySet = FuzzySet
   , matchDict      ∷ !MatchDict
   , items          ∷ !ItemMap
   } deriving (Eq, Show)
-
-type Matches = HashMap Int Int
 
 data GetContext = GetContext
   { key      ∷ !Text
