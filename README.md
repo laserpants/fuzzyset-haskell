@@ -11,13 +11,11 @@ A fuzzy string set data structure for approximate string matching. This implemen
 cabal install fuzzyset
 ```
 
-or using [Stack](https://www.haskellstack.org/):
+For details, see [Hackage docs](http://hackage.haskell.org/package/fuzzyset). This library is also available on [Stackage](https://www.stackage.org/package/fuzzyset). To install using [Stack](https://www.haskellstack.org/):
 
 ```
 stack install fuzzyset
 ```
-
-For details, see [Hackage docs](http://hackage.haskell.org/package/fuzzyset). This library is also available on [Stackage](https://www.stackage.org/package/fuzzyset).
 
 ## How to use
 
