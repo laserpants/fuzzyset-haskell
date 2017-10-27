@@ -1,4 +1,4 @@
-# fuzzyset-haskell [![Build Status](https://img.shields.io/travis/laserpants/fuzzyset-haskell/master.svg?style=flat)](https://travis-ci.org/laserpants/fuzzyset-haskell)
+# fuzzyset-haskell [![Build Status](https://img.shields.io/travis/laserpants/fuzzyset-haskell/master.svg?style=flat)](https://travis-ci.org/laserpants/fuzzyset-haskell) [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 A fuzzy string set data structure for approximate string matching. This implementation is based on the Python and JavaScript libraries with the same name:
 
