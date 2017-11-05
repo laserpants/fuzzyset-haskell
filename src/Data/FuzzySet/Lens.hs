@@ -14,9 +14,6 @@ module Data.FuzzySet.Lens
 import Control.Lens
 import Data.FuzzySet.Types
 
-import qualified Data.HashMap.Strict as HashMap
-import qualified Data.Vector         as Vector
-
 makeLensesFor
   [ ("items"           , "_items")
   , ("matchDict"       , "_matchDict")
