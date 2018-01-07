@@ -1,5 +1,5 @@
 name:                fuzzyset
-version:             0.1.0.3
+version:             0.1.0.4
 synopsis:            Fuzzy set for approximate string matching
 description:         This library is based on the Python and JavaScript libraries with the same name.
 homepage:            https://github.com/laserpants/fuzzyset-haskell
@@ -27,7 +27,7 @@ library
                      , text >=1.2.2.2
                      , text-metrics ==0.3.0
                      , unordered-containers ==0.2.8.0
-                     , vector ==0.12.0.1
+                     , vector >=0.12.0.1
   default-language:    Haskell2010
 
 test-suite fuzzyset-test
@@ -36,7 +36,7 @@ test-suite fuzzyset-test
   main-is:             Spec.hs
   build-depends:       base
                      , base-unicode-symbols ==0.2.2.4
-                     , hspec ==2.4.4
+                     , hspec >=2.4.4
                      , fuzzyset
                      , lens ==4.15.4
                      , text >=1.2.2.2
