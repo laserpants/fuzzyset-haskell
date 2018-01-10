@@ -37,7 +37,7 @@ Just "Terminator"
 
 There are also a few functions to inspect the set.
 
-#### size :: FuzzySet -> Int Source
+#### `size :: FuzzySet -> Int`
 
 Return the number of entries in the set.
 
@@ -46,7 +46,7 @@ Return the number of entries in the set.
 2
 ```
 
-#### isEmpty :: FuzzySet -> Bool Source
+#### `isEmpty :: FuzzySet -> Bool`
 
 Return a boolean indicating whether the provided set is empty.
 
@@ -55,7 +55,7 @@ Return a boolean indicating whether the provided set is empty.
 True
 ```
 
-#### values :: FuzzySet -> [Text] Source
+#### `values :: FuzzySet -> [Text]`
 
 Return the elements of the set.
 
