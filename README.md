@@ -37,6 +37,33 @@ Just "Terminator"
 
 There are also a few functions to inspect the set.
 
+#### size :: FuzzySet -> Int Source
+
+Return the number of entries in the set.
+
+```
+>>> size (defaultSet `add` "map" `add` "cap")
+2
+```
+
+#### isEmpty :: FuzzySet -> Bool Source
+
+Return a boolean indicating whether the provided set is empty.
+
+```
+>>> isEmpty (fromList [])
+True
+```
+
+#### values :: FuzzySet -> [Text] Source
+
+Return the elements of the set.
+
+```
+>>> values (fromList ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"])
+["space","daze","bass","maze","ace","craze","lace","haze"]
+```
+
 ### More examples
 
 ```
