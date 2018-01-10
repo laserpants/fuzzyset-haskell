@@ -35,6 +35,69 @@ Just "Terminator"
 [(0.7692307692307693,"Shaggy Rogers"),(0.5,"Fred Jones")]
 ```
 
+See [here](https://github.com/laserpants/fuzzyset-haskell/blob/master/README.md#more-examples) for more examples.
+
+## API
+
+### Initializing
+
+#### `mkSet :: Size -> Size -> Bool -> FuzzySet`
+
+Initialize a FuzzySet.
+
+#### `defaultSet :: FuzzySet`
+
+A FuzzySet with the following field values:
+
+```
+{ gramSizeLower  = 2
+, gramSizeUpper  = 3
+, useLevenshtein = True
+, exactSet       = ε
+, matchDict      = ε
+, items          = ε }
+```
+
+#### `fromList :: [Text] -> FuzzySet`
+
+Create a fuzzy string set with entries from the given list.
+
+```
+fromList = addMany defaultSet
+```
+
+### Adding
+
+#### `add :: FuzzySet -> Text -> FuzzySet`
+
+Add an entry to the set, or do nothing if a key identical to the provided value already exists in the set.
+
+#### `addToSet :: FuzzySet -> Text -> (FuzzySet, Bool)`
+
+Add an entry to the set and return a pair with the new set, and a boolean to indicate if a new entry was inserted, or not.
+
+#### `addMany :: FuzzySet -> [Text] -> FuzzySet`
+
+Add a list of entries to the set, in one go.
+
+```
+addMany = foldr (flip add)
+```
+
+### Retrieving
+
+#### `get :: FuzzySet -> Text -> [(Double, Text)]`
+
+Try to match the given string against the entries in the set, using a minimum score of 0.33. Return a list of results ordered by similarity score, with the closest match first.
+
+#### `getWithMinScore :: Double -> FuzzySet -> Text -> [(Double, Text)]`
+
+Try to match the given string against the entries in the set, and return a list of all results with a score greater than or equal to the specified minimum score (i.e., the first argument). The results are ordered by similarity score, with the closest match first.
+
+#### `getOne :: FuzzySet -> Text -> Maybe Text`
+
+Try to match the given string against the entries in the set, and return the closest match, if one is found.
+
 ### Inspecting
 
 There are also a few functions to inspect the set.
