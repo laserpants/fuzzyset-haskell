@@ -43,6 +43,11 @@ See [here](https://github.com/laserpants/fuzzyset-haskell/blob/master/README.md#
 
 #### `mkSet :: Size -> Size -> Bool -> FuzzySet`
 
+* `Size` The lower bound of gram sizes to use (inclusive)
+* `Size`	The upper bound of gram sizes to use (inclusive)
+* `Bool`	Whether to use Levenshtein distance to determine the score
+* `FuzzySet` An empty fuzzy string set
+
 Initialize a FuzzySet.
 
 #### `defaultSet :: FuzzySet`
