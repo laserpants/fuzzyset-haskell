@@ -35,6 +35,8 @@ Just "Terminator"
 [(0.7692307692307693,"Shaggy Rogers"),(0.5,"Fred Jones")]
 ```
 
+### Inspecting
+
 There are also a few functions to inspect the set.
 
 #### `size :: FuzzySet -> Int`
