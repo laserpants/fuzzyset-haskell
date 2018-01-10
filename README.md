@@ -75,6 +75,10 @@ fromList = addMany defaultSet
 
 #### `add :: FuzzySet -> Text -> FuzzySet`
 
+* `FuzzySet` Fuzzy string set to add the entry to
+* `Text` The new entry
+* `FuzzySet` The updated set
+
 Add an entry to the set, or do nothing if a key identical to the provided value already exists in the set.
 
 #### `addToSet :: FuzzySet -> Text -> (FuzzySet, Bool)`
@@ -86,6 +90,10 @@ Add an entry to the set, or do nothing if a key identical to the provided value 
 Add an entry to the set and return a pair with the new set, and a boolean to indicate if a new entry was inserted, or not.
 
 #### `addMany :: FuzzySet -> [Text] -> FuzzySet`
+
+* `FuzzySet` Fuzzy string set to add the entries to
+* `[Text]` A list of new entries
+* `FuzzySet` A new fuzzy string set
 
 Add a list of entries to the set, in one go.
 
