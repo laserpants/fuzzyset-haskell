@@ -183,7 +183,7 @@ getOne ∷ FuzzySet
        → Text
        -- ^ The lookup query
        → Maybe Text
-       -- ^ 'Just' the result, if one was found, otherwise 'Nothing'
+       -- ^ 'Just' the result, if a match was found, otherwise 'Nothing'
 getOne set val = 
     case get set val of
       [] → Nothing
