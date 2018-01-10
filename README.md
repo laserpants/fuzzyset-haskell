@@ -97,13 +97,26 @@ addMany = foldr (flip add)
 
 #### `get :: FuzzySet -> Text -> [(Double, Text)]`
 
+* `FuzzySet` The fuzzy string set to compare the string against
+* `Text` The lookup query
+* `[(Double, Text)]` A list of results (score and matched value pairs)
+
 Try to match the given string against the entries in the set, using a minimum score of 0.33. Return a list of results ordered by similarity score, with the closest match first.
 
 #### `getWithMinScore :: Double -> FuzzySet -> Text -> [(Double, Text)]`
 
+* `Double` A minimum score
+* `FuzzySet` The fuzzy string set to compare the string against
+* `Text` The lookup query
+* `[(Double, Text)]` A list of results (score and matched value pairs)
+
 Try to match the given string against the entries in the set, and return a list of all results with a score greater than or equal to the specified minimum score (i.e., the first argument). The results are ordered by similarity score, with the closest match first.
 
 #### `getOne :: FuzzySet -> Text -> Maybe Text`
+
+* `FuzzySet` The fuzzy string set to compare the string against
+* `Text` The lookup query
+* `Maybe Text` `Just` the result, if one was found, otherwise `Nothing`
 
 Try to match the given string against the entries in the set, and return the closest match, if one is found.
 
