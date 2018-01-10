@@ -124,7 +124,7 @@ Try to match the given string against the entries in the set, and return a list 
 
 * `FuzzySet` The fuzzy string set to compare the string against
 * `Text` The lookup query
-* `Maybe Text` `Just` the result, if one was found, otherwise `Nothing`
+* `Maybe Text` Return `Just` the result, if a match was found, otherwise `Nothing`
 
 Try to match the given string against the entries in the set, and return the closest match, if one is found.
 
