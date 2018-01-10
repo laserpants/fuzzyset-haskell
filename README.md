@@ -79,6 +79,10 @@ Add an entry to the set, or do nothing if a key identical to the provided value 
 
 #### `addToSet :: FuzzySet -> Text -> (FuzzySet, Bool)`
 
+* `FuzzySet` Fuzzy string set to add the entry to
+* `Text`	The new entry
+* `(FuzzySet, Bool)` The updated set and a boolean, which will be `True` if, and only if, the value was not already in the set.
+
 Add an entry to the set and return a pair with the new set, and a boolean to indicate if a new entry was inserted, or not.
 
 #### `addMany :: FuzzySet -> [Text] -> FuzzySet`
