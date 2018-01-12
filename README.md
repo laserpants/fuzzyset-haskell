@@ -143,7 +143,7 @@ Return the number of entries in the set.
 
 #### `isEmpty :: FuzzySet -> Bool`
 
-Return a boolean indicating whether the provided set is empty.
+Return a boolean to indicate whether the provided set is empty.
 
 ```
 >>> isEmpty (fromList [])
