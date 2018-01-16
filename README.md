@@ -1,5 +1,15 @@
 # fuzzyset-haskell [![Build Status](https://img.shields.io/travis/laserpants/fuzzyset-haskell/master.svg?style=flat)](https://travis-ci.org/laserpants/fuzzyset-haskell) [![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) [![Language](https://img.shields.io/badge/language-Haskell-yellow.svg)](https://www.haskell.org/) [![Hackage](https://img.shields.io/hackage/v/fuzzyset.svg)](http://hackage.haskell.org/package/fuzzyset)
 
+## Table of Contents
+
+* [About](#about)
+* [Install](#install)
+* [How to use](#how-to-use)
+* [API](#api)
+* [Examples](#examples)
+
+## About
+
 A fuzzy string set data structure for approximate string matching. This implementation is based on the Python and JavaScript libraries with the same name:
 
 * [JavaScript version](https://github.com/Glench/fuzzyset.js)
@@ -35,7 +45,7 @@ Just "Terminator"
 [(0.7692307692307693,"Shaggy Rogers"),(0.5,"Fred Jones")]
 ```
 
-See [here](https://github.com/laserpants/fuzzyset-haskell/blob/master/README.md#more-examples) for more examples.
+See [here](https://github.com/laserpants/fuzzyset-haskell/blob/master/README.md#examples) for more examples.
 
 ## API
 
@@ -159,7 +169,7 @@ Return the elements of the set.
 ["space","daze","bass","maze","ace","craze","lace","haze"]
 ```
 
-### More examples
+## Examples
 
 ```
 {-# LANGUAGE OverloadedStrings #-}
