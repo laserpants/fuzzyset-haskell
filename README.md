@@ -204,7 +204,7 @@ The output of this program is:
 (0.35714285714285715,"Maryland")
 ```
 
-Using the definition of `statesSet` from previous example:
+Using the same definition of `statesSet` from previous example:
 
 ```
 >>> get statesSet "Why-oh-me-ing"
