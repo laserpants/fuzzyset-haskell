@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE CPP, UnicodeSyntax #-}
 module Data.FuzzySet.Util
   ( distance
   , enclosedIn
@@ -7,7 +7,9 @@ module Data.FuzzySet.Util
   , substr
   , ε
   , (<$$>)
+#if !MIN_VERSION_base_unicode_symbols(0,2,3)
   , (−)
+#endif
   , (×)
   ) where
 
@@ -68,11 +70,13 @@ distance s t = fromRational (toRational d)
 ε = empty
 {-# INLINE ε #-}
 
+#if !MIN_VERSION_base_unicode_symbols(0,2,3)
 -- | Unicode minus sign symbol. Slightly longer than the hyphen-minus commonly
 --   used, U+2212 aligns naturally with the horizontal bar of the + symbol.
 (−) ∷ Num α ⇒ α → α → α
 (−) = (-)
 {-# INLINE (−) #-}
+#endif
 
 -- | Another unicode operator. This one for multiplication.
 (×) ∷ Num α ⇒ α → α → α
