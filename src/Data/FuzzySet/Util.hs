@@ -10,7 +10,9 @@ module Data.FuzzySet.Util
 #if !MIN_VERSION_base_unicode_symbols(0,2,3)
   , (−)
 #endif
+#if !MIN_VERSION_base_unicode_symbols(0,2,4)
   , (×)
+#endif
   ) where
 
 import Data.Char                       ( isAlphaNum, isSpace )
@@ -78,7 +80,9 @@ distance s t = fromRational (toRational d)
 {-# INLINE (−) #-}
 #endif
 
+#if !MIN_VERSION_base_unicode_symbols(0,2,4)
 -- | Another unicode operator. This one for multiplication.
 (×) ∷ Num α ⇒ α → α → α
 (×) = (*)
 {-# INLINE (×) #-}
+#endif
