@@ -23,10 +23,11 @@ getMatch GetContext{..} size = match <$$> filtered
     match α = set ^._exactSet.ix α
     filtered = filter ((<) minScore ∘ fst) sorted
     μ p = p & _1.~ distance (p ^._2) key
-    sorted = sortBy (flip compare `on` fst) $
+    sortByFst = sortBy (flip compare `on` fst)
+    sorted = sortByFst $
         let rs = results GetContext{..} size
          in if set ^._useLevenshtein
-                then take 50 (μ <$> rs)
+                then (fmap μ ∘ take 50 ∘ sortByFst) rs
                 else rs
 
 results ∷ GetContext → Size → [(Double, Text)]

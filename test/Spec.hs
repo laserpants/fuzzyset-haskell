@@ -482,6 +482,11 @@ main = hspec $ do
       it "should return [(1, \"xxx\")]" $
         get set "xxx" `shouldBe` [(1, "xxx")]
 
+    describe "getWithMinScore 0.7 ((defaultSet `addMany` replicate 133 \"Nebraska\") `add` \"Nevada\") \"Nevoda\"" $ do
+      let set = (defaultSet `addMany` replicate 133 "Nebraska") `add` "Nevada"
+      it "should return one result" $
+        (length . getWithMinScore 0.7 set) "Nevoda" `shouldBe` 1
+
     checkMatches testset_1 "ant"   3 [("trent", 1), ("restaurant", 2), ("aunt", 1), ("smarty pants", 1)]
     checkMatches testset_1 "pant"  3 [("trent", 1), ("restaurant", 2), ("aunt", 1), ("smarty pants", 2)]
     checkMatches testset_1 "pants" 3 [("restaurant", 1), ("smarty pants", 4)]
