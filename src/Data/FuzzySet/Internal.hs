@@ -1,9 +1,14 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
+
+-- |
+
 module Data.FuzzySet.Internal
---    (
---    )
-    where
+    ( (|>)
+    , matches
+    , getMatches
+    , gramMap
+    ) where
 
 import Data.Function ((&))
 import Data.FuzzySet.Types

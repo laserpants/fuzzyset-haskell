@@ -113,7 +113,10 @@ getWithMinScore
     -- ^ The lookup query
     -> [( Double, Text )]
     -- ^ A list of results (score and matched value)
-getWithMinScore minScore set@FuzzySet{ gramSizeLower = lower, gramSizeUpper = upper, .. } value =
+getWithMinScore
+      minScore
+      set@FuzzySet{ gramSizeLower = lower, gramSizeUpper = upper, .. }
+      value =
     case key `HashMap.lookup` exactSet of
         Just match ->
             [( 1, match )]
