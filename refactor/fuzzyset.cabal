@@ -1,0 +1,77 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: f507b9cfd8bdd4db2ea38e52e79f23a6e9da95387facb957fce1e187dc095bd5
+
+name:           fuzzyset
+version:        0.2.0
+category:       Web
+homepage:       https://github.com/githubuser/fuzzyset-haskell#readme
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2017-2019 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+library
+  exposed-modules:
+      Data.FuzzySet
+      Data.FuzzySet.Internal
+      Data.FuzzySet.Types
+      Data.FuzzySet.Util
+  other-modules:
+      Paths_fuzzyset
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , data-default >=0.7.1.1 && <0.8
+    , text >=1.2.3.1 && <1.3
+    , text-metrics >=0.3.0 && <0.4
+    , unordered-containers >=0.2.10.0 && <0.3
+    , vector >=0.12.0.3 && <0.13
+  default-language: Haskell2010
+
+executable fuzzyset-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_fuzzyset
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , data-default >=0.7.1.1 && <0.8
+    , fuzzyset
+    , text >=1.2.3.1 && <1.3
+    , text-metrics >=0.3.0 && <0.4
+    , unordered-containers >=0.2.10.0 && <0.3
+    , vector >=0.12.0.3 && <0.13
+  default-language: Haskell2010
+
+test-suite fuzzyset-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Helpers
+      Paths_fuzzyset
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , data-default >=0.7.1.1 && <0.8
+    , fuzzyset
+    , hspec >=2.7.1 && <2.8
+    , ieee754 >=0.8.0 && <0.9
+    , text >=1.2.3.1 && <1.3
+    , text-metrics >=0.3.0 && <0.4
+    , unordered-containers >=0.2.10.0 && <0.3
+    , vector >=0.12.0.3 && <0.13
+  default-language: Haskell2010
