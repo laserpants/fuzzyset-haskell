@@ -18,7 +18,7 @@
 
 module Data.FuzzySet
     (
-    -- * How to use
+    -- * How to use this library
     -- $howto
 
     -- * Types
