@@ -1,7 +1,11 @@
 module Data.FuzzySet.Types 
---    (
---    )
-where
+    ( FuzzySetItem(..)
+    , GramInfo(..)
+    , ExactSet
+    , MatchDict
+    , ItemMap
+    , FuzzySet(..)
+    ) where
 
 import Data.HashMap.Strict (HashMap)
 import Data.Vector (Vector)
