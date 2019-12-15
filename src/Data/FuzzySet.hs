@@ -1,8 +1,51 @@
 {-# LANGUAGE RecordWildCards #-}
+
+-- |
+--
+-- Module      : Data.FuzzySet
+-- Copyright   : (c) 2017-2019 Johannes Hildén
+-- License     : BSD3
+-- Maintainer  : hildenjohannes@gmail.com
+-- Stability   : experimental
+-- Portability : GHC
+--
+-- A fuzzy string set data structure for approximate string matching. This
+-- implementation is based on the Python and JavaScript libraries with the same
+-- name:
+--
+--   * [JavaScript version](http://glench.github.io/fuzzyset.js/)
+--   * [Python version](https://github.com/axiak/fuzzyset)
+
 module Data.FuzzySet
---    (
---    )
-where
+    (
+    -- * How to use
+    -- $howto
+
+    -- * Types
+      FuzzySet
+
+    -- * API
+
+    -- ** Initializing
+    , mkSet
+    , defaultSet
+    , fromList
+
+    -- ** Adding
+    , add
+    , addToSet
+    , addMany
+
+    -- ** Retrieving
+    , get
+    , getWithMinScore
+    , getOne
+
+    -- ** Inspecting
+    , size
+    , isEmpty
+    , values
+    ) where
 
 import Data.Default (Default, def)
 import Data.FuzzySet.Internal
@@ -23,9 +66,9 @@ import qualified Data.Vector as Vector
 --
 mkSet
     :: Int
-    -- ^ Lower bound of gram sizes to use (inclusive)
+    -- ^ Lower bound on gram sizes to use (inclusive)
     -> Int
-    -- ^ Upper bound of gram sizes to use (inclusive)
+    -- ^ Upper bound on gram sizes to use (inclusive)
     -> Bool
     -- ^ Whether or not to use the [Levenshtein distance](https://people.cs.pitt.edu/~kirk/cs1501/Pruhs/Spring2006/assignments/editdistance/Levenshtein%20Distance.htm)
     -- to determine the score
@@ -75,7 +118,7 @@ getWithMinScore minScore set@FuzzySet{ gramSizeLower = lower, gramSizeUpper = up
         Just match ->
             [( 1, match )]
 
-        Nothing -> 
+        Nothing ->
             sizes
                 |> fmap (getMatches set key minScore)
                 |> find (not . null)
@@ -158,7 +201,7 @@ addToSet set@FuzzySet{ gramSizeLower = lower, gramSizeUpper = upper, .. } value
             HashMap.alter (\maybeInfos -> Just $ info : fromMaybe [] maybeInfos) gram
 
         itemVector =
-            items 
+            items
                 |> HashMap.lookup gramSize
                 |> fromMaybe Vector.empty
         grams =
@@ -210,7 +253,7 @@ isEmpty =
     HashMap.null . exactSet
 
 
--- | Return the elements of the set. This function is the inverse of 'fromList'. 
+-- | Return the elements of the set. This function is the inverse of 'fromList'.
 -- That is; @values ∘ fromList ≡ id@.
 --
 -- >>> values (fromList ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"])
