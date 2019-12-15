@@ -1,4 +1,4 @@
-module Data.FuzzySet.Util 
+module Data.FuzzySet.Util
     ( normalized
     , substr
     , enclosedIn
@@ -19,7 +19,7 @@ import qualified Data.Text as Text
 --
 normalized :: Text -> Text
 {-# INLINE normalized #-}
-normalized = 
+normalized =
     Text.filter word . Text.toLower
   where
     word char
@@ -31,17 +31,17 @@ normalized =
 
 -- | Return /n/ characters starting from offset /m/ in the input string.
 --
-substr 
-    :: Int  
+substr
+    :: Int
     -- ^ Length of the substring
-    -> Int  
+    -> Int
     -- ^ The character offset /m/
-    -> Text 
+    -> Text
     -- ^ The input string
-    -> Text 
+    -> Text
     -- ^ A substring of length /n/
 {-# INLINE substr #-}
-substr n m = 
+substr n m =
     Text.take n . Text.drop m
 
 
@@ -49,18 +49,18 @@ substr n m =
 --
 enclosedIn :: Text -> Char -> Text
 {-# INLINE enclosedIn #-}
-enclosedIn str char = 
+enclosedIn str char =
     char `cons` str `snoc` char
 
 
--- | Returns the euclidean norm, or /magnitude/, of the input list interpreted 
--- as a vector. 
+-- | Returns the euclidean norm, or /magnitude/, of the input list interpreted
+-- as a vector.
 --
--- That is, 
+-- That is,
 --
 -- \( \quad \sqrt{ \sum_{i=0}^n a_i^2 } \)
 --
--- for the input 
+-- for the input
 --
 -- \( \quad \langle a_0, a_1, \dots, a_n \rangle \)
 --

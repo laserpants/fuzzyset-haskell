@@ -29,19 +29,19 @@ import qualified Data.Text as Text
 
 (|>) :: a -> (a -> b) -> b
 (|>) = (&)
-infixl 1 |> 
+infixl 1 |>
 
 
 -- | TODO docs
 --
 matches
-    :: FuzzySet 
-    -> HashMap Text Int 
+    :: FuzzySet
+    -> HashMap Text Int
     -> HashMap Int Int
 matches set@FuzzySet{..} =
     foldrWithKey fun mempty
   where
-    fun gram count map = 
+    fun gram count map =
         let
             insScore otherCount entry =
                 Just (fromMaybe 0 entry + otherCount * count)
@@ -54,21 +54,21 @@ matches set@FuzzySet{..} =
 --
 getMatches :: FuzzySet -> Text -> Double -> Int -> [( Double, Text )]
 getMatches set@FuzzySet{..} key minScore gramSize =
-    results 
+    results
         |> filter (\pair -> fst pair >= minScore)
         |> fmap (\( score, entry ) -> ( score, exactSet |> lookupDefault "" entry ))
   where
-    results = 
-        let sorted = 
+    results =
+        let sorted =
                 matches set grams
-                    |> HashMap.foldrWithKey fun [] 
-                    |> sortBy (comparing (Down . fst)) 
+                    |> HashMap.foldrWithKey fun []
+                    |> sortBy (comparing (Down . fst))
         in
         if useLevenshtein then
             sorted
-                |> take 50 
+                |> take 50
                 |> fmap (\( _, entry ) -> ( distance key entry, entry ))
-                |> sortBy (comparing (Down . fst)) 
+                |> sortBy (comparing (Down . fst))
         else
             sorted
 
@@ -83,12 +83,12 @@ getMatches set@FuzzySet{..} key minScore gramSize =
 
             Just FuzzySetItem{..} ->
                 ( fromIntegral score / (vectorNorm * vectorMagnitude)
-                , normalizedEntry 
+                , normalizedEntry
                 ) : list
 
 
--- | Call 'grams' to generate a list of grams from the normalized input. Then 
--- create a 'HashMap' with the /n/-grams as keys mapping to the number of 
+-- | Call 'grams' to generate a list of grams from the normalized input. Then
+-- create a 'HashMap' with the /n/-grams as keys mapping to the number of
 -- occurences of the key in the generated gram list.
 --
 -- >>> gramMap "xxxx" 2
@@ -106,8 +106,8 @@ gramMap
     -> Int
     -- ^ The gram size /n/, which must be at least /2/
     -> HashMap Text Int
-    -- ^ A mapping from /n/-gram keys to the number of times it occurs in the 
-    -- list returned by 'grams' (all /n/-length substrings of the normalized 
+    -- ^ A mapping from /n/-gram keys to the number of times it occurs in the
+    -- list returned by 'grams' (all /n/-length substrings of the normalized
     -- input enclosed in hyphens).
 gramMap value size =
     foldr fun HashMap.empty (grams value size)

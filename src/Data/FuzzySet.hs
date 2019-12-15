@@ -10,8 +10,8 @@
 -- Portability : GHC
 --
 -- A fuzzy string set data structure for approximate string matching. This
--- implementation is based on the Python and JavaScript libraries with the same
--- name:
+-- implementation is based on the Python and JavaScript libraries with similar
+-- names:
 --
 --   * [JavaScript version](http://glench.github.io/fuzzyset.js/)
 --   * [Python version](https://github.com/axiak/fuzzyset)

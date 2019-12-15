@@ -1,4 +1,4 @@
-module Data.FuzzySet.Types 
+module Data.FuzzySet.Types
     ( FuzzySetItem(..)
     , GramInfo(..)
     , ExactSet
@@ -39,7 +39,7 @@ type MatchDict = HashMap Text [GramInfo]
 type ItemMap = HashMap Int (Vector FuzzySetItem)
 
 
--- | Fuzzy string set data type representation. Use 'Data.FuzzySet.defaultSet', 
+-- | Fuzzy string set data type representation. Use 'Data.FuzzySet.defaultSet',
 -- 'Data.FuzzySet.mkSet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
 --
 data FuzzySet = FuzzySet
