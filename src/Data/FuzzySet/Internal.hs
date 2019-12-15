@@ -8,6 +8,7 @@ module Data.FuzzySet.Internal
     , matches
     , getMatches
     , gramMap
+    , grams
     ) where
 
 import Data.Function ((&))
