@@ -1,56 +1,48 @@
-{-# LANGUAGE UnicodeSyntax #-}
-module Data.FuzzySet.Types where
+module Data.FuzzySet.Types 
+--    (
+--    )
+where
 
-import Data.Default
-import Data.Text           ( Text )
-import Data.HashMap.Strict ( HashMap )
-import Data.Vector         ( Vector )
+import Data.HashMap.Strict (HashMap)
+import Data.Vector (Vector)
+import Data.Text (Text)
+
 
 data FuzzySetItem = FuzzySetItem
-  { vectorMagnitude ∷ !Double
-  , normalizedEntry ∷ !Text
-  } deriving (Eq, Show)
+    { vectorMagnitude :: !Double
+    , normalizedEntry :: !Text
+    } deriving (Eq, Show)
+
 
 data GramInfo = GramInfo
-  { itemIndex ∷ !Int
-  , gramCount ∷ !Int
-  } deriving (Eq, Show)
+    { itemIndex :: !Int
+    , gramCount :: !Int
+    } deriving (Eq, Show)
 
--- | Type alias for representing gram sizes.
-type Size      = Int
-type ExactSet  = HashMap Text Text
-type MatchDict = HashMap Text [GramInfo]
-type ItemMap   = HashMap Size (Vector FuzzySetItem)
 
--- | Opaque fuzzy string set data type. Use 'Data.FuzzySet.defaultSet', 
---   'Data.FuzzySet.mkSet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
-data FuzzySet = FuzzySet
-  { gramSizeLower  ∷ !Size
-  , gramSizeUpper  ∷ !Size
-  , useLevenshtein ∷ !Bool
-  , exactSet       ∷ !ExactSet
-  , matchDict      ∷ !MatchDict
-  , items          ∷ !ItemMap
-  } deriving (Eq, Show)
-
--- | See 'defaultSet'.
-instance Default FuzzySet where
-  def = defaultSet
-
-data GetContext = GetContext
-  { key      ∷ !Text
-  , minScore ∷ !Double
-  , set      ∷ !FuzzySet
-  } deriving (Show)
-
--- | A 'FuzzySet' with the following field values:
+-- | TODO docs
 --
--- > { gramSizeLower  = 2
--- > , gramSizeUpper  = 3
--- > , useLevenshtein = True
--- > , exactSet       = ε
--- > , matchDict      = ε
--- > , items          = ε }
-defaultSet ∷ FuzzySet
-defaultSet = FuzzySet 2 3 True mempty mempty mempty
+type ExactSet = HashMap Text Text
 
+
+-- | TODO docs
+--
+type MatchDict = HashMap Text [GramInfo]
+
+
+-- | TODO docs
+--
+type ItemMap = HashMap Int (Vector FuzzySetItem)
+
+
+-- | Fuzzy string set data type representation. Use 'Data.FuzzySet.defaultSet', 
+-- 'Data.FuzzySet.mkSet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
+--
+data FuzzySet = FuzzySet
+    { exactSet       :: !ExactSet
+    , matchDict      :: !MatchDict
+    , items          :: !ItemMap
+    , gramSizeLower  :: !Int
+    , gramSizeUpper  :: !Int
+    , useLevenshtein :: !Bool
+    } deriving (Eq, Show)
