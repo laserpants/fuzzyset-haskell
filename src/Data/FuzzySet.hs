@@ -154,7 +154,7 @@ getOne fuzzySet value =
 
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
---   value already exists in the set.
+-- value already exists in the set.
 --
 add
     :: FuzzySet
