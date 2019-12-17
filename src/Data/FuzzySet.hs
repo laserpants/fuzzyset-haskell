@@ -169,8 +169,8 @@ instance Default FuzzySet where
 
 -- | Try to match a string against the entries in the set, and return a list of
 -- all results with a score greater than or equal to the specified minimum score
--- (i.e., the first argument). The results are ordered by similarity score, with
--- the closest match first.
+-- (i.e., the first argument). The results are ordered by score, with the
+-- closest match first.
 --
 getWithMinScore
     :: Double
