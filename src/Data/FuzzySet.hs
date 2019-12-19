@@ -284,7 +284,7 @@ addToSet set@FuzzySet{ gramSizeLower = lower, gramSizeUpper = upper, .. } value
                 , .. }
 
 
--- | Add a list of entries to the set, all in one go.
+-- | Add a list of entries to the set, in one go.
 --
 -- @addMany = foldr (flip add)@
 --
@@ -324,8 +324,7 @@ isEmpty =
     HashMap.null . exactSet
 
 
--- | Return the elements of the set. This function is the inverse of 'fromList'.
--- That is; @values ∘ fromList ≡ id@.
+-- | Return the elements of the set.
 --
 -- >>> values (fromList ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"])
 -- ["space","daze","bass","maze","ace","craze","lace","haze"]

@@ -1,9 +1,6 @@
 module Data.FuzzySet.Types
     ( FuzzySetItem(..)
     , GramInfo(..)
-    , ExactSet
-    , MatchDict
-    , ItemMap
     , FuzzySet(..)
     ) where
 
@@ -24,28 +21,13 @@ data GramInfo = GramInfo
     } deriving (Eq, Show)
 
 
--- | TODO docs
---
-type ExactSet = HashMap Text Text
-
-
--- | TODO docs
---
-type MatchDict = HashMap Text [GramInfo]
-
-
--- | TODO docs
---
-type ItemMap = HashMap Int (Vector FuzzySetItem)
-
-
 -- | Fuzzy string set data type representation. Use 'Data.FuzzySet.defaultSet',
 -- 'Data.FuzzySet.mkSet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
 --
 data FuzzySet = FuzzySet
-    { exactSet       :: !ExactSet
-    , matchDict      :: !MatchDict
-    , items          :: !ItemMap
+    { exactSet       :: !(HashMap Text Text)
+    , matchDict      :: !(HashMap Text [GramInfo])
+    , items          :: !(HashMap Int (Vector FuzzySetItem))
     , gramSizeLower  :: !Int
     , gramSizeUpper  :: !Int
     , useLevenshtein :: !Bool

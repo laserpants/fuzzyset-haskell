@@ -27,12 +27,16 @@ import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 
 
+-- | Alternative syntax for the reverse function application operator @(&)@,
+-- known as the /pipe/ operator in some other languages.
+--
 (|>) :: a -> (a -> b) -> b
 (|>) = (&)
 infixl 1 |>
 
 
--- | TODO docs
+-- | The dictionary returned by this function is used when computing the cosine
+-- similarity between
 --
 matches
     :: FuzzySet
@@ -50,9 +54,21 @@ matches set@FuzzySet{..} =
             |> maybe map (foldr (\GramInfo{..} -> alter (insScore gramCount) itemIndex) map)
 
 
--- | TODO docs
+-- | This function does the actual work of querying a set for matches,
+-- supported by the other functions in this module.
 --
-getMatches :: FuzzySet -> Text -> Double -> Int -> [( Double, Text )]
+-- A list of /n/-grams is generated for the specified gram size (see 'grams`).
+-- 'gramMap' translates this into a dictionary which maps each /n/-gram key to
+-- to the number of times it occurs in the list.
+--
+--
+--
+getMatches
+    :: FuzzySet
+    -> Text
+    -> Double
+    -> Int
+    -> [( Double, Text )]
 getMatches set@FuzzySet{..} key minScore gramSize =
     results
         |> filter (\pair -> fst pair >= minScore)
@@ -87,9 +103,9 @@ getMatches set@FuzzySet{..} key minScore gramSize =
                 ) : list
 
 
--- | Call 'grams' to generate a list of grams from the normalized input. Then
--- create a 'HashMap' with the /n/-grams as keys mapping to the number of
--- occurences of the key in the generated gram list.
+-- | Generates a list of grams from the normalized input and then creates a
+-- 'HashMap' with the /n/-grams as keys mapping to the number of occurences of
+-- the key in the generated gram list.
 --
 -- >>> gramMap "xxxx" 2
 -- fromList [("-x",1), ("xx",3), ("x-",1)]
