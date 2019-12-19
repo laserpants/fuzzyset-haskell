@@ -1,5 +1,5 @@
 name:                fuzzyset
-version:             0.1.2
+version:             0.2.0
 synopsis:            Fuzzy set for approximate string matching
 description:         This library is based on the Python and JavaScript libraries with similar names.
 homepage:            https://github.com/laserpants/fuzzyset-haskell
