@@ -58,8 +58,8 @@ matches set@FuzzySet{..} =
 -- supported by the other functions in this module.
 --
 -- A list of /n/-grams is generated for the specified gram size (see 'grams`).
--- 'gramMap' translates this into a dictionary which maps each /n/-gram key to
--- to the number of times it occurs in the list.
+-- Subsequently, 'gramMap' translates this into a dictionary which maps each
+-- /n/-gram key to to the number of times it occurs in the list.
 --
 --
 --
@@ -103,15 +103,18 @@ getMatches set@FuzzySet{..} key minScore gramSize =
                 ) : list
 
 
--- | Generate a list of grams (character substrings) from the normalized input
--- and then create a 'HashMap' with the /n/-grams as keys mapping to the number
--- of occurences of the key in the generated gram list.
+-- | Generate a list of /n/-grams (character substrings) from the normalized input
+-- and then create a dictionary with the /n/-grams as keys mapping to the number
+-- of occurences of the key in the list.
 --
 -- >>> gramMap "xxxx" 2
 -- fromList [("-x",1), ("xx",3), ("x-",1)]
 --
 -- >>> gramMap "bananas" 3
 -- fromList [("as-",1),("-ba",1),("ana",2),("nas",1),("ban",1),("nan",1)]
+--
+-- In the above example, the substring @"ana"@ occurs twice in the string; at
+-- offsets 1 and 3.
 --
 -- >>> Data.HashMap.Strict.lookup "nts" (gramMap "intrent'srestaurantsomeoftrent'saunt'santswantsamtorentsomepants" 3)
 -- Just 8
@@ -141,7 +144,7 @@ gramMap value size =
 -- /Example:/
 -- The string @"Destroido Corp."@ is first normalized to @"destroido corp"@,
 -- and then enclosed in hyphens, so that it becomes @"-destroido corp-"@. The
--- list of /3/-grams generated from this normalized string is then
+-- list of /3/-grams generated from this normalized string is:
 --
 -- > [ "-de"
 -- > , "des"
