@@ -103,9 +103,9 @@ getMatches set@FuzzySet{..} key minScore gramSize =
                 ) : list
 
 
--- | Generates a list of grams from the normalized input and then creates a
--- 'HashMap' with the /n/-grams as keys mapping to the number of occurences of
--- the key in the generated gram list.
+-- | Generate a list of grams (character substrings) from the normalized input
+-- and then create a 'HashMap' with the /n/-grams as keys mapping to the number
+-- of occurences of the key in the generated gram list.
 --
 -- >>> gramMap "xxxx" 2
 -- fromList [("-x",1), ("xx",3), ("x-",1)]

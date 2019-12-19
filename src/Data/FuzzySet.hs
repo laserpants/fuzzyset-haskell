@@ -293,7 +293,7 @@ addMany =
     foldr (flip add)
 
 
--- | Create a fuzzy string set from a list of entries.
+-- | Create a set from a list of entries.
 --
 -- @fromList = addMany defaultSet@
 --
