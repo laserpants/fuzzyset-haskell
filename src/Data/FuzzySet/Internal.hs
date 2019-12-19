@@ -1,7 +1,11 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
 
--- |
+-- | This module contains the implementation of the algorithm for querying a set
+-- for potential matches, and determining how similar the search string is to
+-- each matched entry. The key idea is to translate strings to vectors and then
+-- calculate the /cosine similarity/ between these vectors.
+--
 
 module Data.FuzzySet.Internal
     ( (|>)
@@ -28,7 +32,7 @@ import qualified Data.Text as Text
 
 
 -- | Alternative syntax for the reverse function application operator @(&)@,
--- known as the /pipe/ operator in some other languages.
+-- known as the /pipe/ operator in some languages.
 --
 (|>) :: a -> (a -> b) -> b
 (|>) = (&)
@@ -36,7 +40,7 @@ infixl 1 |>
 
 
 -- | The dictionary returned by this function is used when computing the cosine
--- similarity between
+-- similarity.
 --
 matches
     :: FuzzySet
@@ -54,21 +58,26 @@ matches set@FuzzySet{..} =
             |> maybe map (foldr (\GramInfo{..} -> alter (insScore gramCount) itemIndex) map)
 
 
--- | This function does the actual work of querying a set for matches,
--- supported by the other functions in this module.
+-- | This function performs the actual task of querying a set for matches,
+-- supported by the other functions in this module. It works as follows:
 --
--- A list of /n/-grams is generated for the specified gram size (see 'grams`).
--- Subsequently, 'gramMap' translates this into a dictionary which maps each
--- /n/-gram key to to the number of times it occurs in the list.
+-- A list of /n/-grams is generated from the query for the specified gram size
+-- (see 'grams`). Subsequently, 'gramMap' translates this list into a dictionary
+-- which maps each /n/-gram key to to the number of times it occurs in the list.
 --
 --
 --
 getMatches
     :: FuzzySet
+    -- ^ The set
     -> Text
+    -- ^ The lookup query
     -> Double
+    -- ^ A minimum score
     -> Int
+    -- ^ The gram size /n/, which must be at least /2/
     -> [( Double, Text )]
+    -- ^ TODO
 getMatches set@FuzzySet{..} key minScore gramSize =
     results
         |> filter (\pair -> fst pair >= minScore)
@@ -144,7 +153,7 @@ gramMap value size =
 -- /Example:/
 -- The string @"Destroido Corp."@ is first normalized to @"destroido corp"@,
 -- and then enclosed in hyphens, so that it becomes @"-destroido corp-"@. The
--- list of /3/-grams generated from this normalized string is:
+-- /3/-grams generated from this normalized string are:
 --
 -- > [ "-de"
 -- > , "des"
