@@ -25,7 +25,7 @@ module Data.FuzzySet
     -- * API
 
     -- ** Initializing
-    , mkSet
+    , emptySet
     , defaultSet
     , fromList
 
@@ -65,7 +65,7 @@ import qualified Data.Vector as Vector
 -- Make sure the @OverloadedStrings@ pragma is enabled. After that, three steps
 -- are typically involved:
 --
---   1. Create a set using one of 'defaultSet', 'mkSet', or 'fromList'.
+--   1. Create a set using one of 'defaultSet', 'emptySet', or 'fromList'.
 --   2. To add entries, use 'add', 'addToSet', or 'addMany'.
 --   3. Query the set with 'get', 'getOne', 'getWithMinScore', or 'getOneWithMinScore'.
 --
@@ -131,7 +131,7 @@ import qualified Data.Vector as Vector
 
 -- | Initialize an empty 'FuzzySet'.
 --
-mkSet
+emptySet
     :: Int
     -- ^ Lower bound on gram sizes to use (inclusive)
     -> Int
@@ -141,7 +141,7 @@ mkSet
     -- to determine the score
     -> FuzzySet
     -- ^ An empty fuzzy string set
-mkSet =
+emptySet =
     FuzzySet mempty mempty mempty
 
 
@@ -154,7 +154,7 @@ mkSet =
 --
 defaultSet :: FuzzySet
 defaultSet =
-    mkSet 2 3 True
+    emptySet 2 3 True
 
 
 -- | See 'defaultSet'.
