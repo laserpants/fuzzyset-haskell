@@ -276,7 +276,7 @@ addToSet set@FuzzySet{ gramSizeLower = lower, gramSizeUpper = upper, .. } value
                 |> HashMap.lookup gramSize
                 |> fromMaybe Vector.empty
         grams =
-            gramMap key gramSize
+            gramVector key gramSize
 
     updateExactSet :: Text -> FuzzySet -> FuzzySet
     updateExactSet value FuzzySet{..} =

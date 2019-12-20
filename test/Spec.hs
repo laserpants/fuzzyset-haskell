@@ -24,7 +24,7 @@ import qualified Data.Text as Text
 
 
 compareLists :: [( Double, Text )] -> [( Double, Text )] -> Bool
-compareLists xs ys = 
+compareLists xs ys =
     and (fmap f (zip xs ys))
   where
     f ( ( a1, b1 ), ( a2, b2 ) ) =
@@ -32,7 +32,7 @@ compareLists xs ys =
 
 
 lookup0 :: Text -> HashMap Text Int -> Int
-lookup0 = 
+lookup0 =
     HashMap.lookupDefault 0
 
 
@@ -60,7 +60,7 @@ checkMapKey grams key value =
 
 
 vectorMagnitudeOfItem ∷ FuzzySet → Int → Int → Maybe Double
-vectorMagnitudeOfItem set n p = 
+vectorMagnitudeOfItem set n p =
     vectorMagnitude <$> (fromJust (n `HashMap.lookup` items set) !? p)
 
 
@@ -79,7 +79,7 @@ checkMatchDictEntry set gram entry =
     result = fromMaybe [] (gram `HashMap.lookup` matchDict set)
     message = "should return a match dict entry "
             <> show entry <> " for " <> show gram
-    srt (GramInfo a1 b1) (GramInfo a2 b2) = 
+    srt (GramInfo a1 b1) (GramInfo a2 b2) =
         compare ( a1, b1 ) ( a2, b2 )
 
 
@@ -99,28 +99,28 @@ checkGrams txt size r =
 checkGramMap ∷ Text → Int → [(Text, Int)] → SpecWith ()
 checkGramMap txt size r =
     describe msg $ it ("should return " <> show r)
-                      (gramMap txt size `shouldBe` fromList r)
+                      (gramVector txt size `shouldBe` fromList r)
   where
-    msg = "gramMap " <> show txt <> " " <> show size
+    msg = "gramVector " <> show txt <> " " <> show size
 
 
 checkGramMapKeys ∷ Text → Int → [(Text, Int)] → SpecWith ()
 checkGramMapKeys txt size keys =
     describe msg $ mapM_ (uncurry $ checkMapKey grams) keys
   where
-    msg = "gramMap " <> show txt <> " " <> show size
-    grams = gramMap txt size
+    msg = "gramVector " <> show txt <> " " <> show size
+    grams = gramVector txt size
 
 
 checkMatches ∷ FuzzySet → Text → Int → [(Text, Int)] → SpecWith ()
 checkMatches set txt size r =
     describe msg $ it ("should return " <> show r) (sortOn fst res `shouldBe` sortOn fst r)
   where
-    res = fmap f $ HashMap.toList $ matches set (gramMap txt size)
-    f (a, b) = 
+    res = fmap f $ HashMap.toList $ matches set (gramVector txt size)
+    f (a, b) =
           ( normalizedEntry ((fromJust (size `HashMap.lookup` items set)) ! a), b )
     msg = "matches "  <> show (exactSet set) <> " "
-        <> "(gramMap " <> show txt <> " " <> show size <> ")"
+        <> "(gramVector " <> show txt <> " " <> show size <> ")"
 
 
 checkGet ∷ FuzzySet → Text → [( Double, Text )] → SpecWith ()
@@ -154,8 +154,8 @@ sorted (x:xs) = x >= head xs && sorted xs
 
 
 main :: IO ()
-main = 
-    let 
+main =
+    let
         detectives = defaultSet `add` "Bruce Wayne" `add` "Charlie Chan" `add` "Frank Columbo" `add` "Hercule Poirot" `add` "Jane Marple" `add` "Lisbeth Salander" `add` "Nancy Drew" `add` "Nero Wolfe" `add` "Perry Mason" `add` "Philip Marlowe" `add` "Sherlock Holmes"
         detectivesDict = matchDict detectives
         Just map1 = HashMap.lookup "olm" detectivesDict
@@ -184,17 +184,17 @@ main =
             , ( 0.07692307692307687, "Frank Columbo" )
             ]
 
-    in 
+    in
     hspec $ do
         describe "Large set" $ do
             it "" $ do
-                let 
+                let
                     names = (FuzzySet.fromList . take 132 . repeat) "John Smith"
                  in
                  length (getWithMinScore 0.72 (names `add` "Joseph Dombrowski") "Joe Dombrowski") `shouldBe` 1
 
             it "" $ do
-                let 
+                let
                     names = (FuzzySet.fromList . take 133 . repeat) "John Smith"
                  in
                  length (getWithMinScore 0.72 (names `add` "Joseph Dombrowski") "Joe Dombrowski") `shouldBe` 1
@@ -204,18 +204,18 @@ main =
                 shouldBeTrue (scores2 `compareLists` getMatches detectives "Gumshoe" 0 2)
 
             it "without Levenshtein" $ do
-                let 
+                let
                     detectives' = detectives{ useLevenshtein = False }
                  in
                  shouldBeTrue (scores1 `compareLists` getMatches detectives' "Gumshoe" 0 2)
 
         describe "matches" $ do
             it "Watson" $ do
-                HashMap.fromList [(0,1),(1,1),(8,3)] `shouldBe` matches detectives (gramMap "Watson" 2)
-                HashMap.fromList [(8,2)] `shouldBe` matches detectives (gramMap "Watson" 3)
+                HashMap.fromList [(0,1),(1,1),(8,3)] `shouldBe` matches detectives (gramVector "Watson" 2)
+                HashMap.fromList [(8,2)] `shouldBe` matches detectives (gramVector "Watson" 3)
 
             it "Gumshoe" $ do
-                HashMap.fromList [(0,1),(2,1),(4,1),(7,1),(9,1),(10,2)] `shouldBe` matches detectives (gramMap "Gumshoe" 2)
+                HashMap.fromList [(0,1),(2,1),(4,1),(7,1),(9,1),(10,2)] `shouldBe` matches detectives (gramVector "Gumshoe" 2)
 
         describe "matchDict" $ do
             it "lookup \"olm\"" $ do
@@ -461,7 +461,7 @@ main =
             checkMatchDictEntry set "-te" [GramInfo 1 1]
 
         describe "FuzzySet 3 4 True mempty mempty mempty `add` ..." $
-          let set = FuzzySet mempty mempty mempty 3 4 True 
+          let set = FuzzySet mempty mempty mempty 3 4 True
                                 `add` "Trent"
                                 `add` "pants"
                                 `add` "restaurant"
@@ -504,7 +504,7 @@ main =
             checkMatchDictEntry set "-tr"  [GramInfo 0 1]
 
         describe "FuzzySet 2 5 True mempty mempty mempty `add` ..." $
-          let set = FuzzySet mempty mempty mempty 2 5 True 
+          let set = FuzzySet mempty mempty mempty 2 5 True
                                 `add` "Trent"
                                 `add` "restaurant"
                                 `add` "aunt"
@@ -700,7 +700,7 @@ testset_3 ∷ FuzzySet
 testset_3 = testset_2 `add` "polymorphic"
 
 testset_4 ∷ FuzzySet
-testset_4 = FuzzySet mempty mempty mempty 2 3 False 
+testset_4 = FuzzySet mempty mempty mempty 2 3 False
   `add` "Alaska" `add` "Alabama" `add` "Guam"
 
 testset_5 ∷ FuzzySet

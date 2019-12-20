@@ -1,17 +1,27 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
 
--- | This module contains the implementation of the algorithm for querying a set
--- for potential matches, and determining how similar the search string is to
--- each matched entry. The key idea is to translate strings to vectors and then
--- calculate the /cosine similarity/ between these vectors.
+-- | The code in this module implements the algorithm responsible for querying
+-- a set for potential matches and determining how similar the search string is
+-- to the entries of a set. The key idea is to translate strings to vectors and
+-- then calculate the /cosine similarity/ between these vectors. An excellent
+-- explanation with interactive examples can be found on the website for the
+-- JavaScript version of this library. I will only give a brief overview here:
+--
+-- The cosine similarity of two vectors \(A\) and \(B\) is given by the formula
+--
+-- \[ \frac{A \cdot B}{||A||\ ||B||} \]
+--
+-- Since it is a measure of the (cosine of the) angle between the two vectors,
+-- this value is always in the range \([0, 1]\).
+--
 --
 
 module Data.FuzzySet.Internal
     ( (|>)
     , matches
     , getMatches
-    , gramMap
+    , gramVector
     , grams
     ) where
 
@@ -40,7 +50,12 @@ infixl 1 |>
 
 
 -- | The dictionary returned by this function is used when computing the cosine
--- similarity.
+-- similarity, which is the similarity score assigned to entries that match
+-- the search string in the fuzzy set.
+--
+-- \( \frac{A \cdot B}{||A||\ ||B||} \)
+--
+--
 --
 matches
     :: FuzzySet
@@ -61,9 +76,10 @@ matches set@FuzzySet{..} =
 -- | This function performs the actual task of querying a set for matches,
 -- supported by the other functions in this module. It works as follows:
 --
--- A list of /n/-grams is generated from the query for the specified gram size
--- (see 'grams`). Subsequently, 'gramMap' translates this list into a dictionary
--- which maps each /n/-gram key to to the number of times it occurs in the list.
+-- A list of /n/-grams is generated from the query (see 'grams`) for the
+-- specified gram size. Subsequently, 'gramVector' translates this list into a
+-- dictionary which maps each /n/-gram key to to the number of times it occurs
+-- in the list.
 --
 --
 --
@@ -78,27 +94,27 @@ getMatches
     -- ^ The gram size /n/, which must be at least /2/
     -> [( Double, Text )]
     -- ^ TODO
-getMatches set@FuzzySet{..} key minScore gramSize =
+getMatches set@FuzzySet{..} query minScore gramSize =
     results
         |> filter (\pair -> fst pair >= minScore)
         |> fmap (\( score, entry ) -> ( score, exactSet |> lookupDefault "" entry ))
   where
     results =
         let sorted =
-                matches set grams
+                matches set queryVector
                     |> HashMap.foldrWithKey fun []
                     |> sortBy (comparing (Down . fst))
         in
         if useLevenshtein then
             sorted
                 |> take 50
-                |> fmap (\( _, entry ) -> ( distance key entry, entry ))
+                |> fmap (\( _, entry ) -> ( distance query entry, entry ))
                 |> sortBy (comparing (Down . fst))
         else
             sorted
 
-    vectorNorm  = norm (elems grams)
-    grams       = gramMap key gramSize
+    queryMagnitude = norm (elems queryVector)
+    queryVector = gramVector query gramSize
     itemsVector = fromMaybe mempty (gramSize `HashMap.lookup` items)
 
     fun index score list =
@@ -107,7 +123,7 @@ getMatches set@FuzzySet{..} key minScore gramSize =
                 list
 
             Just FuzzySetItem{..} ->
-                ( fromIntegral score / (vectorNorm * vectorMagnitude)
+                ( fromIntegral score / (queryMagnitude * vectorMagnitude)
                 , normalizedEntry
                 ) : list
 
@@ -116,28 +132,27 @@ getMatches set@FuzzySet{..} key minScore gramSize =
 -- and then create a dictionary with the /n/-grams as keys mapping to the number
 -- of occurences of the key in the list.
 --
--- >>> gramMap "xxxx" 2
+-- >>> gramVector "xxxx" 2
 -- fromList [("-x",1), ("xx",3), ("x-",1)]
 --
--- >>> gramMap "bananas" 3
+-- >>> gramVector "bananas" 3
 -- fromList [("as-",1),("-ba",1),("ana",2),("nas",1),("ban",1),("nan",1)]
 --
--- In the above example, the substring @"ana"@ occurs twice in the string; at
--- offsets 1 and 3.
+-- In the above example, the substring @"ana"@ occurs twice in the string (at
+-- offsets 1 and 3), and therefore has a value of 2 in the dictionary.
 --
--- >>> Data.HashMap.Strict.lookup "nts" (gramMap "intrent'srestaurantsomeoftrent'saunt'santswantsamtorentsomepants" 3)
+-- >>> Data.HashMap.Strict.lookup "nts" (gramVector "intrent'srestaurantsomeoftrent'saunt'santswantsamtorentsomepants" 3)
 -- Just 8
 --
-gramMap
+gramVector
     :: Text
     -- ^ An input string
     -> Int
     -- ^ The gram size /n/, which must be at least /2/
     -> HashMap Text Int
-    -- ^ A mapping from /n/-gram keys to the number of times it occurs in the
-    -- list returned by 'grams' (all /n/-length substrings of the normalized
-    -- input enclosed in hyphens).
-gramMap value size =
+    -- ^ A mapping from /n/-gram keys to the number of times the substring
+    -- occurs in the list returned by 'grams'.
+gramVector value size =
     foldr fun HashMap.empty (grams value size)
   where
     fun = HashMap.alter (pure . succ . fromMaybe 0)
@@ -175,7 +190,7 @@ grams
     :: Text
     -- ^ An input string
     -> Int
-    -- ^ The gram length /n/, which must be at least /2/
+    -- ^ The gram size /n/, which must be at least /2/
     -> [Text]
     -- ^ The resulting list of /n/-grams
 grams value size
