@@ -11,10 +11,8 @@
 --
 -- A fuzzy string set data structure for approximate string matching. This
 -- implementation is based on the Python and JavaScript libraries with similar
--- names:
---
---   * [JavaScript version](http://glench.github.io/fuzzyset.js/)
---   * [Python version](https://github.com/axiak/fuzzyset)
+-- names; [fuzzyset.js](http://glench.github.io/fuzzyset.js/), and the original
+-- [fuzzyset](https://github.com/axiak/fuzzyset) Python library.
 
 module Data.FuzzySet
     (
@@ -69,7 +67,9 @@ import qualified Data.Vector as Vector
 --
 --   1. Create a set using one of 'defaultSet', 'mkSet', or 'fromList'.
 --   2. To add entries, use 'add', 'addToSet', or 'addMany'.
---   3. Query the set with 'get', 'getOne', or 'getWithMinScore'.
+--   3. Query the set with 'get', 'getOne', 'getWithMinScore', or 'getOneWithMinScore'.
+--
+-- === Examples:
 --
 -- >>> defaultSet `add` "Jurassic Park" `add` "Terminator" `add` "The Matrix" `getOne` "percolator"
 -- Just "Terminator"
@@ -77,7 +77,7 @@ import qualified Data.Vector as Vector
 -- >>> defaultSet `add` "Shaggy Rogers" `add` "Fred Jones" `add` "Daphne Blake" `add` "Velma Dinkley" `get` "Shaggy Jones"
 -- [(0.7692307692307693,"Shaggy Rogers"),(0.5,"Fred Jones")]
 --
--- There are also a few functions to [inspect](#g:7) the set.
+-- There are also a few functions to [inspect](#g:7) sets
 --
 -- == More examples
 --
@@ -147,14 +147,11 @@ mkSet =
     FuzzySet mempty mempty mempty
 
 
--- | A 'FuzzySet' with the following field values:
+-- | A 'FuzzySet' with the following defaults:
 --
 -- > { gramSizeLower  = 2
 -- > , gramSizeUpper  = 3
 -- > , useLevenshtein = True
--- > , exactSet       = empty
--- > , matchDict      = empty
--- > , items          = empty
 -- > }
 --
 defaultSet :: FuzzySet
@@ -336,6 +333,8 @@ fromList =
 --
 -- >>> size (defaultSet `add` "map" `add` "cap")
 -- 2
+-- >>> size (defaultSet `add` "bork" `add` "bork" `add` "bork")
+-- 1
 --
 size :: FuzzySet -> Int
 size =
