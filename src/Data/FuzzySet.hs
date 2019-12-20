@@ -145,12 +145,11 @@ emptySet =
     FuzzySet mempty mempty mempty
 
 
--- | A 'FuzzySet' with the following defaults:
+-- | An empty 'FuzzySet' with the following defaults:
 --
--- > { gramSizeLower  = 2
--- > , gramSizeUpper  = 3
--- > , useLevenshtein = True
--- > }
+--   * Gram size lower: @2@
+--   * Gram size upper: @3@
+--   * Use Levenshtein distance: @True@
 --
 defaultSet :: FuzzySet
 defaultSet =

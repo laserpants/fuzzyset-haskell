@@ -21,8 +21,8 @@ data GramInfo = GramInfo
     } deriving (Eq, Show)
 
 
--- | Main fuzzy string set data type. Use 'Data.FuzzySet.defaultSet',
--- 'Data.FuzzySet.emptySet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
+-- | Main fuzzy string set data type. Use 'Data.FuzzySet.emptySet',
+-- 'Data.FuzzySet.defaultSet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
 --
 data FuzzySet = FuzzySet
     { exactSet       :: !(HashMap Text Text)
