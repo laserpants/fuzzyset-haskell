@@ -130,7 +130,7 @@ import qualified Data.Vector as Vector
 -- > [(0.47058823529411764,"Arkansas"),(0.35294117647058826,"Kansas"),(0.35294117647058826,"Alaska"),(0.35294117647058826,"Alabama"),(0.35294117647058826,"Nebraska")]
 
 
--- | Initialize a 'FuzzySet'.
+-- | Initialize an empty 'FuzzySet'.
 --
 mkSet
     :: Int
@@ -169,8 +169,8 @@ instance Default FuzzySet where
 
 -- | Try to match a string against the entries in the set, and return a list of
 -- all results with a score greater than or equal to the specified minimum score
--- (i.e., the first argument). The results are ordered by score, with the
--- closest match first.
+-- (i.e., the first argument). The results are ordered by similarity score, with
+-- the closest match first.
 --
 getWithMinScore
     :: Double
@@ -178,7 +178,7 @@ getWithMinScore
     -> FuzzySet
     -- ^ The fuzzy string set to compare the string against
     -> Text
-    -- ^ The lookup query
+    -- ^ The string to search for
     -> [( Double, Text )]
     -- ^ A list of results (score and matched value)
 getWithMinScore
@@ -203,7 +203,13 @@ getWithMinScore
 -- minimum score of 0.33. Return a list of results ordered by similarity score,
 -- with the closest match first.
 --
-get :: FuzzySet -> Text -> [( Double, Text )]
+get
+    :: FuzzySet
+    -- ^ The fuzzy string set to compare the string against
+    -> Text
+    -- ^ The string to search for
+    -> [( Double, Text )]
+    -- ^ A list of results (score and matched value)
 get =
     getWithMinScore 0.33
 
@@ -211,7 +217,13 @@ get =
 -- | Try to match the given string against the entries in the set, and return
 -- the closest match, if one is found.
 --
-getOne :: FuzzySet -> Text -> Maybe Text
+getOne
+    :: FuzzySet
+    -- ^ The fuzzy string set to compare the string against
+    -> Text
+    -- ^ The string to search for
+    -> Maybe Text
+    -- ^ The closest match, if one is found
 getOne fuzzySet value =
     case fuzzySet `get` value of
         [] ->
