@@ -62,14 +62,12 @@ import qualified Data.Vector as Vector
 
 -- $howto
 --
--- Make sure the @OverloadedStrings@ pragma is enabled. Then there are just
--- three steps:
+-- Make sure the @OverloadedStrings@ pragma is enabled. After that, three steps
+-- are typically involved:
 --
 --   1. Create a set using one of 'defaultSet', 'mkSet', or 'fromList'.
 --   2. To add entries, use 'add', 'addToSet', or 'addMany'.
 --   3. Query the set with 'get', 'getOne', 'getWithMinScore', or 'getOneWithMinScore'.
---
--- === Examples:
 --
 -- >>> defaultSet `add` "Jurassic Park" `add` "Terminator" `add` "The Matrix" `getOne` "percolator"
 -- Just "Terminator"
@@ -77,7 +75,7 @@ import qualified Data.Vector as Vector
 -- >>> defaultSet `add` "Shaggy Rogers" `add` "Fred Jones" `add` "Daphne Blake" `add` "Velma Dinkley" `get` "Shaggy Jones"
 -- [(0.7692307692307693,"Shaggy Rogers"),(0.5,"Fred Jones")]
 --
--- There are also a few functions to [inspect](#g:7) sets
+-- There are also a few functions to inspect sets: 'size', 'isEmpty', and 'values'.
 --
 -- == More examples
 --

@@ -21,7 +21,7 @@ data GramInfo = GramInfo
     } deriving (Eq, Show)
 
 
--- | Fuzzy string set data type representation. Use 'Data.FuzzySet.defaultSet',
+-- | The main Fuzzy string set data type. Use 'Data.FuzzySet.defaultSet',
 -- 'Data.FuzzySet.mkSet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
 --
 data FuzzySet = FuzzySet
