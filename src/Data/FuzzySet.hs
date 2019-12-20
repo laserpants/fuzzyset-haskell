@@ -40,6 +40,7 @@ module Data.FuzzySet
     , get
     , getWithMinScore
     , getOne
+    , getOneWithMinScore
 
     -- ** Inspecting
     , size
@@ -201,7 +202,8 @@ getWithMinScore
 
 -- | Try to match the given string against the entries in the set, using a
 -- minimum score of 0.33. Return a list of results ordered by similarity score,
--- with the closest match first.
+-- with the closest match first. Use 'getWithMinScore' to specify a different
+-- threshold value.
 --
 get
     :: FuzzySet
@@ -217,20 +219,36 @@ get =
 -- | Try to match the given string against the entries in the set, and return
 -- the closest match, if one is found.
 --
-getOne
-    :: FuzzySet
+getOneWithMinScore
+    :: Double
+    -- ^ A minimum score
+    -> FuzzySet
     -- ^ The fuzzy string set to compare the string against
     -> Text
     -- ^ The string to search for
     -> Maybe Text
     -- ^ The closest match, if one is found
-getOne fuzzySet value =
-    case fuzzySet `get` value of
+getOneWithMinScore minScore fuzzySet value =
+    case getWithMinScore minScore fuzzySet value of
         [] ->
             Nothing
 
         head : _ ->
             Just (snd head)
+
+
+-- | Try to match the given string against the entries in the set, and return
+-- the closest match, if one is found. A minimum score of 0.33 is used. To
+-- specify a different threshold value, instead use 'getOneWithMinScore'.
+--
+getOne :: FuzzySet
+    -- ^ The fuzzy string set to compare the string against
+    -> Text
+    -- ^ The string to search for
+    -> Maybe Text
+    -- ^ The closest match, if one is found
+getOne =
+    getOneWithMinScore 0.33
 
 
 -- | Add an entry to the set, or do nothing if a key identical to the provided
