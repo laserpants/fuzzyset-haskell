@@ -3,13 +3,14 @@
 
 -- | = Implementation
 --
--- The code in this module implements the algorithm responsible for querying
--- a set for potential matches and determining how similar a string is to the 
--- entries of the set. The key idea is to translate strings to vectors and then 
--- calculate the /cosine similarity/ between these vectors. An excellent
--- explanation with interactive examples can be found on the website for the
--- [JavaScript version](http://glench.github.io/fuzzyset.js/ui/) of this 
--- library. A brief overview follows here:
+-- The code in this module is responsible for querying a set for possible 
+-- matches and determining how similar a string is to each candidate. The key 
+-- idea is to translate strings to vectors and then calculate the /cosine similarity/ 
+-- between these vectors. During lookup, this allows us to assign a score to the 
+-- set entries that exhibit some similarity with the search string. An excellent 
+-- explanation with interactive examples can be found on the website for the 
+-- [JavaScript version](http://glench.github.io/fuzzyset.js/ui/) of this library. 
+-- A brief overview follows here:
 --
 -- === Cosine similarity
 --
@@ -24,38 +25,28 @@
 --
 -- === Gram vectors
 --
--- The vector we are interested in has as its components a number that counts
--- 
--- The function 'gramVector' generates the dictionary sparse represenation of
--- this vector for a string and gram size.
+-- The vector we are interested in has as its components the number of times
+-- a gram (substring) occurs in the (normalized version of the) string under 
+-- consideration. The function 'gramVector' takes an arbitrary string as input 
+-- and returns this vector, in dictionary form:
 --
 -- >>> gramVector "Mississippi" 3
 -- fromList [("pi-",1),("ssi",2),("sis",1),("iss",2),("-mi",1),("mis",1),("sip",1),("ppi",1),("ipp",1)]
 --
--- +--------+-------+
--- | Gram   | Count |
--- +========+=======+
--- | @-mi@  | 1     |
--- +--------+-------+
--- | @mis@  | 1     |
--- +--------+-------+
--- | @iss@  | 2     |
--- +--------+-------+
--- | @ssi@  | 2     |
--- +--------+-------+
--- | @sis@  | 1     |
--- +--------+-------+
--- | @sip@  | 1     |
--- +--------+-------+
--- | @ipp@  | 1     |
--- +--------+-------+
--- | @ppi@  | 1     |
--- +--------+-------+
--- | @pi-@  | 1     |
--- +--------+-------+
+-- The below table makes this more clear. 
+--
+-- +---------+-------+-------+-------+-------+-------+-------+-------+-------+-------+
+-- | /Gram/  | @-mi@ | @mis@ | @iss@ | @ssi@ | @sis@ | @sip@ | @ipp@ | @ppi@ | @pi-@ |
+-- +---------+-------+-------+-------+-------+-------+-------+-------+-------+-------+
+-- | /Count/ |   1   |   1   |   2   |   2   |   1   |   1   |   1   |   1   |   1   |
+-- +---------+-------+-------+-------+-------+-------+-------+-------+-------+-------+
 --
 -- The 'FuzzySet' data structure maintains a lookup table for all grams that 
--- appear in the entries of the set for different sizes.
+-- occur in the entries of the set for different sizes.
+--
+-- diagram
+--
+-- The function 'matches' 
 --
 
 module Data.FuzzySet.Internal
@@ -92,17 +83,52 @@ infixl 1 |>
 
 -- | The dictionary returned by this function is used when computing the cosine
 -- similarity, which is the similarity score assigned to entries that match
--- the search string in the fuzzy set.
+-- the search string in the fuzzy set. It contains 
 --
--- \( \frac{A \cdot B}{||A||\ ||B||} \)
+-- For example, let's say we have a set where the string @"coffee"@ appears
+-- in the set, and try to search for the string @covfefe@:
 --
+-- These strings correspond to the following bigram vectors:
 --
+-- +------------------------------------------------+------------------------------------------------+
+-- |                 /coffee/                       |            /covfefe/                           |
+-- +------+------+------+------+------+------+------+------+------+------+------+------+------+------+
+-- | @-c@ | @co@ | @of@ | @ff@ | @fe@ | @ee@ | @e-@ | @-c@ | @co@ | @ov@ | @vf@ | @fe@ | @e-@ | @e-@ | 
+-- +------+------+------+------+------+------+------+------+------+------+------+------+------+------+
+-- |  1   |  1   |  1   |  1   |  1   |  1   |  1   |  1   |  1   |  1   |  1   |  2   |  1   |  1   |
+-- +------+------+------+------+------+------+------+------+------+------+------+------+------+------+
+--
+-- The non-zero entries common to these two vectors are then:
+--
+-- +---------+------+------+------+------+
+-- |         | @-c@ | @co@ | @fe@ | @e-@ | 
+-- +---------+------+------+------+------+
+-- | \(a_i\) |  1   |  1   |  1   |  1   |
+-- +---------+------+------+------+------+
+-- | \(b_i\) |  1   |  1   |  2   |  1   |
+-- +---------+------+------+------+------+
+--
+-- Dotting these we get \(1 \times 1 + 1 \times 1 + 1 \times 2 + 1 \times 1 = 5 \)
+--
+-- If the entry appears at item index, say, 3 in the set data structure, this
+-- would yield an entry
+--  
+-- \[
+--  3 \implies 5
+-- \]
+--
+-- since @coffee@ has index 3 in the set.
+--
+-- >>> matches (defaultSet `add` "tea" `add` "biscuits" `add` "cake" `add` "coffee") (gramVector "covfefe" 2)
+-- fromList [(2,2),(3,5)]
 --
 matches
     :: FuzzySet
+    -- ^ The string set
     -> HashMap Text Int
     -- ^ A sparse vector representation of the search string, generated by 'gramVector'
     -> HashMap Int Int
+    -- ^ A mapping from item index to the dot product of the entry and search string vectors
 matches set@FuzzySet{..} =
     foldrWithKey fun mempty
   where
@@ -118,16 +144,15 @@ matches set@FuzzySet{..} =
 -- | This function performs the actual task of querying a set for matches,
 -- supported by the other functions in this module. It works as follows:
 --
--- A list of /n/-grams is generated from the query (see 'grams`) for the
--- specified gram size. Subsequently, 'gramVector' translates this list into a
--- dictionary which maps each /n/-gram key to to the number of times it occurs
--- in the list.
+-- A list of /n/-grams is generated from the query (see 'grams`) for a given 
+-- gram size. Subsequently, 'gramVector' translates this list into a dictionary 
+-- which maps each /n/-gram key to to the number of times it occurs in the list.
 --
 --
 --
 getMatches
     :: FuzzySet
-    -- ^ The set
+    -- ^ The string set
     -> Text
     -- ^ A string to search for
     -> Double
@@ -210,7 +235,7 @@ gramVector value size =
 -- /Example:/
 -- The string @"Destroido Corp."@ is first normalized to @"destroido corp"@,
 -- and then enclosed in hyphens, so that it becomes @"-destroido corp-"@. The
--- /3/-grams generated from this normalized string are:
+-- trigrams generated from this normalized string are:
 --
 -- > [ "-de"
 -- > , "des"

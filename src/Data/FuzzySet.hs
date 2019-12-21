@@ -210,8 +210,8 @@ get =
     getWithMinScore 0.33
 
 
--- | Try to match the given string against the entries in the set, and return
--- the closest match, if one is found.
+-- | Try to match the given string against the entries in the set using the
+-- specified minimum score and return the closest match, if one is found.
 --
 getOneWithMinScore
     :: Double
@@ -350,7 +350,7 @@ isEmpty =
     HashMap.null . exactSet
 
 
--- | Return the elements of the set.
+-- | Return the elements of the set. No particular order is guaranteed.
 --
 -- >>> values (fromList ["bass", "craze", "space", "lace", "daze", "haze", "ace", "maze"])
 -- ["space","daze","bass","maze","ace","craze","lace","haze"]
