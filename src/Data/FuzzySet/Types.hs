@@ -22,7 +22,7 @@ data GramInfo = GramInfo
 
 
 -- | Main fuzzy string set data type. Use 'Data.FuzzySet.emptySet',
--- 'Data.FuzzySet.defaultSet', or 'Data.FuzzySet.fromList' to create 'FuzzySet's.
+-- 'Data.FuzzySet.defaultSet', or 'Data.FuzzySet.fromList' to create sets.
 --
 data FuzzySet = FuzzySet
     { exactSet       :: !(HashMap Text Text)
