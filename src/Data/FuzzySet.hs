@@ -179,10 +179,10 @@ import qualified Data.Vector as Vector
 --
 -- > "mis" => [ { itemIndex = 4, gramCount = 1 }, { itemIndex = 11, gramCount = 2 } ]
 --
--- To compute the cosine similarity score, the function 'Data-FuzzySet-Internal.getMatches'
+-- To compute the cosine similarity score, the function 'Data.FuzzySet.Internal.getMatches'
 -- queries the set for the grams that stem from the search string. Here is an
 -- example: Let's say we have a set where the string @"coffee"@ appears, and
--- want to search for the string @"covfefe"@. These two strings translate to the
+-- want to search for the string @"covfefe"@. The two strings translate to the
 -- following /bigram/ vectors:
 --
 -- >>> gramVector "coffee" 2
@@ -242,11 +242,11 @@ import qualified Data.Vector as Vector
 --
 -- Note that the above procedure is repeated for each gram size (starting with
 -- the highest) in the selected range, until we either get some results, or all
--- sizes are exhausted.
+-- sizes have been exhausted.
 --
 -- Finally, if the set was initialized with the Levenshtein distance option
 -- enabled (e.g., using 'defaultSet'), then only the first 50 results are kept
--- and a new score is computed based on the Levenshtein 'Data-Util.distance'.
+-- and a new score is computed based on the Levenshtein 'Data.FuzzySet.Util.distance'.
 --
 
 
@@ -438,7 +438,7 @@ addMany =
     foldr (flip add)
 
 
--- | Create a set from a list of entries.
+-- | Create a set from a list of entries, using the default settings.
 --
 -- @fromList = addMany defaultSet@
 --
