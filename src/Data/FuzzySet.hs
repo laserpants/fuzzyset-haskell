@@ -149,8 +149,9 @@ import qualified Data.Vector as Vector
 --
 -- where \(A \cdot B\) is the dot product of the two vectors, and \(||A||\)
 -- denotes the [euclidean norm](Data-FuzzySet-Util.html#v:norm), or /magnitude/,
--- of \(A\). Since the cosine similarity is a measure of the (cosine of the)
--- angle between two vectors, it is always in the range \([0, 1]\).
+-- of \(A\). The cosine similarity is a measure of the (cosine of the) angle
+-- between two vectors. Since we will only deal with vectors with non-negative
+-- components, the result of this operation is always in the range \([0, 1]\).
 --
 -- == Gram vectors
 --
