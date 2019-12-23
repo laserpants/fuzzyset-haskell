@@ -212,7 +212,7 @@ import qualified Data.Vector as Vector
 -- Dotting these we get \(1 \times 1 + 1 \times 1 + 1 \times 2 + 1 \times 1 = 5 \).
 -- The function 'matches' computes these dot products and returns a dictionary
 -- with the matched indices as keys. If the entry appears at item index, say,
--- 3 in the set's internal list, this would yield a key-value pair @3 => 5@ in
+-- 3 in the set's internal list, this would yield a key-value pair @(3, 5)@ in
 -- the map.
 --
 -- >>> matches (defaultSet `add` "tea" `add` "biscuits" `add` "cake" `add` "coffee") (gramVector "covfefe" 2)
