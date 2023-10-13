@@ -3,12 +3,12 @@
 
 module Data.FuzzySet.Monad
   ( add
-  , minMatch
+  , findMin
   , values
   , addMany
-  , match
-  , minMatchClosest
-  , matchClosest
+  , find
+  , findClosest
+  , findClosestMin
   , size
   , isEmpty
   , FuzzySetT (..)
@@ -49,7 +49,7 @@ runDefaultFuzzySetT value = runFuzzySetT value 2 3 True
 
 class (Monad m) => FuzzySetMonad m where
   add :: Text -> m Bool
-  minMatch :: Double -> Text -> m [FuzzyMatch]
+  findMin :: Double -> Text -> m [FuzzyMatch]
   values :: m [Text]
   _get :: m FuzzySet
 
@@ -58,63 +58,63 @@ instance MonadTrans FuzzySetT where
 
 instance (Monad m) => FuzzySetMonad (FuzzySetT m) where
   add = FuzzySet.add_
-  minMatch minScore str = gets (FuzzySet.minMatch minScore str)
+  findMin minScore str = gets (FuzzySet.findMin minScore str)
   values = gets FuzzySet.values
   _get = get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (StateT s m) where
   add = lift . add
-  minMatch = lift <$$> minMatch
+  findMin = lift <$$> findMin
   values = lift values
   _get = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (ExceptT e m) where
   add = lift . add
-  minMatch = lift <$$> minMatch
+  findMin = lift <$$> findMin
   values = lift values
   _get = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (ReaderT r m) where
   add = lift . add
-  minMatch = lift <$$> minMatch
+  findMin = lift <$$> findMin
   values = lift values
   _get = lift _get
 
 instance (FuzzySetMonad m, Monoid w) => FuzzySetMonad (WriterT w m) where
   add = lift . add
-  minMatch = lift <$$> minMatch
+  findMin = lift <$$> findMin
   values = lift values
   _get = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (MaybeT m) where
   add = lift . add
-  minMatch = lift <$$> minMatch
+  findMin = lift <$$> findMin
   values = lift values
   _get = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (ContT r m) where
   add = lift . add
-  minMatch = lift <$$> minMatch
+  findMin = lift <$$> findMin
   values = lift values
   _get = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (SelectT r m) where
   add = lift . add
-  minMatch = lift <$$> minMatch
+  findMin = lift <$$> findMin
   values = lift values
   _get = lift _get
 
 addMany :: (MonadState FuzzySet m) => [Text] -> m [Text]
 addMany = FuzzySet.addMany_
 
-match :: (FuzzySetMonad m) => Text -> m [FuzzyMatch]
-match str = FuzzySet.match str <$> _get
+find :: (FuzzySetMonad m) => Text -> m [FuzzyMatch]
+find str = FuzzySet.find str <$> _get
 
-minMatchClosest :: (FuzzySetMonad m) => Double -> Text -> m (Maybe FuzzyMatch)
-minMatchClosest minScore str = FuzzySet.minMatchClosest minScore str <$> _get
+findClosestMin :: (FuzzySetMonad m) => Double -> Text -> m (Maybe FuzzyMatch)
+findClosestMin minScore str = FuzzySet.findClosestMin minScore str <$> _get
 
-matchClosest :: (FuzzySetMonad m) => Text -> m (Maybe FuzzyMatch)
-matchClosest str = FuzzySet.matchClosest str <$> _get
+findClosest :: (FuzzySetMonad m) => Text -> m (Maybe FuzzyMatch)
+findClosest str = FuzzySet.findClosest str <$> _get
 
 size :: (FuzzySetMonad m) => m Int
 size = length <$> values

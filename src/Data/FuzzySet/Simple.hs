@@ -3,10 +3,10 @@ module Data.FuzzySet.Simple
   , FuzzyMatch
   , emptySet
   , defaultSet
-  , minMatch
-  , minMatchClosest
-  , match
-  , matchClosest
+  , findMin
+  , findClosestMin
+  , find
+  , findClosest
   , addToSet
   , add
   , addManyToSet
@@ -30,10 +30,10 @@ import Data.FuzzySet.Internal
   , emptySet
   , fromList
   , isEmpty
-  , match
-  , matchClosest
-  , minMatch
-  , minMatchClosest
+  , find
+  , findClosest
+  , findMin
+  , findClosestMin
   , size
   , values
   , (>+<)

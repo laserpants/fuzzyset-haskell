@@ -1,11 +1,11 @@
 module Data.FuzzySet
   ( add
-  , minMatch
+  , findMin
   , values
   , addMany
-  , match
-  , minMatchClosest
-  , matchClosest
+  , find
+  , findClosestMin
+  , findClosest
   , size
   , isEmpty
   , FuzzySetT (..)
@@ -18,15 +18,15 @@ where
 import Data.FuzzySet.Monad
   ( FuzzySetMonad
   , FuzzySetT (..)
-  , add                   -- add
-  , addMany               -- addMany
-  , isEmpty               -- isEmpty
-  , match                 -- find
-  , matchClosest          -- findClosest
-  , minMatch              -- findMin
-  , minMatchClosest       -- findClosestMin
+  , add
+  , addMany
+  , isEmpty
+  , find
+  , findClosest
+  , findMin
+  , findClosestMin
   , runDefaultFuzzySetT   
   , runFuzzySetT
-  , size                  -- size
-  , values                -- values
+  , size
+  , values
   )

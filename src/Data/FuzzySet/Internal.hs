@@ -6,10 +6,10 @@ module Data.FuzzySet.Internal
   , FuzzyMatch
   , emptySet
   , defaultSet
-  , minMatch
-  , minMatchClosest
-  , match
-  , matchClosest
+  , findMin
+  , findClosestMin
+  , find
+  , findClosest
   , addToSet
   , add
   , addManyToSet
@@ -27,7 +27,8 @@ where
 import Control.Monad.State (MonadState, get, modify, runState)
 import Data.Bifunctor (second)
 import Data.Char (isAlphaNum, isSpace)
-import Data.Foldable (find, traverse_)
+import Data.Foldable (traverse_)
+import qualified Data.Foldable as Foldable
 import Data.Function ((&))
 import Data.FuzzySet.Utils (enclosedIn, safeHead, substr, (<$$$>), (<$$>))
 import Data.HashMap.Strict (HashMap, elems, foldrWithKey, insert, insertWith, lookup, lookupDefault)
@@ -72,27 +73,27 @@ emptySet = FuzzySet mempty mempty mempty
 defaultSet :: FuzzySet
 defaultSet = emptySet 2 3 True
 
-minMatch :: Double -> Text -> FuzzySet -> [FuzzyMatch]
-minMatch minScore str FuzzySet{..} =
+findMin :: Double -> Text -> FuzzySet -> [FuzzyMatch]
+findMin minScore str FuzzySet{..} =
   case key `lookup` exactSet of
     Just exactMatch ->
       [(1, exactMatch)]
     Nothing ->
       [gramSizeUpper, gramSizeUpper - 1 .. gramSizeLower]
         & fmap (getMatches FuzzySet{..} key minScore)
-        & find (not . null)
+        & Foldable.find (not . null)
         & fromMaybe []
   where
     key = Text.toLower str
 
-minMatchClosest :: Double -> Text -> FuzzySet -> Maybe FuzzyMatch
-minMatchClosest = safeHead <$$$> minMatch
+findClosestMin :: Double -> Text -> FuzzySet -> Maybe FuzzyMatch
+findClosestMin = safeHead <$$$> findMin
 
-match :: Text -> FuzzySet -> [FuzzyMatch]
-match = minMatch 0.33
+find :: Text -> FuzzySet -> [FuzzyMatch]
+find = findMin 0.33
 
-matchClosest :: Text -> FuzzySet -> Maybe FuzzyMatch
-matchClosest = minMatchClosest 0.33
+findClosest :: Text -> FuzzySet -> Maybe FuzzyMatch
+findClosest = findClosestMin 0.33
 
 matches :: FuzzySet -> HashMap Text Int -> HashMap Int Int
 matches FuzzySet{..} = foldrWithKey go mempty
