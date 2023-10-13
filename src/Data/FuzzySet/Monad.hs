@@ -15,8 +15,7 @@ module Data.FuzzySet.Monad
   , runFuzzySetT
   , runDefaultFuzzySetT
   , FuzzySetMonad
-  )
-where
+  ) where
 
 import Control.Monad.Except (ExceptT)
 import Control.Monad.IO.Class (MonadIO)
@@ -48,61 +47,61 @@ runDefaultFuzzySetT :: (Monad m) => FuzzySetT m a -> m a
 runDefaultFuzzySetT value = runFuzzySetT value 2 3 True
 
 class (Monad m) => FuzzySetMonad m where
-  add :: Text -> m Bool
+  add     :: Text -> m Bool
   findMin :: Double -> Text -> m [FuzzyMatch]
-  values :: m [Text]
-  _get :: m FuzzySet
+  values  :: m [Text]
+  _get    :: m FuzzySet
 
 instance MonadTrans FuzzySetT where
   lift = FuzzySetT . lift
 
 instance (Monad m) => FuzzySetMonad (FuzzySetT m) where
-  add = FuzzySet.add_
-  findMin minScore str = gets (FuzzySet.findMin minScore str)
-  values = gets FuzzySet.values
-  _get = get
+  add     = FuzzySet.add_
+  findMin = gets <$$> FuzzySet.findMin
+  values  = gets FuzzySet.values
+  _get    = get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (StateT s m) where
-  add = lift . add
+  add     = lift . add
   findMin = lift <$$> findMin
-  values = lift values
-  _get = lift _get
+  values  = lift values
+  _get    = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (ExceptT e m) where
-  add = lift . add
+  add     = lift . add
   findMin = lift <$$> findMin
-  values = lift values
-  _get = lift _get
+  values  = lift values
+  _get    = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (ReaderT r m) where
-  add = lift . add
+  add     = lift . add
   findMin = lift <$$> findMin
-  values = lift values
-  _get = lift _get
+  values  = lift values
+  _get    = lift _get
 
 instance (FuzzySetMonad m, Monoid w) => FuzzySetMonad (WriterT w m) where
-  add = lift . add
+  add     = lift . add
   findMin = lift <$$> findMin
-  values = lift values
-  _get = lift _get
+  values  = lift values
+  _get    = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (MaybeT m) where
-  add = lift . add
+  add     = lift . add
   findMin = lift <$$> findMin
-  values = lift values
-  _get = lift _get
+  values  = lift values
+  _get    = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (ContT r m) where
-  add = lift . add
+  add     = lift . add
   findMin = lift <$$> findMin
-  values = lift values
-  _get = lift _get
+  values  = lift values
+  _get    = lift _get
 
 instance (FuzzySetMonad m) => FuzzySetMonad (SelectT r m) where
-  add = lift . add
+  add     = lift . add
   findMin = lift <$$> findMin
-  values = lift values
-  _get = lift _get
+  values  = lift values
+  _get    = lift _get
 
 addMany :: (MonadState FuzzySet m) => [Text] -> m [Text]
 addMany = FuzzySet.addMany_

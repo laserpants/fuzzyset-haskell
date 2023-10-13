@@ -21,8 +21,7 @@ module Data.FuzzySet.Internal
   , size
   , isEmpty
   , (>+<)
-  )
-where
+  ) where
 
 import Control.Monad.State (MonadState, get, modify, runState)
 import Data.Bifunctor (second)
@@ -46,24 +45,21 @@ import Prelude hiding (lookup)
 data FuzzySetItem = FuzzySetItem
   { vectorMagnitude :: !Double
   , normalizedEntry :: !Text
-  }
-  deriving (Eq, Show)
+  } deriving (Eq, Show)
 
 data GramInfo = GramInfo
   { itemIndex :: !Int
   , gramCount :: !Int
-  }
-  deriving (Eq, Show)
+  } deriving (Eq, Show)
 
 data FuzzySet = FuzzySet
-  { exactSet :: !(HashMap Text Text)
-  , matchDict :: !(HashMap Text [GramInfo])
-  , items :: !(HashMap Int (Vector FuzzySetItem))
-  , gramSizeLower :: !Int
-  , gramSizeUpper :: !Int
+  { exactSet       :: !(HashMap Text Text)
+  , matchDict      :: !(HashMap Text [GramInfo])
+  , items          :: !(HashMap Int (Vector FuzzySetItem))
+  , gramSizeLower  :: !Int
+  , gramSizeUpper  :: !Int
   , useLevenshtein :: !Bool
-  }
-  deriving (Eq, Show)
+  } deriving (Eq, Show)
 
 type FuzzyMatch = (Double, Text)
 
@@ -134,8 +130,7 @@ getMatches FuzzySet{..} str minScore gramSize =
         Just FuzzySetItem{..} ->
           ( fromIntegral score / (queryMagnitude * vectorMagnitude)
           , normalizedEntry
-          )
-            : list
+          ) : list
 
 add_ :: (MonadState FuzzySet m) => Text -> m Bool
 add_ str = do

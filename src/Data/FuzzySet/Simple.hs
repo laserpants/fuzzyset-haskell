@@ -16,8 +16,7 @@ module Data.FuzzySet.Simple
   , size
   , isEmpty
   , (>+<)
-  )
-where
+  ) where
 
 import Data.FuzzySet.Internal
   ( FuzzyMatch

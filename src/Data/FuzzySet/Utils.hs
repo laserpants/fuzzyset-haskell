@@ -4,8 +4,7 @@ module Data.FuzzySet.Utils
   , safeHead
   , enclosedIn
   , substr
-  )
-where
+  ) where
 
 import Data.Text (Text, cons, snoc)
 import qualified Data.Text as Text

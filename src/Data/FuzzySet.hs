@@ -12,8 +12,7 @@ module Data.FuzzySet
   , runFuzzySetT
   , runDefaultFuzzySetT
   , FuzzySetMonad
-  )
-where
+  ) where
 
 import Data.FuzzySet.Monad
   ( FuzzySetMonad
