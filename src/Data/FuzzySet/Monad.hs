@@ -21,7 +21,7 @@ where
 import Control.Monad.Except (ExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT)
-import Control.Monad.State (MonadState, StateT, evalStateT, get, gets, put)
+import Control.Monad.State (MonadState, StateT, evalStateT, get, gets)
 import Control.Monad.Trans (MonadTrans, lift)
 import Control.Monad.Trans.Cont (ContT)
 import Control.Monad.Trans.Maybe (MaybeT)
