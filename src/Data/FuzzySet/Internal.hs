@@ -2,7 +2,9 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Data.FuzzySet.Internal
-  ( FuzzySet
+  ( FuzzySet(..)
+  , FuzzySetItem(..)
+  , GramInfo(..)
   , FuzzyMatch
   , emptySet
   , defaultSet
@@ -10,6 +12,10 @@ module Data.FuzzySet.Internal
   , findClosestMin
   , find
   , findClosest
+  , grams
+  , gramVector
+  , matches
+  , getMatches
   , addToSet
   , add
   , addManyToSet
@@ -20,6 +26,9 @@ module Data.FuzzySet.Internal
   , values
   , size
   , isEmpty
+  , normalized
+  , norm
+  , distance
   , (>+<)
   ) where
 
@@ -218,9 +227,9 @@ normalized = Text.filter word . Text.toLower
   where
     word char
       | isAlphaNum char = True
-      | isSpace char = True
-      | char == ',' = True
-      | otherwise = False
+      | isSpace char    = True
+      | char == ','     = True
+      | otherwise       = False
 
 norm :: [Int] -> Double
 norm = sqrt . fromIntegral . sum . fmap (^ (2 :: Int))
