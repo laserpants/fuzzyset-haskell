@@ -39,9 +39,9 @@ module Data.FuzzySet.Simple
 
     -- * Lookup
   , findMin
-  , findClosestMin
+  , closestMatchMin
   , find
-  , findClosest
+  , closestMatch
 
     -- * Inspection
   , values
@@ -69,14 +69,17 @@ import Prelude hiding (lookup)
 
 -- $howto
 --
--- Make sure the @OverloadedStrings@ pragma is enabled. After that, three steps
--- are typically involved:
+-- Make sure the @OverloadedStrings@ pragma is enabled and import the module:
+--
+-- > import Data.FuzzySet.Simple
+--
+-- After that, three steps are typically involved:
 --
 --   1. Create a set using one of 'defaultSet', 'emptySet', or 'fromList'.
 --   2. To add entries, use 'add', 'addToSet', or 'addMany'.
---   3. Query the set with 'find', 'findClosest', 'findMin', or 'findClosestMin'.
+--   3. Query the set with 'find', 'closestMatch', 'findMin', or 'closestMatchMin'.
 --
--- >>> findClosest "percolator" (defaultSet >+< "Jurassic Park" >+< "Terminator" >+< "The Matrix")
+-- >>> closestMatch "percolator" (defaultSet >+< "Jurassic Park" >+< "Terminator" >+< "The Matrix")
 -- Just "Terminator"
 --
 -- >>> find "Shaggy Jones" (defaultSet >+< "Shaggy Rogers" >+< "Fred Jones" >+< "Daphne Blake" >+< "Velma Dinkley")
@@ -182,7 +185,7 @@ findMin minScore str FuzzySet{..} =
 
 -- | Try to match the given string against the entries in the set using the
 --   specified minimum score and return the closest match, if one is found.
-findClosestMin
+closestMatchMin
   :: Double
   -- ^ A minimum score
   -> Text
@@ -191,7 +194,7 @@ findClosestMin
   -- ^ The fuzzy string set to compare the string against
   -> Maybe Text
   -- ^ The closest match, if one is found
-findClosestMin = fmap snd . safeHead <$$$> findMin
+closestMatchMin = fmap snd . safeHead <$$$> findMin
 
 -- | Try to match the given string against the entries in the set, using a
 --   minimum score of 0.33. Return a list of results ordered by similarity
@@ -208,16 +211,16 @@ find = findMin 0.33
 
 -- | Try to match the given string against the entries in the set, and return
 --   the closest match, if one is found. A minimum score of 0.33 is used. To
---   specify a custom threshold value, instead use 'findClosestMin'.
+--   specify a custom threshold value, instead use 'closestMatchMin'.
 --
-findClosest
+closestMatch
   :: Text
   -- ^ The string to search for
   -> FuzzySet
   -- ^ The fuzzy string set to compare the string against
   -> Maybe Text
   -- ^ The closest match, if one is found
-findClosest = findClosestMin 0.33
+closestMatch = closestMatchMin 0.33
 
 -- | Add a string to the set, unless it is already present. A pair is returned
 --   consisting of a boolean which denotes whether or not anything was inserted,

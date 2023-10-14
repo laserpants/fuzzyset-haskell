@@ -13,11 +13,11 @@ module Data.FuzzySet
   , values
   , addMany
   , find
-  , findClosestMin
-  , findClosest
+  , closestMatchMin
+  , closestMatch
   , size
   , isEmpty
-  , FuzzySetT (..)
+  , FuzzySetT(..)
   , runFuzzySetT
   , runDefaultFuzzySetT
   , FuzzySetMonad
@@ -25,12 +25,16 @@ module Data.FuzzySet
 
 import Data.FuzzySet.Monad
   (
+    -- * A note about ??
+    --
+    -- | This module ...
+
     -- * How to use this library
     -- $howto
 
     -- * Types
     FuzzySetMonad
-  , FuzzySetT (..)
+  , FuzzySetT(..)
 
     -- * Monad transformer
   , runDefaultFuzzySetT
@@ -42,9 +46,9 @@ import Data.FuzzySet.Monad
 
     -- * Lookup
   , find
-  , findClosest
+  , closestMatch
   , findMin
-  , findClosestMin
+  , closestMatchMin
 
     -- * Inspection
   , isEmpty
@@ -54,5 +58,8 @@ import Data.FuzzySet.Monad
 
 -- $howto
 --
--- @todo
+-- Make sure the @OverloadedStrings@ pragma is enabled and import the module:
+--
+-- > import Data.FuzzySet
+--
 --

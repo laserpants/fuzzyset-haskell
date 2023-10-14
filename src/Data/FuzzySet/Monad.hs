@@ -7,8 +7,8 @@ module Data.FuzzySet.Monad
   , values
   , addMany
   , find
-  , findClosest
-  , findClosestMin
+  , closestMatch
+  , closestMatchMin
   , size
   , isEmpty
   , FuzzySetT (..)
@@ -111,11 +111,11 @@ addMany = FuzzySet.addMany_
 find :: (FuzzySetMonad m) => Text -> m [FuzzyMatch]
 find str = FuzzySet.find str <$> _get
 
-findClosestMin :: (FuzzySetMonad m) => Double -> Text -> m (Maybe Text)
-findClosestMin minScore str = FuzzySet.findClosestMin minScore str <$> _get
+closestMatchMin :: (FuzzySetMonad m) => Double -> Text -> m (Maybe Text)
+closestMatchMin minScore str = FuzzySet.closestMatchMin minScore str <$> _get
 
-findClosest :: (FuzzySetMonad m) => Text -> m (Maybe Text)
-findClosest str = FuzzySet.findClosest str <$> _get
+closestMatch :: (FuzzySetMonad m) => Text -> m (Maybe Text)
+closestMatch str = FuzzySet.closestMatch str <$> _get
 
 size :: (FuzzySetMonad m) => m Int
 size = length <$> values

@@ -27,7 +27,7 @@ import Data.HashMap.Strict (HashMap, elems, foldrWithKey, insert, insertWith, lo
 import qualified Data.HashMap.Strict as HashMap
 import Data.List (sortBy)
 import Data.Maybe (fromMaybe)
-import Data.Ord (Down (..), comparing)
+import Data.Ord (Down(..), comparing)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.Text.Metrics (levenshteinNorm)
