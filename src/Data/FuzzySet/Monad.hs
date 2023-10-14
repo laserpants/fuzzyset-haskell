@@ -26,7 +26,9 @@ import Control.Monad.Trans.Cont (ContT)
 import Control.Monad.Trans.Maybe (MaybeT)
 import Control.Monad.Trans.Select (SelectT)
 import Control.Monad.Writer (WriterT)
-import Data.FuzzySet.Internal (FuzzyMatch, FuzzySet, emptySet)
+import Data.FuzzySet.Internal (FuzzyMatch, FuzzySet)
+import Data.FuzzySet.Simple (emptySet)
+import qualified Data.FuzzySet.Simple as FuzzySet
 import qualified Data.FuzzySet.Internal as FuzzySet
 import Data.FuzzySet.Utils ((<$$$>), (<$$>))
 import Data.Text (Text)

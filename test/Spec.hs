@@ -4,6 +4,7 @@
 import Control.Exception (evaluate)
 import Control.Monad (zipWithM_)
 import Data.AEq
+import Data.FuzzySet.Simple
 import Data.FuzzySet.Internal
 import Data.FuzzySet.Utils (enclosedIn)
 import Data.HashMap.Strict (HashMap)

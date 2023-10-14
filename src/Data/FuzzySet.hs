@@ -24,17 +24,35 @@ module Data.FuzzySet
   ) where
 
 import Data.FuzzySet.Monad
-  ( FuzzySetMonad
+  (
+    -- * How to use this library
+    -- $howto
+
+    -- * Types
+    FuzzySetMonad
   , FuzzySetT (..)
+
+    -- * Monad transformer
+  , runDefaultFuzzySetT
+  , runFuzzySetT
+
+    -- * Insertion
   , add
   , addMany
-  , isEmpty
+
+    -- * Lookup
   , find
   , findClosest
   , findMin
   , findClosestMin
-  , runDefaultFuzzySetT   
-  , runFuzzySetT
+
+    -- * Inspection
+  , isEmpty
   , size
   , values
   )
+
+-- $howto
+--
+-- @todo
+--

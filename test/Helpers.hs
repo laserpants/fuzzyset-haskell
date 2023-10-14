@@ -1,7 +1,11 @@
-module Helpers where
+module Helpers
+  ( shouldBeTrue
+  , shouldBeIn
+  , shouldBeCloseTo
+  , shouldNotBeCloseTo
+  ) where
 
 import Data.AEq
-import Data.Text (Text)
 import Test.Hspec
 
 shouldBeTrue :: Bool -> Expectation
