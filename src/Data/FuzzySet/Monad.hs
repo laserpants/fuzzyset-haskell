@@ -3,6 +3,7 @@
 
 module Data.FuzzySet.Monad
   ( add
+  , add_
   , findMin
   , values
   , addMany
@@ -17,6 +18,7 @@ module Data.FuzzySet.Monad
   , FuzzySetMonad
   ) where
 
+import Control.Monad (void)
 import Control.Monad.Except (ExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT)
@@ -104,6 +106,9 @@ instance (FuzzySetMonad m) => FuzzySetMonad (SelectT r m) where
   findMin = lift <$$> findMin
   values  = lift values
   _get    = lift _get
+
+add_ :: (FuzzySetMonad m) => Text -> m ()
+add_ = void . add
 
 addMany :: (MonadState FuzzySet m) => [Text] -> m [Text]
 addMany = FuzzySet.addMany_

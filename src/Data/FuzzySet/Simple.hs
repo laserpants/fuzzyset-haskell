@@ -212,7 +212,6 @@ find = findMin 0.33
 -- | Try to match the given string against the entries in the set, and return
 --   the closest match, if one is found. A minimum score of 0.33 is used. To
 --   specify a custom threshold value, instead use 'closestMatchMin'.
---
 closestMatch
   :: Text
   -- ^ The string to search for
