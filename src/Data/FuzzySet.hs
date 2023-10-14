@@ -1,3 +1,12 @@
+-- |
+--
+-- Module      : Data.FuzzySet
+-- Copyright   : (c) 2017-present Heikki Johannes Hildén
+-- License     : BSD3
+-- Maintainer  : hildenjohannes@gmail.com
+-- Stability   : experimental
+-- Portability : GHC
+--
 module Data.FuzzySet
   ( add
   , findMin

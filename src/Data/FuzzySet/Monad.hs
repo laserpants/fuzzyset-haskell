@@ -109,10 +109,10 @@ addMany = FuzzySet.addMany_
 find :: (FuzzySetMonad m) => Text -> m [FuzzyMatch]
 find str = FuzzySet.find str <$> _get
 
-findClosestMin :: (FuzzySetMonad m) => Double -> Text -> m (Maybe FuzzyMatch)
+findClosestMin :: (FuzzySetMonad m) => Double -> Text -> m (Maybe Text)
 findClosestMin minScore str = FuzzySet.findClosestMin minScore str <$> _get
 
-findClosest :: (FuzzySetMonad m) => Text -> m (Maybe FuzzyMatch)
+findClosest :: (FuzzySetMonad m) => Text -> m (Maybe Text)
 findClosest str = FuzzySet.findClosest str <$> _get
 
 size :: (FuzzySetMonad m) => m Int
