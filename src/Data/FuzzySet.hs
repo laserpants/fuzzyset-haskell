@@ -9,20 +9,16 @@
 --
 module Data.FuzzySet
   (
-    -- * Alternative API
-    --
-    -- | This
-
     -- * How to use this library
     -- $howto
 
-    -- * Monad
+    -- * FuzzySearch monad
     FuzzySearch
   , MonadFuzzySearch
   , runFuzzySearch
   , runDefaultFuzzySearch
 
-    -- * Monad transformer
+    -- * FuzzySearch monad transformer
   , FuzzySearchT
   , runFuzzySearchT
   , runDefaultFuzzySearchT
@@ -72,11 +68,32 @@ import Data.FuzzySet.FuzzySearch
 
 -- $howto
 --
--- Make sure the @OverloadedStrings@ pragma is enabled and import the module:
+-- This library provides two similar, but independent APIs. The `Data.FuzzySet.Simple`
+-- module offers a simpler (pure) interface for working with the `FuzzySet` data
+-- structure directly (similar to earlier versions of the library). A
+-- disadvantage of this approach is that it scales poorly in code that involves
+-- IO, and possibly other effects. For most real-world use cases, it is
+-- therefore recommended to use the default API and the `FuzzySearch` monad
+-- exposed by `Data.FuzzySet` (see examples below).
+--
+-- The library uses the `Text` type to represent strings. Add the
+-- @OverloadedStrings@ pragma to add support for literals of this type. This is
+-- used in most of the examples on this page. Then import the default module:
 --
 -- > import Data.FuzzySet
 --
+-- There are three types of operations:
 --
+--   * __Insertion:__ To add entries to the set, use `add`, `add_`, `addMany`, and `addMany_`.
+--   * __Lookup:__ To match a string against the values of the set, use `find`, `findMin`, `findOne`, `findOneMin`, `closestMatchMin`, and `closestMatch`.
+--   * __Inspection:__ The function `values` returns all strings currently in the set. `size` and `isEmpty` are mostly self-explanatory.
+--
+-- Finally use `runFuzzySearch`, `runDefaultFuzzySearch`, `runFuzzySearchT`, or `runDefaultFuzzySearchT`
+-- to get the result of the computation.
+--
+-- === Movie title search example
+--
+-- The following is a simple program to serve as a 'Hello World' example:
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
@@ -84,7 +101,7 @@ import Data.FuzzySet.FuzzySearch
 -- > import Data.Text (Text)
 -- > import Data.FuzzySet
 -- >
--- > findMovie :: Text -> FuzzySet (Maybe Text)
+-- > findMovie :: Text -> FuzzySearch (Maybe Text)
 -- > findMovie title = do
 -- >   add_ "Jurassic Park"
 -- >   add_ "Terminator"
@@ -100,6 +117,7 @@ import Data.FuzzySet.FuzzySearch
 --
 -- > Just "Terminator"
 --
+-- === Adding IO
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
@@ -126,6 +144,7 @@ import Data.FuzzySet.FuzzySearch
 --
 -- > Just "Terminator"
 --
+-- To make the search more strict, we can set a custom min score:
 --
 -- > findMovie :: Text -> FuzzySearchT IO (Maybe Text)
 -- > findMovie = closestMatchMin 0.8
@@ -134,8 +153,7 @@ import Data.FuzzySet.FuzzySearch
 --
 -- > Nothing
 --
---
---
+-- === Another example: Favorite fruit repl
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
