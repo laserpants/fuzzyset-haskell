@@ -27,6 +27,7 @@ module Data.FuzzySet.FuzzySearch
 
 import Control.Monad (void)
 import Control.Monad.Except (ExceptT)
+import Control.Monad.Fix
 import Control.Monad.Identity (Identity, runIdentity)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT)
@@ -49,6 +50,7 @@ newtype FuzzySearchT m a = FuzzySearchT { getFuzzySearchT :: StateT FuzzySet m a
     , Monad
     , MonadState FuzzySet
     , MonadIO
+    , MonadFix
     )
 
 -- | Evaluate a `FuzzySearchT` computation with the given options.

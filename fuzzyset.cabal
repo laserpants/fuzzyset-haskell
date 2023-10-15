@@ -31,7 +31,6 @@ library
       Data.FuzzySet.Internal
       Data.FuzzySet.Simple
       Data.FuzzySet.Utils
-      Main
   other-modules:
       Paths_fuzzyset
   autogen-modules:
