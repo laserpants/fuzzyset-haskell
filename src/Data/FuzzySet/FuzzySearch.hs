@@ -29,11 +29,10 @@ import Control.Monad.Except (ExceptT)
 import Control.Monad.Identity (Identity, runIdentity)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT)
-import Control.Monad.State (MonadState, StateT, evalStateT, get, gets)
+import Control.Monad.State (MonadState, StateT, evalStateT, gets)
 import Control.Monad.Trans (MonadTrans, lift)
 import Control.Monad.Trans.Cont (ContT)
 import Control.Monad.Trans.Maybe (MaybeT)
-import Control.Monad.Trans.Select (SelectT)
 import Control.Monad.Writer (WriterT)
 import Data.FuzzySet.Simple (FuzzySet, FuzzyMatch, emptySet)
 import qualified Data.FuzzySet.Simple as Simple
@@ -90,7 +89,7 @@ runFuzzySearch value = runIdentity <$$$> runFuzzySearchT value
 runDefaultFuzzySearch :: FuzzySearch a -> a
 runDefaultFuzzySearch value = runFuzzySearch value 2 3 True
 
-class (Monad m) => MonadFuzzySearch m where
+class (MonadState FuzzySet m) => MonadFuzzySearch m where
   -- | Add a string to the set. A boolean is returned which is @True@ if the
   --   string was inserted, or @False@ if it already existed in the set.
   add     :: Text
@@ -108,9 +107,6 @@ class (Monad m) => MonadFuzzySearch m where
           -- ^ The string to search for
           -> m [FuzzyMatch]
           -- ^ A list of results (score and matched value)
-  -- | Return the elements of the set. No particular order is guaranteed.
-  values  :: m [Text]
-  _get    :: m Simple.FuzzySet
 
 instance MonadTrans FuzzySearchT where
   lift = FuzzySearchT . lift
@@ -118,50 +114,30 @@ instance MonadTrans FuzzySearchT where
 instance (Monad m) => MonadFuzzySearch (FuzzySearchT m) where
   add     = FuzzySet.add_
   findMin = gets <$$> Simple.findMin
-  values  = gets Simple.values
-  _get    = get
 
-instance (MonadFuzzySearch m) => MonadFuzzySearch (StateT s m) where
+instance (MonadFuzzySearch m) => MonadFuzzySearch (StateT FuzzySet m) where
   add     = lift . add
   findMin = lift <$$> findMin
-  values  = lift values
-  _get    = lift _get
 
 instance (MonadFuzzySearch m) => MonadFuzzySearch (ExceptT e m) where
   add     = lift . add
   findMin = lift <$$> findMin
-  values  = lift values
-  _get    = lift _get
 
 instance (MonadFuzzySearch m) => MonadFuzzySearch (ReaderT r m) where
   add     = lift . add
   findMin = lift <$$> findMin
-  values  = lift values
-  _get    = lift _get
 
 instance (MonadFuzzySearch m, Monoid w) => MonadFuzzySearch (WriterT w m) where
   add     = lift . add
   findMin = lift <$$> findMin
-  values  = lift values
-  _get    = lift _get
 
 instance (MonadFuzzySearch m) => MonadFuzzySearch (MaybeT m) where
   add     = lift . add
   findMin = lift <$$> findMin
-  values  = lift values
-  _get    = lift _get
 
 instance (MonadFuzzySearch m) => MonadFuzzySearch (ContT r m) where
   add     = lift . add
   findMin = lift <$$> findMin
-  values  = lift values
-  _get    = lift _get
-
-instance (MonadFuzzySearch m) => MonadFuzzySearch (SelectT r m) where
-  add     = lift . add
-  findMin = lift <$$> findMin
-  values  = lift values
-  _get    = lift _get
 
 -- | Add a string to the set, or do nothing if a key that matches the string
 --   already exists.
@@ -175,7 +151,7 @@ add_ = void . add
 --
 -- Unless you need to know the subset of values that were actually inserted,
 -- use 'addMany_' instead.
-addMany :: (MonadState FuzzySet m)
+addMany :: (MonadFuzzySearch m)
   => [Text]
   -- ^ A list of strings to add to the set
   -> m [Text]
@@ -186,7 +162,7 @@ addMany = FuzzySet.addMany_
 --
 -- This function is identical to 'addMany', except that the latter returns a
 -- list of all values that were inserted.
-addMany_ :: (MonadState Simple.FuzzySet m)
+addMany_ :: (MonadFuzzySearch m)
   => [Text]
   -- ^ A list of strings to add to the set
   -> m ()
@@ -201,7 +177,7 @@ find :: (MonadFuzzySearch m)
   -- ^ The string to search for
   -> m [FuzzyMatch]
   -- ^ A list of results (score and matched value)
-find str = Simple.find str <$> _get
+find str = gets (Simple.find str)
 
 -- | Try to match the given string against the entries in the set using the
 --   specified minimum score and return the closest match, if one is found.
@@ -212,7 +188,7 @@ findOneMin :: (MonadFuzzySearch m)
   -- ^ The string to search for
   -> m (Maybe FuzzyMatch)
   -- ^ The closest match, if one is found
-findOneMin minScore str = Simple.findOneMin minScore str <$> _get
+findOneMin minScore str = gets (Simple.findOneMin minScore str)
 
 -- | Try to match the given string against the entries in the set, and return
 --   the closest match, if one is found. A minimum score of 0.33 is used. To
@@ -222,7 +198,7 @@ findOne :: (MonadFuzzySearch m)
   -- ^ The string to search for
   -> m (Maybe FuzzyMatch)
   -- ^ The closest match, if one is found
-findOne str = Simple.findOne str <$> _get
+findOne str = gets (Simple.findOne str)
 
 -- | Try to match the given string against the entries in the set using the
 --   specified minimum score and return the string that most closely matches
@@ -234,7 +210,7 @@ closestMatchMin :: (MonadFuzzySearch m)
   -- ^ The string to search for
   -> m (Maybe Text)
   -- ^ The string most closely matching the input, if a match is found
-closestMatchMin minScore str = Simple.closestMatchMin minScore str <$> _get
+closestMatchMin minScore str = gets (Simple.closestMatchMin minScore str)
 
 -- | Try to match the given string against the entries in the set, and return
 --   the string that most closely matches the input, if a match is found. A
@@ -245,7 +221,11 @@ closestMatch :: (MonadFuzzySearch m)
   -- ^ The string to search for
   -> m (Maybe Text)
   -- ^ The string most closely matching the input, if a match is found
-closestMatch str = Simple.closestMatch str <$> _get
+closestMatch str = gets (Simple.closestMatch str)
+
+-- | Return the elements of the set. No particular order is guaranteed.
+values :: (MonadFuzzySearch m) => m [Text]
+values = gets Simple.values
 
 -- | Return the number of entries in the set.
 size :: (MonadFuzzySearch m) => m Int
