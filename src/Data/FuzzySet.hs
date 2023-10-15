@@ -133,3 +133,39 @@ import Data.FuzzySet.Monad
 --
 -- > Nothing
 --
+--
+--
+--
+-- > {-# LANGUAGE OverloadedStrings #-}
+-- > module Main where
+-- >
+-- > import Control.Monad (when)
+-- > import Control.Monad.IO.Class (liftIO)
+-- > import Data.FuzzySet
+-- > import Data.Text (Text, pack, unpack)
+-- > import qualified Data.Text as Text
+-- >
+-- > repl :: FuzzySetT IO ()
+-- > repl = do
+-- >   str <- liftIO $ do
+-- >     putStrLn "Enter your favorite fruit below, or type \".exit\"."
+-- >     putStr "> "
+-- >     getLine
+-- >   when (str /= ".exit") $ do
+-- >     result <- findOneMin 0.6 (pack str)
+-- >     liftIO $ case result of
+-- >       Nothing ->
+-- >         putStrLn "I don't know that fruit."
+-- >       Just (1, match) ->
+-- >         putStrLn ("You like " <> unpack (Text.toLower match) <> ". Me too!")
+-- >       Just (_, match) ->
+-- >         putStrLn ("Did you mean \"" <> unpack match <> "\"?")
+-- >     repl
+-- >
+-- > main :: IO ()
+-- > main = runDefaultFuzzySetT $ do
+-- >   addMany_ fruits
+-- >   repl
+-- >
+-- > fruits :: [Text]
+-- > fruits = [ "Apple" , "Apricot" , "Avocado" , "Banana" , "Bilberry" , "Blackberry" , "Blackcurrant" , "Blueberry" , "Boysenberry" , "Currant" , "Cherry" , "Cherimoya" , "Chico fruit" , "Cloudberry" , "Coconut" , "Cranberry" , "Cucumber" , "Custard apple" , "Damson" , "Date" , "Dragonfruit" , "Durian" , "Elderberry" , "Feijoa" , "Fig" , "Goji berry" , "Gooseberry" , "Grape" , "Raisin" , "Grapefruit" , "Guava" , "Honeyberry" , "Huckleberry" , "Jabuticaba" , "Jackfruit" , "Jambul" , "Jujube" , "Juniper berry" , "Kiwano" , "Kiwifruit" , "Kumquat" , "Lemon" , "Lime" , "Loquat" , "Longan" , "Lychee" , "Mango" , "Mangosteen" , "Marionberry" , "Melon" , "Cantaloupe" , "Honeydew" , "Watermelon" , "Miracle fruit" , "Mulberry" , "Nectarine" , "Nance" , "Olive" , "Orange" , "Blood orange" , "Clementine" , "Mandarine" , "Tangerine" , "Papaya" , "Passionfruit" , "Peach" , "Pear" , "Persimmon" , "Physalis" , "Plantain" , "Plum" , "Prune" , "Pineapple" , "Plumcot" , "Pomegranate" , "Pomelo" , "Purple mangosteen" , "Quince" , "Raspberry" , "Salmonberry" , "Rambutan" , "Redcurrant" , "Salal berry" , "Salak" , "Satsuma" , "Soursop" , "Star fruit" , "Solanum quitoense" , "Strawberry" , "Tamarillo" , "Tamarind" , "Ugli fruit" , "Yuzu" ]
