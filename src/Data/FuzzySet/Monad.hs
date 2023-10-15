@@ -3,7 +3,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Data.FuzzySet.FuzzySearch
+module Data.FuzzySet.Monad
   ( add
   , add_
   , findMin

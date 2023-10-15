@@ -43,7 +43,7 @@ module Data.FuzzySet
   , isEmpty
   ) where
 
-import Data.FuzzySet.FuzzySearch
+import Data.FuzzySet.Monad
   ( MonadFuzzySearch
   , FuzzySearchT(..)
   , FuzzySearch
@@ -77,8 +77,8 @@ import Data.FuzzySet.FuzzySearch
 -- exposed by `Data.FuzzySet` (see examples below).
 --
 -- The library uses the `Text` type to represent strings. Add the
--- @OverloadedStrings@ pragma to add support for literals of this type. This is
--- used in most of the examples on this page. Then import the default module:
+-- @OverloadedStrings@ pragma to enable support for literals of this type. This
+-- is used in most of the examples on this page. Then import the default module:
 --
 -- > import Data.FuzzySet
 --
@@ -119,6 +119,8 @@ import Data.FuzzySet.FuzzySearch
 --
 -- === Adding IO
 --
+-- The following is an adaptation of the previous example to
+--
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
 -- >
@@ -144,7 +146,7 @@ import Data.FuzzySet.FuzzySearch
 --
 -- > Just "Terminator"
 --
--- To make the search more strict, we can set a custom min score:
+-- To make the search more restrictive, we can set a custom min score:
 --
 -- > findMovie :: Text -> FuzzySearchT IO (Maybe Text)
 -- > findMovie = closestMatchMin 0.8
@@ -153,7 +155,9 @@ import Data.FuzzySet.FuzzySearch
 --
 -- > Nothing
 --
--- === Another example: Favorite fruit repl
+-- === Another example: Favorite fruit
+--
+-- This example is
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
