@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Data.FuzzySet.FuzzySearch
   ( add
@@ -35,6 +36,7 @@ import Control.Monad.State (MonadState, StateT, evalStateT, gets)
 import Control.Monad.Trans (MonadTrans, lift)
 import Control.Monad.Trans.Cont (ContT)
 import Control.Monad.Trans.Maybe (MaybeT)
+import Control.Monad.Trans.Select (SelectT)
 import Control.Monad.Writer (WriterT)
 import Data.FuzzySet.Simple (FuzzySet, FuzzyMatch, emptySet)
 import qualified Data.FuzzySet.Simple as Simple
@@ -139,6 +141,10 @@ instance (MonadFuzzySearch m) => MonadFuzzySearch (MaybeT m) where
   findMin = lift <$$> findMin
 
 instance (MonadFuzzySearch m) => MonadFuzzySearch (ContT r m) where
+  add     = lift . add
+  findMin = lift <$$> findMin
+
+instance (MonadFuzzySearch m, MonadState FuzzySet (SelectT s m)) => MonadFuzzySearch (SelectT s m) where
   add     = lift . add
   findMin = lift <$$> findMin
 
