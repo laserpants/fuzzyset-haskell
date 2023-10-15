@@ -30,10 +30,13 @@ module Data.FuzzySet
   , add
   , add_
   , addMany
+  , addMany_
 
     -- * Lookup
   , find
   , findMin
+  , findOne
+  , findOneMin
   , closestMatchMin
   , closestMatch
 
@@ -46,12 +49,18 @@ module Data.FuzzySet
 import Data.FuzzySet.Monad
   ( FuzzySetMonad
   , FuzzySetT(..)
+  , FuzzySet
   , runDefaultFuzzySetT
   , runFuzzySetT
+  , runFuzzySet
+  , runDefaultFuzzySet
   , add
   , add_
   , addMany
+  , addMany_
   , find
+  , findOne
+  , findOneMin
   , closestMatch
   , findMin
   , closestMatchMin
@@ -59,17 +68,6 @@ import Data.FuzzySet.Monad
   , size
   , values
   )
-
-import Control.Monad.Identity (Identity, runIdentity)
-import Data.FuzzySet.Utils ((<$$$>))
-
-type FuzzySet = FuzzySetT Identity
-
-runFuzzySet :: FuzzySet a -> Int -> Int -> Bool -> a
-runFuzzySet value = runIdentity <$$$> runFuzzySetT value
-
-runDefaultFuzzySet :: FuzzySet a -> a
-runDefaultFuzzySet value = runFuzzySet value 2 3 True
 
 -- $howto
 --

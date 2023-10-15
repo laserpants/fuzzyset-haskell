@@ -51,8 +51,11 @@ data FuzzySet = FuzzySet
   , matchDict      :: !(HashMap Text [GramInfo])
   , items          :: !(HashMap Int (Vector FuzzySetItem))
   , gramSizeLower  :: !Int
+  -- ^ Lower bound on gram sizes to use (inclusive)
   , gramSizeUpper  :: !Int
+  -- ^ Upper bound on gram sizes to use (inclusive)
   , useLevenshtein :: !Bool
+  -- ^ Whether or not to use the Levenshtein distance to determine the score
   } deriving (Eq, Show)
 
 -- | An individual result when looking up a string in the set, consisting of
