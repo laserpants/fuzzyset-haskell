@@ -27,10 +27,11 @@ source-repository head
 library
   exposed-modules:
       Data.FuzzySet
+      Data.FuzzySet.FuzzySearch
       Data.FuzzySet.Internal
-      Data.FuzzySet.Monad
       Data.FuzzySet.Simple
       Data.FuzzySet.Utils
+      Main
   other-modules:
       Paths_fuzzyset
   autogen-modules:

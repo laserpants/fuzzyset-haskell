@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Data.FuzzySet.Monad
+module Data.FuzzySet.FuzzySearch
   ( add
   , add_
   , findMin
@@ -15,13 +15,13 @@ module Data.FuzzySet.Monad
   , closestMatchMin
   , size
   , isEmpty
-  , FuzzySetT (..)
-  , FuzzySet
-  , runFuzzySetT
-  , runDefaultFuzzySetT
-  , runFuzzySet
-  , runDefaultFuzzySet
-  , FuzzySetMonad
+  , FuzzySearchT (..)
+  , FuzzySearch
+  , runFuzzySearchT
+  , runDefaultFuzzySearchT
+  , runFuzzySearch
+  , runDefaultFuzzySearch
+  , MonadFuzzySearch
   ) where
 
 import Control.Monad (void)
@@ -35,26 +35,25 @@ import Control.Monad.Trans.Cont (ContT)
 import Control.Monad.Trans.Maybe (MaybeT)
 import Control.Monad.Trans.Select (SelectT)
 import Control.Monad.Writer (WriterT)
-import Data.FuzzySet.Internal (FuzzyMatch)
-import Data.FuzzySet.Simple (emptySet)
+import Data.FuzzySet.Simple (FuzzySet, FuzzyMatch, emptySet)
 import qualified Data.FuzzySet.Simple as Simple
 import qualified Data.FuzzySet.Internal as FuzzySet
 import Data.FuzzySet.Utils ((<$$$>), (<$$>))
 import Data.Text (Text)
 
--- | FuzzySet monad transformer
-newtype FuzzySetT m a = FuzzySetT {getFuzzySetT :: StateT Simple.FuzzySet m a}
+-- | FuzzySearch monad transformer
+newtype FuzzySearchT m a = FuzzySearchT { getFuzzySearchT :: StateT FuzzySet m a }
   deriving
     ( Functor
     , Applicative
     , Monad
-    , MonadState Simple.FuzzySet
+    , MonadState FuzzySet
     , MonadIO
     )
 
--- | Evaluate a `FuzzySetT` computation with the given options.
-runFuzzySetT :: (Monad m)
-  => FuzzySetT m a
+-- | Evaluate a `FuzzySearchT` computation with the given options.
+runFuzzySearchT :: (Monad m)
+  => FuzzySearchT m a
   -> Int
   -- ^ Lower bound on gram sizes to use (inclusive)
   -> Int
@@ -63,19 +62,19 @@ runFuzzySetT :: (Monad m)
   -- ^ Whether or not to use the Levenshtein distance to determine the score
   -> m a
   -- ^ The result of running the computation in the inner monad
-runFuzzySetT value = evalStateT (getFuzzySetT value) <$$$> emptySet
+runFuzzySearchT value = evalStateT ( getFuzzySearchT value ) <$$$> emptySet
 
--- | Evaluate a `FuzzySetT` computation with the default options. This is a
---   short form for @runFuzzySetT value 2 3 True@.
-runDefaultFuzzySetT :: (Monad m) => FuzzySetT m a -> m a
-runDefaultFuzzySetT value = runFuzzySetT value 2 3 True
+-- | Evaluate a `FuzzySearchT` computation with the default options. This is a
+--   short form for @runFuzzySearchT value 2 3 True@.
+runDefaultFuzzySearchT :: (Monad m) => FuzzySearchT m a -> m a
+runDefaultFuzzySearchT value = runFuzzySearchT value 2 3 True
 
--- | FuzzySet monad
-type FuzzySet = FuzzySetT Identity
+-- | FuzzySearch monad
+type FuzzySearch = FuzzySearchT Identity
 
--- | Evaluate a `FuzzySet` computation with the given options.
-runFuzzySet
-  :: FuzzySet a
+-- | Evaluate a `FuzzySearch` computation with the given options.
+runFuzzySearch
+  :: FuzzySearch a
   -> Int
   -- ^ Lower bound on gram sizes to use (inclusive)
   -> Int
@@ -84,14 +83,14 @@ runFuzzySet
   -- ^ Whether or not to use the Levenshtein distance to determine the score
   -> a
   -- ^ The result of running the computation
-runFuzzySet value = runIdentity <$$$> runFuzzySetT value
+runFuzzySearch value = runIdentity <$$$> runFuzzySearchT value
 
--- | Evaluate a `FuzzySet` computation with the default options. This is a
---   short form for @runFuzzySet value 2 3 True@.
-runDefaultFuzzySet :: FuzzySet a -> a
-runDefaultFuzzySet value = runFuzzySet value 2 3 True
+-- | Evaluate a `FuzzySearch` computation with the default options. This is a
+--   short form for @runFuzzySearch value 2 3 True@.
+runDefaultFuzzySearch :: FuzzySearch a -> a
+runDefaultFuzzySearch value = runFuzzySearch value 2 3 True
 
-class (Monad m) => FuzzySetMonad m where
+class (Monad m) => MonadFuzzySearch m where
   -- | Add a string to the set. A boolean is returned which is @True@ if the
   --   string was inserted, or @False@ if it already existed in the set.
   add     :: Text
@@ -113,52 +112,52 @@ class (Monad m) => FuzzySetMonad m where
   values  :: m [Text]
   _get    :: m Simple.FuzzySet
 
-instance MonadTrans FuzzySetT where
-  lift = FuzzySetT . lift
+instance MonadTrans FuzzySearchT where
+  lift = FuzzySearchT . lift
 
-instance (Monad m) => FuzzySetMonad (FuzzySetT m) where
+instance (Monad m) => MonadFuzzySearch (FuzzySearchT m) where
   add     = FuzzySet.add_
   findMin = gets <$$> Simple.findMin
   values  = gets Simple.values
   _get    = get
 
-instance (FuzzySetMonad m) => FuzzySetMonad (StateT s m) where
+instance (MonadFuzzySearch m) => MonadFuzzySearch (StateT s m) where
   add     = lift . add
   findMin = lift <$$> findMin
   values  = lift values
   _get    = lift _get
 
-instance (FuzzySetMonad m) => FuzzySetMonad (ExceptT e m) where
+instance (MonadFuzzySearch m) => MonadFuzzySearch (ExceptT e m) where
   add     = lift . add
   findMin = lift <$$> findMin
   values  = lift values
   _get    = lift _get
 
-instance (FuzzySetMonad m) => FuzzySetMonad (ReaderT r m) where
+instance (MonadFuzzySearch m) => MonadFuzzySearch (ReaderT r m) where
   add     = lift . add
   findMin = lift <$$> findMin
   values  = lift values
   _get    = lift _get
 
-instance (FuzzySetMonad m, Monoid w) => FuzzySetMonad (WriterT w m) where
+instance (MonadFuzzySearch m, Monoid w) => MonadFuzzySearch (WriterT w m) where
   add     = lift . add
   findMin = lift <$$> findMin
   values  = lift values
   _get    = lift _get
 
-instance (FuzzySetMonad m) => FuzzySetMonad (MaybeT m) where
+instance (MonadFuzzySearch m) => MonadFuzzySearch (MaybeT m) where
   add     = lift . add
   findMin = lift <$$> findMin
   values  = lift values
   _get    = lift _get
 
-instance (FuzzySetMonad m) => FuzzySetMonad (ContT r m) where
+instance (MonadFuzzySearch m) => MonadFuzzySearch (ContT r m) where
   add     = lift . add
   findMin = lift <$$> findMin
   values  = lift values
   _get    = lift _get
 
-instance (FuzzySetMonad m) => FuzzySetMonad (SelectT r m) where
+instance (MonadFuzzySearch m) => MonadFuzzySearch (SelectT r m) where
   add     = lift . add
   findMin = lift <$$> findMin
   values  = lift values
@@ -169,14 +168,14 @@ instance (FuzzySetMonad m) => FuzzySetMonad (SelectT r m) where
 --
 -- This function is identical to 'add', except that the latter returns a
 -- boolean to indicate whether any new value was added.
-add_ :: (FuzzySetMonad m) => Text -> m ()
+add_ :: (MonadFuzzySearch m) => Text -> m ()
 add_ = void . add
 
 -- | Add a list of strings to the set, all at once.
 --
 -- Unless you need to know the subset of values that were actually inserted,
 -- use 'addMany_' instead.
-addMany :: (MonadState Simple.FuzzySet m)
+addMany :: (MonadState FuzzySet m)
   => [Text]
   -- ^ A list of strings to add to the set
   -> m [Text]
@@ -197,7 +196,7 @@ addMany_ = void . addMany
 --   minimum score of 0.33. Return a list of results ordered by similarity
 --   score, with the closest match first. Use 'findMin' if you need to specify
 --   a custom threshold value.
-find :: (FuzzySetMonad m)
+find :: (MonadFuzzySearch m)
   => Text
   -- ^ The string to search for
   -> m [FuzzyMatch]
@@ -206,7 +205,7 @@ find str = Simple.find str <$> _get
 
 -- | Try to match the given string against the entries in the set using the
 --   specified minimum score and return the closest match, if one is found.
-findOneMin :: (FuzzySetMonad m)
+findOneMin :: (MonadFuzzySearch m)
   => Double
   -- ^ A minimum score
   -> Text
@@ -218,7 +217,7 @@ findOneMin minScore str = Simple.findOneMin minScore str <$> _get
 -- | Try to match the given string against the entries in the set, and return
 --   the closest match, if one is found. A minimum score of 0.33 is used. To
 --   specify a custom threshold value, instead use 'findOneMin'.
-findOne :: (FuzzySetMonad m)
+findOne :: (MonadFuzzySearch m)
   => Text
   -- ^ The string to search for
   -> m (Maybe FuzzyMatch)
@@ -228,7 +227,7 @@ findOne str = Simple.findOne str <$> _get
 -- | Try to match the given string against the entries in the set using the
 --   specified minimum score and return the string that most closely matches
 --   the input, if a match is found.
-closestMatchMin :: (FuzzySetMonad m)
+closestMatchMin :: (MonadFuzzySearch m)
   => Double
   -- ^ A minimum score
   -> Text
@@ -241,7 +240,7 @@ closestMatchMin minScore str = Simple.closestMatchMin minScore str <$> _get
 --   the string that most closely matches the input, if a match is found. A
 --   minimum score of 0.33 is used. To specify a custom threshold value,
 --   instead use 'closestMatchMin'.
-closestMatch :: (FuzzySetMonad m)
+closestMatch :: (MonadFuzzySearch m)
   => Text
   -- ^ The string to search for
   -> m (Maybe Text)
@@ -249,9 +248,9 @@ closestMatch :: (FuzzySetMonad m)
 closestMatch str = Simple.closestMatch str <$> _get
 
 -- | Return the number of entries in the set.
-size :: (FuzzySetMonad m) => m Int
+size :: (MonadFuzzySearch m) => m Int
 size = length <$> values
 
 -- | Return a boolean indicating whether the set is empty.
-isEmpty :: (FuzzySetMonad m) => m Bool
+isEmpty :: (MonadFuzzySearch m) => m Bool
 isEmpty = null <$> values

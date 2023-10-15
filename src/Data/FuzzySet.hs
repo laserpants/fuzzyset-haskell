@@ -16,15 +16,16 @@ module Data.FuzzySet
     -- * How to use this library
     -- $howto
 
-    FuzzySet
-  , FuzzySetMonad
-  , runFuzzySet
-  , runDefaultFuzzySet
+    -- * Monad
+    FuzzySearch
+  , MonadFuzzySearch
+  , runFuzzySearch
+  , runDefaultFuzzySearch
 
     -- * Monad transformer
-  , FuzzySetT
-  , runFuzzySetT
-  , runDefaultFuzzySetT
+  , FuzzySearchT
+  , runFuzzySearchT
+  , runDefaultFuzzySearchT
 
     -- * Insertion
   , add
@@ -46,14 +47,14 @@ module Data.FuzzySet
   , isEmpty
   ) where
 
-import Data.FuzzySet.Monad
-  ( FuzzySetMonad
-  , FuzzySetT(..)
-  , FuzzySet
-  , runDefaultFuzzySetT
-  , runFuzzySetT
-  , runFuzzySet
-  , runDefaultFuzzySet
+import Data.FuzzySet.FuzzySearch
+  ( MonadFuzzySearch
+  , FuzzySearchT(..)
+  , FuzzySearch
+  , runDefaultFuzzySearchT
+  , runFuzzySearchT
+  , runFuzzySearch
+  , runDefaultFuzzySearch
   , add
   , add_
   , addMany
@@ -92,7 +93,7 @@ import Data.FuzzySet.Monad
 -- >
 -- > main :: IO ()
 -- > main = do
--- >   let result = runDefaultFuzzySet (findMovie "percolator")
+-- >   let result = runDefaultFuzzySearch (findMovie "percolator")
 -- >   print result
 --
 -- The output of this program is:
@@ -107,10 +108,10 @@ import Data.FuzzySet.Monad
 -- > import Data.Text (Text)
 -- > import Data.FuzzySet
 -- >
--- > findMovie :: Text -> FuzzySetT IO (Maybe Text)
+-- > findMovie :: Text -> FuzzySearchT IO (Maybe Text)
 -- > findMovie = closestMatch
 -- >
--- > prog :: FuzzySetT IO ()
+-- > prog :: FuzzySearchT IO ()
 -- > prog = do
 -- >   add_ "Jurassic Park"
 -- >   add_ "Terminator"
@@ -119,14 +120,14 @@ import Data.FuzzySet.Monad
 -- >   lift (print result)
 -- >
 -- > main :: IO ()
--- > main = runDefaultFuzzySetT prog
+-- > main = runDefaultFuzzySearchT prog
 --
 -- The output of this program is:
 --
 -- > Just "Terminator"
 --
 --
--- > findMovie :: Text -> FuzzySetT IO (Maybe Text)
+-- > findMovie :: Text -> FuzzySearchT IO (Maybe Text)
 -- > findMovie = closestMatchMin 0.8
 --
 -- The output is now:
@@ -145,7 +146,7 @@ import Data.FuzzySet.Monad
 -- > import Data.Text (Text, pack, unpack)
 -- > import qualified Data.Text as Text
 -- >
--- > repl :: FuzzySetT IO ()
+-- > repl :: FuzzySearchT IO ()
 -- > repl = do
 -- >   str <- liftIO $ do
 -- >     putStrLn "Enter your favorite fruit below, or type \".exit\"."
@@ -163,7 +164,7 @@ import Data.FuzzySet.Monad
 -- >     repl
 -- >
 -- > main :: IO ()
--- > main = runDefaultFuzzySetT $ do
+-- > main = runDefaultFuzzySearchT $ do
 -- >   addMany_ fruits
 -- >   repl
 -- >
