@@ -76,10 +76,13 @@ import Data.FuzzySet.Monad
 -- therefore recommended to use the default API and the t'FuzzySearch' monad
 -- exposed by "Data.FuzzySet" (see below for more examples).
 --
--- > findJoopiter :: (MonadIO m, MonadFuzzySearch m) => m ()
--- > findJoopiter = do
+-- > findPlanet :: (MonadIO m, MonadFuzzySearch m) => Text -> m ()
+-- > findPlanet planetName = do
 -- >   addMany_ [ "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" ]
--- >   findOne "Joopiter" >>= liftIO . print
+-- >   findOne planetName >>= liftIO . print
+--
+-- >>> runDefaultFuzzySearchT (findPlanet "Joopiter")
+-- Just (0.75,"Jupiter")
 --
 -- Note that all strings are represented as [text](https://hackage.haskell.org/package/text)
 -- values. Examples on this page use the @OverloadedStrings@ language extension
@@ -106,7 +109,7 @@ import Data.FuzzySet.Monad
 -- > module Main where
 -- >
 -- > import Data.Text (Text)
--- > import Data.FuzzySet (FuzzySearch, add_, closestMatch)
+-- > import Data.FuzzySet (FuzzySearch, add_, closestMatch, runDefaultFuzzySearch)
 -- >
 -- > findMovie :: Text -> FuzzySearch (Maybe Text)
 -- > findMovie title = do
