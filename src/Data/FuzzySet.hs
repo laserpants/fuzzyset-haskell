@@ -120,7 +120,7 @@ import Data.FuzzySet.Monad
 -- >
 -- > main :: IO ()
 -- > main = do
--- >   let result = runDefaultFuzzySearch (findMovie "percolator")
+-- >   let result = runDefaultFuzzySearch (findMovie "The Percolator")
 -- >   print result
 --
 -- The output of this program is:
@@ -137,7 +137,7 @@ import Data.FuzzySet.Monad
 -- >
 -- > import Control.Monad.Trans.Class (lift)
 -- > import Data.Text (Text)
--- > import Data.FuzzySet
+-- > import Data.FuzzySet (FuzzySearchT, add_, closestMatch, runDefaultFuzzySearchT)
 -- >
 -- > findMovie :: Text -> FuzzySearchT IO (Maybe Text)
 -- > findMovie = closestMatch
@@ -147,7 +147,7 @@ import Data.FuzzySet.Monad
 -- >   add_ "Jurassic Park"
 -- >   add_ "Terminator"
 -- >   add_ "The Matrix"
--- >   result <- findMovie "percolator"
+-- >   result <- findMovie "The Percolator"
 -- >   lift (print result)
 -- >
 -- > main :: IO ()

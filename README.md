@@ -17,20 +17,23 @@ Refer to the [Haddock docs](http://hackage.haskell.org/package/fuzzyset) for det
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
-module Main where
+module Main where                                                               ```
 
+import Control.Monad.Trans.Class (lift)
 import Data.Text (Text)
-import Data.FuzzySet (FuzzySearch, add_, closestMatch, runDefaultFuzzySearch)
+import Data.FuzzySet (FuzzySearchT, add_, closestMatch, runDefaultFuzzySearchT)
 
-findMovie :: Text -> FuzzySearch (Maybe Text)
-findMovie title = do
+findMovie :: Text -> FuzzySearchT IO (Maybe Text)
+findMovie = closestMatch
+
+prog :: FuzzySearchT IO ()
+prog = do
   add_ "Jurassic Park"
   add_ "Terminator"
   add_ "The Matrix"
-  closestMatch title
+  result <- findMovie "The Percolator"
+  lift (print result)
 
 main :: IO ()
-main = do
-  let result = runDefaultFuzzySearch (findMovie "The Percolator")
-  print result
+main = runDefaultFuzzySearchT prog
 ```
