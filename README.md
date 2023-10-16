@@ -1,5 +1,6 @@
 # fuzzyset-haskell
 
+[![Haskell CI](https://github.com/laserpants/fuzzyset-haskell/actions/workflows/haskell.yml/badge.svg)](https://github.com/laserpants/fuzzyset-haskell/actions/workflows/haskell.yml)
 [![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Language](https://img.shields.io/badge/language-Haskell-yellow.svg)](https://www.haskell.org/)
 [![Hackage](https://img.shields.io/hackage/v/fuzzyset.svg)](http://hackage.haskell.org/package/fuzzyset)
