@@ -9,7 +9,7 @@
 --
 module Data.FuzzySet
   (
-    -- * How to use this library
+    -- * Getting started
     -- $howto
 
     -- * FuzzySearch monad
@@ -71,27 +71,34 @@ import Data.FuzzySet.Monad
 -- This library provides two similar, but independent APIs. The `Data.FuzzySet.Simple`
 -- module offers a simpler (pure) interface for working with the `FuzzySet` data
 -- structure directly (similar to earlier versions of the library). A
--- disadvantage of this approach is that it scales poorly in code that involves
+-- disadvantage of this approach is that it scales poorly when the code involves
 -- IO, and possibly other effects. For most real-world use cases, it is
 -- therefore recommended to use the default API and the `FuzzySearch` monad
--- exposed by `Data.FuzzySet` (see examples below).
+-- exposed by `Data.FuzzySet` (see more examples below).
 --
--- The library uses the `Text` type to represent strings. Add the
--- @OverloadedStrings@ pragma to enable support for literals of this type. This
--- is used in most of the examples on this page. Then import the default module:
+-- > findJoopiter :: (MonadIO m, MonadFuzzySearch m) => m ()
+-- > findJoopiter = do
+-- >   addMany_ [ "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" ]
+-- >   findOne "Joopiter" >>= liftIO . print
+--
+-- The library depends on the `Text` package for efficient string representation.
+-- Most of the examples on this page use the @OverloadedStrings@ language
+-- extension to enable support for generalized string literals.
+--
+-- Import the main module:
 --
 -- > import Data.FuzzySet
 --
 -- There are three types of operations:
 --
---   * __Insertion:__ To add entries to the set, use `add`, `add_`, `addMany`, and `addMany_`.
---   * __Lookup:__ To match a string against the values of the set, use `find`, `findMin`, `findOne`, `findOneMin`, `closestMatchMin`, and `closestMatch`.
+--   * __Insertion:__ For adding entries to the set, see `add`, `add_`, `addMany`, and `addMany_`.
+--   * __Lookup:__ To match a string against all values of the set, use `find`, `findMin`, `findOne`, `findOneMin`, `closestMatchMin`, and `closestMatch`.
 --   * __Inspection:__ The function `values` returns all strings currently in the set. `size` and `isEmpty` are mostly self-explanatory.
 --
--- Finally use `runFuzzySearch`, `runDefaultFuzzySearch`, `runFuzzySearchT`, or `runDefaultFuzzySearchT`
+-- Finally, use `runFuzzySearch`, `runDefaultFuzzySearch`, `runFuzzySearchT`, or `runDefaultFuzzySearchT`
 -- to get the result of the computation.
 --
--- === Movie title search example
+-- === Simple search example
 --
 -- The following is a simple program to serve as a 'Hello World' example:
 --
@@ -99,7 +106,7 @@ import Data.FuzzySet.Monad
 -- > module Main where
 -- >
 -- > import Data.Text (Text)
--- > import Data.FuzzySet
+-- > import Data.FuzzySet (FuzzySearch, add_, closestMatch)
 -- >
 -- > findMovie :: Text -> FuzzySearch (Maybe Text)
 -- > findMovie title = do
@@ -142,10 +149,6 @@ import Data.FuzzySet.Monad
 -- > main :: IO ()
 -- > main = runDefaultFuzzySearchT prog
 --
--- The output of this program is:
---
--- > Just "Terminator"
---
 -- To make the search more restrictive, we can set a custom min score:
 --
 -- > findMovie :: Text -> FuzzySearchT IO (Maybe Text)
@@ -157,7 +160,7 @@ import Data.FuzzySet.Monad
 --
 -- === Another example: Favorite fruit
 --
--- This example is
+-- This example shows how to perform fuzzy search
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
