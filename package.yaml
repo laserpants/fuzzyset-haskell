@@ -1,5 +1,5 @@
 name:                fuzzyset
-version:             0.3.0
+version:             0.3.1
 synopsis:            Fuzzy set data structure for approximate string matching
 github:              laserpants/fuzzyset-haskell
 license:             BSD-3-Clause
