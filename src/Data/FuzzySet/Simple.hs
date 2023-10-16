@@ -11,11 +11,11 @@
 --
 module Data.FuzzySet.Simple
   (
-    -- * A note about the Simple API
+    -- * A note about the simple API
     --
     -- | This module exposes a /pure/, simpler API for working with fuzzy sets.
     --   If you anticipate using the fuzzy search functionality in multiple
-    --   places of your application, consider using the default Monadic
+    --   places of your application, consider using the default monadic
     --   interface in 'Data.FuzzySet'.
 
     -- * How to use this module
