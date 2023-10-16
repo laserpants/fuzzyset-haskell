@@ -68,8 +68,11 @@ runFuzzySearchT :: (Monad m)
   -- ^ The result of running the computation in the inner monad
 runFuzzySearchT value = evalStateT ( getFuzzySearchT value ) <$$$> emptySet
 
--- | Evaluate a `FuzzySearchT` computation with the default options. This is a
---   short form for @runFuzzySearchT value 2 3 True@.
+-- | Evaluate a `FuzzySearchT` computation with the following defaults:
+--
+--   * Gram size lower: @2@
+--   * Gram size upper: @3@
+--   * Use Levenshtein distance: @True@
 runDefaultFuzzySearchT :: (Monad m) => FuzzySearchT m a -> m a
 runDefaultFuzzySearchT value = runFuzzySearchT value 2 3 True
 
@@ -89,8 +92,11 @@ runFuzzySearch
   -- ^ The result of running the computation
 runFuzzySearch value = runIdentity <$$$> runFuzzySearchT value
 
--- | Evaluate a `FuzzySearch` computation with the default options. This is a
---   short form for @runFuzzySearch value 2 3 True@.
+-- | Evaluate a `FuzzySearch` computation with the following defaults:
+--
+--   * Gram size lower: @2@
+--   * Gram size upper: @3@
+--   * Use Levenshtein distance: @True@
 runDefaultFuzzySearch :: FuzzySearch a -> a
 runDefaultFuzzySearch value = runFuzzySearch value 2 3 True
 

@@ -68,35 +68,35 @@ import Data.FuzzySet.Monad
 
 -- $howto
 --
--- This library provides two similar, but independent APIs. The `Data.FuzzySet.Simple`
--- module offers a simpler (pure) interface for working with the `FuzzySet` data
+-- This library provides two similar, but independent APIs. The "Data.FuzzySet.Simple"
+-- module offers a simpler (pure) interface for working with the t'FuzzySet' data
 -- structure directly (similar to earlier versions of the library). A
 -- disadvantage of this approach is that it scales poorly when the code involves
 -- IO, and possibly other effects. For most real-world use cases, it is
--- therefore recommended to use the default API and the `FuzzySearch` monad
--- exposed by `Data.FuzzySet` (see more examples below).
+-- therefore recommended to use the default API and the t'FuzzySearch' monad
+-- exposed by "Data.FuzzySet" (see below for more examples).
 --
 -- > findJoopiter :: (MonadIO m, MonadFuzzySearch m) => m ()
 -- > findJoopiter = do
 -- >   addMany_ [ "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" ]
 -- >   findOne "Joopiter" >>= liftIO . print
 --
--- The library depends on the `Text` package for efficient string representation.
--- Most of the examples on this page use the @OverloadedStrings@ language
--- extension to enable support for generalized string literals.
+-- Note that all strings are represented as [text](https://hackage.haskell.org/package/text)
+-- values. Examples on this page use the @OverloadedStrings@ language extension
+-- to allow string literals to be translated into this representation form.
 --
 -- Import the main module:
 --
 -- > import Data.FuzzySet
 --
--- There are three types of operations:
+-- Fuzzy search involves three types of operations:
 --
 --   * __Insertion:__ For adding entries to the set, see `add`, `add_`, `addMany`, and `addMany_`.
 --   * __Lookup:__ To match a string against all values of the set, use `find`, `findMin`, `findOne`, `findOneMin`, `closestMatchMin`, and `closestMatch`.
 --   * __Inspection:__ The function `values` returns all strings currently in the set. `size` and `isEmpty` are mostly self-explanatory.
 --
 -- Finally, use `runFuzzySearch`, `runDefaultFuzzySearch`, `runFuzzySearchT`, or `runDefaultFuzzySearchT`
--- to get the result of the computation.
+-- to get the result of the computation from the monad.
 --
 -- === Simple search example
 --
@@ -126,7 +126,8 @@ import Data.FuzzySet.Monad
 --
 -- === Adding IO
 --
--- The following is an adaptation of the previous example to
+-- Changing the previous example to instead use the `FuzzySearchT` transformer,
+-- we can combine the search monad with IO and other effects.
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
@@ -159,8 +160,6 @@ import Data.FuzzySet.Monad
 -- > Nothing
 --
 -- === Another example: Favorite fruit
---
--- This example shows how to perform fuzzy search
 --
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- > module Main where
