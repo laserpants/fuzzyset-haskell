@@ -86,7 +86,7 @@ import Data.FuzzySet.Monad
 --
 -- Note that all strings are represented as [text](https://hackage.haskell.org/package/text)
 -- values. Examples on this page use the @OverloadedStrings@ language extension
--- to allow string literals to be translated into this representation form.
+-- to allow string literals to be translated to this representation form.
 --
 -- Import the main module:
 --
