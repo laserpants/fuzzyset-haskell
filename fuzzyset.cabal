@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -40,12 +40,12 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , mtl >=2.2.2 && <2.4.0
-    , text >=2.0.2 && <2.1.0
-    , text-metrics >=0.3.2 && <0.4.0
-    , transformers >=0.5.6.2 && <0.7.0.0
-    , unordered-containers >=0.2.19.1 && <0.3.0.0
-    , vector >=0.13.0.0 && <0.14.0.0
+    , mtl >=2.2.2 && <2.5
+    , text >=2.0.2 && <2.2
+    , text-metrics >=0.3.2 && <0.5
+    , transformers >=0.5.6.2 && <0.8
+    , unordered-containers >=0.2.19.1 && <0.4
+    , vector >=0.13.0.0 && <0.15
   default-language: Haskell2010
 
 test-suite fuzzyset-test
@@ -64,10 +64,10 @@ test-suite fuzzyset-test
     , fuzzyset
     , hspec >=2.10.10 && <2.12
     , ieee754 >=0.8.0 && <0.9
-    , mtl >=2.2.2 && <2.4.0
-    , text >=2.0.2 && <2.1.0
-    , text-metrics >=0.3.2 && <0.4.0
-    , transformers >=0.5.6.2 && <0.7.0.0
-    , unordered-containers >=0.2.19.1 && <0.3.0.0
-    , vector >=0.13.0.0 && <0.14.0.0
+    , mtl >=2.2.2 && <2.5
+    , text >=2.0.2 && <2.2
+    , text-metrics >=0.3.2 && <0.5
+    , transformers >=0.5.6.2 && <0.8
+    , unordered-containers >=0.2.19.1 && <0.4
+    , vector >=0.13.0.0 && <0.15
   default-language: Haskell2010
